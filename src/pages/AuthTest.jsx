@@ -10,19 +10,19 @@ export default function AuthTest() {
   const [message, setMessage] = useState("");
   const navigate = useNavigate()
 
-  const handleSignUp = async () => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+  // const handleSignUp = async () => {
+  //   const { data, error } = await supabase.auth.signUp({
+  //     email,
+  //     password,
+  //   });
 
-    if (error) {
-      setMessage(`Error: ${error.message}`);
-    } else {
-      setMessage("Check your email maybe");
-      console.log("User:", data);
-    }
-  };
+  //   if (error) {
+  //     setMessage(`Error: ${error.message}`);
+  //   } else {
+  //     setMessage("Check your email maybe");
+  //     console.log("User:", data);
+  //   }
+  // };
 
   const handleSignIn = async () => {
     const { error } = await supabase.auth.signInWithPassword({
@@ -59,9 +59,9 @@ export default function AuthTest() {
           style={{ display: 'block', marginBottom: '10px', padding: '8px', width: '100%' }}
         />
         
-        <button onClick={handleSignUp} style={{ marginRight: '10px', padding: '8px 16px' }}>
+        {/* <button onClick={handleSignUp} style={{ marginRight: '10px', padding: '8px 16px' }}>
           Sign Up
-        </button>
+        </button> */}
         <button onClick={handleSignIn} style={{ padding: '8px 16px' }}>
           Sign In
         </button>
