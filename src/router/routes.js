@@ -1,4 +1,6 @@
 export const ROUTE = {
-    main: '/main',
-    login: '/login'
+  dashboard: '/',
+  login: '/login',
+  ticket: '/ticket',
+  history: '/history',
 };
