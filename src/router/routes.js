@@ -1,5 +1,6 @@
 export const ROUTE = {
-  dashboard: '/',
+  customerDashboard: '/dashboard/customer',
+  agentDashboard: '/dashboard/csAgent',
   login: '/login',
   ticket: '/ticket',
   history: '/history',

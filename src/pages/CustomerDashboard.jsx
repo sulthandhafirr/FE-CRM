@@ -2,12 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { ROUTE } from "../router/routes";
-import { useAuth } from "../hooks/useAuth";
+// import { useAuth } from "../hooks/useAuth";
 import { MdDashboard, MdConfirmationNumber, MdHistory, MdPerson, MdLogout, MdChat } from 'react-icons/md';
 import ChatBot from '../components/ChatBot';
 
-export default function Dashboard() {
-  const { user } = useAuth();
+export default function CustomerDashboard() {
+  // const { user } = useAuth();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeMenu, setActiveMenu] = useState('dashboard');

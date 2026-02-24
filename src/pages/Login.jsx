@@ -39,7 +39,7 @@ export default function Login() {
       setCurrentImageIndex((prev) => (prev + 1) % images.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  });
 
   const handleSignIn = async (e) => {
     e.preventDefault();
@@ -283,7 +283,7 @@ export default function Login() {
               color: '#718096',
               fontSize: '13px'
             }}>
-              Please enter your User ID, Password and Company ID
+              Please enter your Email, Password and Company ID
             </p>
           </div>
 
@@ -297,11 +297,11 @@ export default function Login() {
                 fontWeight: '600',
                 color: '#374151'
               }}>
-                User id
+                Email
               </label>
               <input
                 type="email"
-                placeholder="Please enter your user ID."
+                placeholder="Please enter your email."
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
