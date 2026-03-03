@@ -77,7 +77,7 @@ export default function CustomerDashboard() {
 
           {/* Ticket */}
           <div
-            onClick={() => navigate(ROUTE.ticket)}
+            onClick={() => navigate(ROUTE.customerTicket)}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -108,7 +108,7 @@ export default function CustomerDashboard() {
 
           {/* History */}
           <div
-            onClick={() => navigate(ROUTE.history)}
+            onClick={() => navigate(ROUTE.customerHistory)}
             style={{
               display: 'flex',
               alignItems: 'center',

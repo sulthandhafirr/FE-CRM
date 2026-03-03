@@ -1,28 +1,30 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { ROUTE } from './routes';
-import { useAuth } from '../hooks/useAuth';
-import Login from '../pages/Login';
-import CustomerDashboard from '../pages/CustomerDashboard';
-import CsAgentDashboard from '../pages/CsAgentDashboard';
+import { Routes, Route, Navigate } from "react-router-dom";
+import { ROUTE } from "./routes";
+import { useAuth } from "../hooks/useAuth";
+import Login from "../pages/Login";
+import CustomerDashboard from "../pages/CustomerDashboard";
+import CsAgentDashboard from "../pages/CsAgentDashboard";
 // import TechnicianDashboard from '../pages/TechnicianDashboard';
 // import AdminDashboard from '../pages/AdminDashboard';
-import Ticket from '../pages/Ticket';
-import History from '../pages/History';
-import LoadingSpinner from '../components/common/LoadingSpinner';
+import CustomerTicket from "../pages/CustomerTicket";
+import CustomerHistory from "../pages/CustomerHistory";
+import CsAgentTicket from "../pages/CsAgentTicket";
+import LoadingSpinner from "../components/common/LoadingSpinner";
 
 function ProtectedRoute({ children, allowedRoles }) {
   const { user, role, loading } = useAuth();
 
   if (loading || (user && role === null)) return <LoadingSpinner />;
   if (!user) return <Navigate to={ROUTE.login} />;
-  if (allowedRoles && !allowedRoles.includes(role)) return <Navigate to={ROUTE.login} />;
+  if (allowedRoles && !allowedRoles.includes(role))
+    return <Navigate to={ROUTE.login} />;
 
   return children;
 }
 
 const getRoleRoute = (role) => {
   // if (role === 'admin') return ROUTE.adminDashboard;
-  if (role === 'cs_agent') return ROUTE.agentDashboard;
+  if (role === "cs_agent") return ROUTE.agentDashboard;
   // if (role === 'technician') return ROUTE.technicianDashboard;
   return ROUTE.customerDashboard;
 };
@@ -35,33 +37,54 @@ export default function Router() {
   return (
     <Routes>
       {/* Public Route */}
-      <Route path={ROUTE.login} element={
-        user ? <Navigate to={getRoleRoute(role)} /> : <Login />
-      } />
+      <Route
+        path={ROUTE.login}
+        element={user ? <Navigate to={getRoleRoute(role)} /> : <Login />}
+      />
 
       {/* Customer Routes */}
-      <Route path={ROUTE.customerDashboard} element={
-        <ProtectedRoute allowedRoles={['customer']}>
-          <CustomerDashboard />
-        </ProtectedRoute>
-      } />
-      <Route path={ROUTE.ticket} element={
-        <ProtectedRoute allowedRoles={['customer']}>
-          <Ticket />
-        </ProtectedRoute>
-      } />
-      <Route path={ROUTE.history} element={
-        <ProtectedRoute allowedRoles={['customer']}>
-          <History />
-        </ProtectedRoute>
-      } />
+      <Route
+        path={ROUTE.customerDashboard}
+        element={
+          <ProtectedRoute allowedRoles={["customer"]}>
+            <CustomerDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path={ROUTE.customerTicket}
+        element={
+          <ProtectedRoute allowedRoles={["customer"]}>
+            <CustomerTicket />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path={ROUTE.customerHistory}
+        element={
+          <ProtectedRoute allowedRoles={["customer"]}>
+            <CustomerHistory />
+          </ProtectedRoute>
+        }
+      />
 
       {/* Agent Routes */}
-      <Route path={ROUTE.agentDashboard} element={
-        <ProtectedRoute allowedRoles={['cs_agent']}>
-          <CsAgentDashboard />
-        </ProtectedRoute>
-      } />
+      <Route
+        path={ROUTE.agentDashboard}
+        element={
+          <ProtectedRoute allowedRoles={["cs_agent"]}>
+            <CsAgentDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path={ROUTE.agentTicket}
+        element={
+          <ProtectedRoute allowedRoles={["cs_agent"]}>
+            <CsAgentTicket />
+          </ProtectedRoute>
+        }
+      />
 
       {/* UNCOMMAND HERE */}
 
@@ -80,9 +103,10 @@ export default function Router() {
       } /> */}
 
       {/* Wildcard */}
-      <Route path="*" element={
-        <Navigate to={user ? getRoleRoute(role) : ROUTE.login} />
-      } />
+      <Route
+        path="*"
+        element={<Navigate to={user ? getRoleRoute(role) : ROUTE.login} />}
+      />
     </Routes>
   );
 }

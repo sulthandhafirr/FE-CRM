@@ -6,7 +6,7 @@ import { MdDashboard, MdConfirmationNumber, MdHistory, MdPerson, MdLogout, MdCha
 import { FaRobot, FaUserTie, FaHeadset } from 'react-icons/fa';
 import ChatBot from '../components/ChatBot';
 
-export default function History() {
+export default function CustomerHistory() {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeMenu, setActiveMenu] = useState('history');
@@ -107,7 +107,7 @@ export default function History() {
           transition: 'all 0.3s',
           cursor: 'pointer'
         }}
-        onClick={() => navigate(ROUTE.dashboard)}
+        onClick={() => navigate(ROUTE.customerDashboard)}
         >
           {sidebarOpen ? 'crm.' : 'c.'}
         </div>
@@ -116,7 +116,7 @@ export default function History() {
         <div style={{ flex: 1, padding: '10px' }}>
           {/* Dashboard */}
           <div
-            onClick={() => navigate(ROUTE.dashboard)}
+            onClick={() => navigate(ROUTE.customerDashboard)}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -139,7 +139,7 @@ export default function History() {
 
           {/* Ticket */}
           <div
-            onClick={() => navigate('/ticket')}
+            onClick={() => navigate(ROUTE.customerTicket)}
             style={{
               display: 'flex',
               alignItems: 'center',
