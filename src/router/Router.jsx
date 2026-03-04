@@ -1,17 +1,18 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { ROUTE } from "./routes";
 import { useAuth } from "../hooks/useAuth";
+import MainLayout from "../components/layout/MainLayout";
 import Login from "../pages/Login";
-import CustomerDashboard from "../pages/CustomerDashboard";
-import CsAgentDashboard from "../pages/CsAgentDashboard";
+import CustomerDashboard from "../pages/customer/CustomerDashboard";
+import CsAgentDashboard from "../pages/cs-agent/CsAgentDashboard";
 // import TechnicianDashboard from '../pages/TechnicianDashboard';
 // import AdminDashboard from '../pages/AdminDashboard';
-import CustomerTicket from "../pages/CustomerTicket";
-import CustomerHistory from "../pages/CustomerHistory";
-import CsAgentTicket from "../pages/CsAgentTicket";
+import CustomerTicket from "../pages/customer/CustomerTicket";
+import CustomerHistory from "../pages/customer/CustomerHistory";
+import CsAgentTicket from "../pages/cs-agent/CsAgentTicket";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 
-function ProtectedRoute({ children, allowedRoles }) {
+function ProtectedRoute({ allowedRoles }) {
   const { user, role, loading } = useAuth();
 
   if (loading || (user && role === null)) return <LoadingSpinner />;
@@ -19,7 +20,7 @@ function ProtectedRoute({ children, allowedRoles }) {
   if (allowedRoles && !allowedRoles.includes(role))
     return <Navigate to={ROUTE.login} />;
 
-  return children;
+  return <Outlet />;
 }
 
 const getRoleRoute = (role) => {
@@ -43,64 +44,39 @@ export default function Router() {
       />
 
       {/* Customer Routes */}
-      <Route
-        path={ROUTE.customerDashboard}
-        element={
-          <ProtectedRoute allowedRoles={["customer"]}>
-            <CustomerDashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path={ROUTE.customerTicket}
-        element={
-          <ProtectedRoute allowedRoles={["customer"]}>
-            <CustomerTicket />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path={ROUTE.customerHistory}
-        element={
-          <ProtectedRoute allowedRoles={["customer"]}>
-            <CustomerHistory />
-          </ProtectedRoute>
-        }
-      />
+      <Route element={<ProtectedRoute allowedRoles={["customer"]} />}>
+        <Route element={<MainLayout />}>
+          <Route path={ROUTE.customerDashboard} element={<CustomerDashboard />} />
+          <Route path={ROUTE.customerTicket} element={<CustomerTicket />} />
+          <Route path={ROUTE.customerHistory} element={<CustomerHistory />} />
+        </Route>
+      </Route>
 
       {/* Agent Routes */}
-      <Route
-        path={ROUTE.agentDashboard}
-        element={
-          <ProtectedRoute allowedRoles={["cs_agent"]}>
-            <CsAgentDashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path={ROUTE.agentTicket}
-        element={
-          <ProtectedRoute allowedRoles={["cs_agent"]}>
-            <CsAgentTicket />
-          </ProtectedRoute>
-        }
-      />
+      <Route element={<ProtectedRoute allowedRoles={["cs_agent"]} />}>
+        <Route element={<MainLayout />}>
+          <Route path={ROUTE.agentDashboard} element={<CsAgentDashboard />} />
+          <Route path={ROUTE.agentTicket} element={<CsAgentTicket />} />
+        </Route>
+      </Route>
 
       {/* UNCOMMAND HERE */}
 
       {/* Technician Routes */}
-      {/* <Route path={ROUTE.technicianDashboard} element={
-        <ProtectedRoute allowedRoles={['technician']}>
-          <TechnicianDashboard />
-        </ProtectedRoute>
-      } /> */}
+      {/* <Route element={<ProtectedRoute allowedRoles={["technician"]} />}>
+        <Route element={<MainLayout />}>
+          <Route path={ROUTE.technicianDashboard} element={<technicianDashboard />} />
+          <Route path={ROUTE.technicianTicket} element={<technicianTicket />} />
+        </Route>
+      </Route> */}
 
       {/* Admin Routes */}
-      {/* <Route path={ROUTE.adminDashboard} element={
-        <ProtectedRoute allowedRoles={['admin']}>
-          <AdminDashboard />
-        </ProtectedRoute>
-      } /> */}
+      {/* <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+        <Route element={<MainLayout />}>
+          <Route path={ROUTE.adminDashboard} element={<adminDashboard />} />
+          <Route path={ROUTE.adminTicket} element={<adminTicket />} />
+        </Route>
+      </Route> */}
 
       {/* Wildcard */}
       <Route
