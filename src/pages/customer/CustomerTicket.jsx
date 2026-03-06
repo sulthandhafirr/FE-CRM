@@ -87,9 +87,12 @@ export default function CustomerTicket() {
           alignItems: "center",
           justifyContent: "space-between",
           boxShadow: "0 2px 5px rgba(0,0,0,0.05)",
+          height: "70px"
         }}
       >
         <SearchBar />
+
+        {/* FORM  */}
         {!showCreateForm && (
           <button
             onClick={() => setShowCreateForm(true)}
@@ -101,7 +104,6 @@ export default function CustomerTicket() {
               borderRadius: "8px",
               fontWeight: "600",
               cursor: "pointer",
-              margin: "0 20px",
             }}
           >
             Create Ticket +
