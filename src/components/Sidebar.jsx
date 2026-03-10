@@ -9,6 +9,8 @@ import {
   MdLogout,
 } from "react-icons/md";
 import { supabase } from "../lib/supabase";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 
 const roleMenuItems = {
   customer: [
@@ -210,11 +212,11 @@ export default function Sidebar({
         onClick={() => setSidebarOpen(!sidebarOpen)}
         style={{
           position: "absolute",
-          right: "-12px",
+          right: "-15px",
           top: "50%",
           transform: "translateY(-50%)",
-          width: "24px",
-          height: "24px",
+          width: "28px",
+          height: "28px",
           borderRadius: "50%",
           background: "#FF8040",
           border: "none",
@@ -226,7 +228,11 @@ export default function Sidebar({
           fontSize: "14px",
         }}
       >
-        {sidebarOpen ? "‹" : "›"}
+        {sidebarOpen ? (
+          <ChevronLeftIcon fontSize="small" />
+        ) : (
+          <ChevronRightIcon fontSize="small" />
+        )}
       </button>
     </div>
   );
