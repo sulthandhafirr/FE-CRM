@@ -1,19 +1,30 @@
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { MdChat } from "react-icons/md";
+import {
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  TableSortLabel,
+} from "@mui/material";
 import ChatBot from "../../components/ChatBot";
+import CreateTicketModal from "./CreateTicketModal";
 import SearchBar from "../../components/SearchBar";
 import { api } from "../../services/http";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
 
 export default function CustomerTicket() {
   const [chatOpen, setChatOpen] = useState(false);
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [formData, setFormData] = useState({
-    subject: "",
-    description: "",
-  });
-
-  const queryClient = useQueryClient();
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [orderBy, setOrderBy] = useState("createdAt");
+  const [order, setOrder] = useState("desc");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const { data: tickets = [], isLoading: loading } = useQuery({
     queryKey: ["my-tickets"],
@@ -26,33 +37,9 @@ export default function CustomerTicket() {
     refetchOnMount: false, // don't refetch on component remount
   });
 
-  const createTicket = useMutation({
-    mutationFn: async (data) => {
-      await api.post("/api/tickets", data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(["my-tickets"]);
-      alert("Ticket created successfully!");
-      setFormData({ subject: "", description: "" });
-      setShowCreateForm(false);
-    },
-    onError: (error) => {
-      console.error("Insert Error:", error);
-      alert(error.message);
-    },
-  });
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    createTicket.mutate({
-      subject: formData.subject,
-      description: formData.description,
-    });
-  };
-
   const getStatusColor = (status) => {
     switch (status) {
-      case "Progress":
+      case "On Progress":
         return "#FF8040";
       case "Waiting":
         return "#f59e0b";
@@ -64,12 +51,68 @@ export default function CustomerTicket() {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("id-ID", {
+    return new Date(dateString).toLocaleDateString("en-ID", {
       day: "2-digit",
       month: "long",
       year: "numeric",
     });
   };
+
+  const handleRequestSort = (property) => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
+    setPage(0);
+  };
+
+  const handleChangePage = (_, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const sortedTickets = useMemo(() => {
+    return [...tickets].sort((a, b) => {
+      let aValue = a[orderBy];
+      let bValue = b[orderBy];
+
+      if (orderBy === "createdAt") {
+        aValue = new Date(aValue).getTime();
+        bValue = new Date(bValue).getTime();
+      }
+
+      if (orderBy === "id") {
+        aValue = Number(aValue);
+        bValue = Number(bValue);
+      }
+
+      if (aValue === null || aValue === undefined) aValue = "";
+      if (bValue === null || bValue === undefined) bValue = "";
+
+      if (typeof aValue === "string") aValue = aValue.toLowerCase();
+      if (typeof bValue === "string") bValue = bValue.toLowerCase();
+
+      if (aValue < bValue) return order === "asc" ? -1 : 1;
+      if (aValue > bValue) return order === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [tickets, order, orderBy]);
+
+  const safePage = useMemo(() => {
+    const maxPage = Math.max(
+      0,
+      Math.ceil(sortedTickets.length / rowsPerPage) - 1,
+    );
+    return Math.min(page, maxPage);
+  }, [page, rowsPerPage, sortedTickets.length]);
+
+  const paginatedTickets = useMemo(() => {
+    const start = safePage * rowsPerPage;
+    return sortedTickets.slice(start, start + rowsPerPage);
+  }, [rowsPerPage, safePage, sortedTickets]);
 
   return (
     <div
@@ -87,269 +130,184 @@ export default function CustomerTicket() {
           alignItems: "center",
           justifyContent: "space-between",
           boxShadow: "0 2px 5px rgba(0,0,0,0.05)",
-          height: "70px"
+          height: "70px",
         }}
       >
         <SearchBar />
 
-        {/* FORM  */}
-        {!showCreateForm && (
-          <button
-            onClick={() => setShowCreateForm(true)}
-            style={{
-              background: "#FF8040",
-              color: "white",
-              border: "none",
-              padding: "10px 25px",
-              borderRadius: "8px",
-              fontWeight: "600",
-              cursor: "pointer",
-            }}
-          >
-            Create Ticket +
-          </button>
-        )}
+        <button
+          onClick={() => setCreateModalOpen(true)}
+          style={{
+            background: "#FF8040",
+            color: "white",
+            border: "none",
+            padding: "10px 25px",
+            borderRadius: "8px",
+            fontWeight: "600",
+            cursor: "pointer",
+          }}
+        >
+          Create Ticket +
+        </button>
       </div>
 
       {/* Dynamic Content */}
       <div style={{ padding: "30px", flex: 1, overflowY: "auto" }}>
-        {showCreateForm ? (
-          <div>
-            <div
-              style={{
-                fontSize: "24px",
-                fontWeight: "700",
-                marginBottom: "20px",
-              }}
-            >
-              Create New Ticket
-            </div>
-            <div
-              style={{
-                background: "white",
-                borderRadius: "12px",
-                padding: "30px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-              }}
-            >
-              <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: "20px" }}>
-                  <label
-                    style={{
-                      display: "block",
-                      marginBottom: "8px",
-                      fontWeight: "600",
-                      color: "#555",
-                    }}
-                  >
-                    Subject*
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Enter subject"
-                    value={formData.subject}
-                    onChange={(e) =>
-                      setFormData({ ...formData, subject: e.target.value })
-                    }
-                    style={{
-                      width: "100%",
-                      padding: "12px",
-                      borderRadius: "8px",
-                      border: "1px solid #ddd",
-                    }}
-                  />
-                </div>
-
-                <div style={{ marginBottom: "20px" }}>
-                  <label
-                    style={{
-                      display: "block",
-                      marginBottom: "8px",
-                      fontWeight: "600",
-                      color: "#555",
-                    }}
-                  >
-                    Describe your problem*
-                  </label>
-                  <textarea
-                    required
-                    rows="5"
-                    placeholder="Describe detail here..."
-                    value={formData.description}
-                    onChange={(e) =>
-                      setFormData({ ...formData, description: e.target.value })
-                    }
-                    style={{
-                      width: "100%",
-                      padding: "12px",
-                      borderRadius: "8px",
-                      border: "1px solid #ddd",
-                      resize: "none",
-                    }}
-                  />
-                </div>
-
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    gap: "15px",
-                    marginTop: "30px",
-                  }}
-                >
-                  <button
-                    type="button"
-                    onClick={() => setShowCreateForm(false)}
-                    style={{
-                      padding: "10px 30px",
-                      borderRadius: "8px",
-                      border: "1px solid #ddd",
-                      background: "white",
-                      cursor: "pointer",
-                      fontWeight: "600",
-                    }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    style={{
-                      padding: "10px 40px",
-                      borderRadius: "8px",
-                      border: "none",
-                      background: "#FF8040",
-                      color: "white",
-                      cursor: "pointer",
-                      fontWeight: "600",
-                    }}
-                  >
-                    Submit
-                  </button>
-                </div>
-              </form>
-            </div>
+        <>
+          <div
+            style={{
+              fontSize: "28px",
+              fontWeight: "700",
+              marginBottom: "25px",
+              color: "#333",
+            }}
+          >
+            My Active Ticket{" "}
+            <span style={{ color: "#FF8040" }}>• {tickets.length}</span>
           </div>
-        ) : (
-          <>
-            <div
-              style={{
-                fontSize: "28px",
-                fontWeight: "700",
-                marginBottom: "25px",
-                color: "#333",
-              }}
-            >
-              My Active Ticket{" "}
-              <span style={{ color: "#FF8040" }}>• {tickets.length}</span>
-            </div>
-            <div
-              style={{
-                background: "white",
-                borderRadius: "12px",
-                padding: "25px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-              }}
-            >
-              {loading ? (
-                <div style={{ textAlign: "center", padding: "20px" }}>
-                  Loading...
-                </div>
-              ) : (
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                  <thead>
-                    <tr style={{ borderBottom: "2px solid #f0f0f0" }}>
-                      {[
-                        "Ticket ID",
-                        "Subject",
-                        "Status",
-                        "Handler",
-                        "Created at",
-                        "Action",
-                      ].map((h) => (
-                        <th
-                          key={h}
-                          style={{
-                            padding: "15px 10px",
-                            textAlign: "left",
-                            color: "#FF8040",
-                          }}
+          <div
+            style={{
+              background: "white",
+              borderRadius: "12px",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+            }}
+          >
+            {loading ? (
+              <div style={{ textAlign: "center", padding: "20px" }}>
+                <LoadingSpinner />
+              </div>
+            ) : (
+              <Paper
+                elevation={0}
+                sx={{
+                  borderRadius: "12px",
+                  overflow: "hidden",
+                }}
+              >
+                <TableContainer>
+                  <Table>
+                    <TableHead>
+                      <TableRow sx={{ borderBottom: "2px solid #f0f0f0" }}>
+                        <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
+                          <TableSortLabel
+                            active={orderBy === "id"}
+                            direction={orderBy === "id" ? order : "asc"}
+                            onClick={() => handleRequestSort("id")}
+                          >
+                            Ticket ID
+                          </TableSortLabel>
+                        </TableCell>
+                        <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
+                          <TableSortLabel
+                            active={orderBy === "subject"}
+                            direction={orderBy === "subject" ? order : "asc"}
+                            onClick={() => handleRequestSort("subject")}
+                          >
+                            Subject
+                          </TableSortLabel>
+                        </TableCell>
+                        <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
+                          Status
+                        </TableCell>
+                        <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
+                          <TableSortLabel
+                            active={orderBy === "handler"}
+                            direction={orderBy === "handler" ? order : "asc"}
+                            onClick={() => handleRequestSort("handler")}
+                          >
+                            Handler
+                          </TableSortLabel>
+                        </TableCell>
+                        <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
+                          <TableSortLabel
+                            active={orderBy === "createdAt"}
+                            direction={orderBy === "createdAt" ? order : "asc"}
+                            onClick={() => handleRequestSort("createdAt")}
+                          >
+                            Created at
+                          </TableSortLabel>
+                        </TableCell>
+                        <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
+                          Action
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {paginatedTickets.map((ticket) => (
+                        <TableRow
+                          key={ticket.id}
+                          sx={{ borderBottom: "1px solid #f0f0f0" }}
                         >
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {tickets.map((ticket) => (
-                      <tr
-                        key={ticket.id}
-                        style={{ borderBottom: "1px solid #f0f0f0" }}
-                      >
-                        <td
-                          style={{
-                            padding: "18px 10px",
-                            color: "#666",
-                            fontSize: "13px",
-                          }}
-                        >
-                          {ticket.id}
-                        </td>
-                        <td style={{ padding: "18px 10px" }}>
-                          {ticket.subject}
-                        </td>
-                        <td
-                          style={{
-                            padding: "18px 10px",
-                            color: getStatusColor(ticket.status),
-                            fontWeight: "600",
-                          }}
-                        >
-                          {ticket.status}
-                        </td>
-                        <td style={{ padding: "18px 10px", color: "#666" }}>
-                          {ticket.handler}
-                        </td>
-                        <td style={{ padding: "18px 10px" }}>
-                          {formatDate(ticket.createdAt)}
-                        </td>
-                        <td style={{ padding: "18px 10px" }}>
-                          <button
-                            style={{
-                              background: "#FF8040",
-                              color: "white",
-                              border: "none",
-                              padding: "6px 15px",
-                              borderRadius: "6px",
-                              cursor: "pointer",
+                          <TableCell sx={{ color: "#666", fontSize: "13px" }}>
+                            {ticket.id}
+                          </TableCell>
+                          <TableCell>{ticket.subject}</TableCell>
+                          <TableCell
+                            sx={{
+                              color: getStatusColor(ticket.status),
+                              fontWeight: 600,
                             }}
                           >
-                            Follow up
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                    {tickets.length === 0 && (
-                      <tr>
-                        <td
-                          colSpan="5"
-                          style={{
-                            textAlign: "center",
-                            padding: "30px",
-                            color: "#999",
-                          }}
-                        >
-                          No tickets found.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          </>
-        )}
+                            {ticket.status}
+                          </TableCell>
+                          <TableCell sx={{ color: "#666" }}>
+                            {ticket.handler || "-"}
+                          </TableCell>
+                          <TableCell>{formatDate(ticket.createdAt)}</TableCell>
+                          <TableCell>
+                            <button
+                              style={{
+                                background: "#FF8040",
+                                color: "white",
+                                border: "none",
+                                padding: "6px 15px",
+                                borderRadius: "6px",
+                                cursor: "pointer",
+                              }}
+                            >
+                              Follow up
+                            </button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+
+                      {sortedTickets.length === 0 && (
+                        <TableRow>
+                          <TableCell
+                            colSpan={6}
+                            sx={{
+                              textAlign: "center",
+                              py: 4,
+                              color: "#999",
+                            }}
+                          >
+                            No tickets found.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+
+                <TablePagination
+                  component="div"
+                  count={sortedTickets.length}
+                  page={safePage}
+                  onPageChange={handleChangePage}
+                  rowsPerPage={rowsPerPage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                  rowsPerPageOptions={[5, 10, 25, 50]}
+                />
+              </Paper>
+            )}
+          </div>
+        </>
       </div>
+
+      <CreateTicketModal
+        open={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+      />
 
       {/* Floating Chat */}
       <button
