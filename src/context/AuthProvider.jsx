@@ -5,6 +5,7 @@ import { AuthContext } from "./AuthContext";
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [role, setRole] = useState(null);
+  const [overrideRole, setOverrideRole] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const fetchRole = useCallback(async (userId) => {
@@ -42,14 +43,17 @@ export function AuthProvider({ children }) {
         fetchRole(session.user.id);
       } else {
         setRole(null);
+        setOverrideRole(null);
       }
     });
 
     return () => subscription.unsubscribe();
   }, [fetchRole]);
 
+  const changeRole = (newRole) => setOverrideRole(newRole);
+
   return (
-    <AuthContext.Provider value={{ user, role, loading }}>
+    <AuthContext.Provider value={{ user, role: overrideRole ?? role, trueRole: role, changeRole, loading }}>
       {children}
     </AuthContext.Provider>
   );

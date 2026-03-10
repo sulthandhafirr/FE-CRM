@@ -1,0 +1,18 @@
+export const ROUTE = {
+  login: "/login",
+  customerDashboard: "/dashboard/customer",
+  customerTicket: "/dashboard/customer/ticket",
+  customerHistory: "/dashboard/customer/history",
+  agentDashboard: "/dashboard/csAgent",
+  agentTicket: "/dashboard/csAgent/ticket",
+  ultrauserDashboard: "/ultrauser/dashboard",
+  ultrauserTicket: "/ultrauser/ticket",
+  ultrauserTicketCustomer: "/ultrauser/ticket/customer",
+  ultrauserTicketAgent: "/ultrauser/ticket/agent",
+  ultrauserTicketTechnician: "/ultrauser/ticket/technician",
+  ultrauserTicketAdmin: "/ultrauser/ticket/admin",
+  ultrauserHistory: "/ultrauser/history",
+  ultrauserMenu: "/ultrauser/menu",
+  ultrauserUsers: "/ultrauser/users",
+  ultrauserCompany: "/ultrauser/company",
+};

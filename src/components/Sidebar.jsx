@@ -1,12 +1,15 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import { ROUTE } from "../router/routes";
+import { ROUTE } from "../app/routes";
 import {
   MdDashboard,
   MdConfirmationNumber,
   MdHistory,
   MdPerson,
   MdLogout,
+  MdAdminPanelSettings,
+  MdSwitchAccount,
 } from "react-icons/md";
 import { supabase } from "../lib/supabase";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
@@ -53,10 +56,50 @@ const roleMenuItems = {
   admin: [
     // tambah buat page admin disini
   ],
+  ultrauser: [
+    {
+      key: "dashboard",
+      label: "Dashboard",
+      icon: MdDashboard,
+      route: ROUTE.ultrauserDashboard,
+    },
+    {
+      key: "ticket",
+      label: "Ticket",
+      icon: MdConfirmationNumber,
+      route: ROUTE.ultrauserTicket,
+    },
+    {
+      key: "history",
+      label: "History",
+      icon: MdHistory,
+      route: ROUTE.ultrauserHistory,
+    },
+    {
+      key: "ultrauser-menu",
+      label: "Menu (ultrauser)",
+      icon: MdAdminPanelSettings,
+      route: ROUTE.ultrauserMenu,
+    },
+  ],
 
   // ADD MORE ROLE [
 
   // ]
+};
+
+const ROLE_OPTIONS = [
+  { value: "customer", label: "Customer" },
+  { value: "cs_agent", label: "CS Agent" },
+  { value: "technician", label: "Technician" },
+  { value: "admin", label: "Admin" },
+  { value: "ultrauser", label: "Ultrauser" },
+];
+
+const getTargetRoute = (r) => {
+  if (r === "cs_agent") return ROUTE.agentDashboard;
+  if (r === "ultrauser") return ROUTE.ultrauserDashboard;
+  return ROUTE.customerDashboard;
 };
 
 export default function Sidebar({
@@ -66,7 +109,8 @@ export default function Sidebar({
   setActiveMenu,
 }) {
   const navigate = useNavigate();
-  const { role } = useAuth();
+  const { role, trueRole, changeRole } = useAuth();
+  const [showRoleModal, setShowRoleModal] = useState(false);
 
   const menuItems = roleMenuItems[role] || [];
 
@@ -159,7 +203,103 @@ export default function Sidebar({
       </div>
 
       {/* Bottom - Profile & Logout */}
-      <div style={{ padding: "10px" }}>
+      <div style={{ padding: "10px", position: "relative" }}>
+        {/* Change Role Modal */}
+        {showRoleModal && (
+          <>
+            <div
+              onClick={() => setShowRoleModal(false)}
+              style={{ position: "fixed", inset: 0, zIndex: 150 }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                bottom: "calc(100% + 8px)",
+                left: "0",
+                background: "white",
+                borderRadius: "12px",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+                border: "1px solid #e5e7eb",
+                padding: "8px",
+                zIndex: 200,
+                minWidth: "200px",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "11px",
+                  fontWeight: "600",
+                  color: "#9ca3af",
+                  textTransform: "uppercase",
+                  padding: "6px 8px 4px",
+                  letterSpacing: "0.05em",
+                }}
+              >
+                Switch Role
+              </div>
+              {ROLE_OPTIONS.map((opt) => (
+                <div
+                  key={opt.value}
+                  onClick={() => {
+                    changeRole(opt.value);
+                    navigate(getTargetRoute(opt.value));
+                    setShowRoleModal(false);
+                  }}
+                  style={{
+                    padding: "10px 12px",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    fontSize: "14px",
+                    fontWeight: role === opt.value ? "700" : "500",
+                    color: role === opt.value ? "#FF8040" : "#374151",
+                    background: role === opt.value ? "#fff4ee" : "transparent",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                  onMouseOver={(e) => {
+                    if (role !== opt.value)
+                      e.currentTarget.style.background = "#f9fafb";
+                  }}
+                  onMouseOut={(e) => {
+                    if (role !== opt.value)
+                      e.currentTarget.style.background = "transparent";
+                  }}
+                >
+                  {opt.label}
+                  {role === opt.value && <span>&#10003;</span>}
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* Change Role - only visible for ultrauser */}
+        {trueRole === "ultrauser" && (
+          <div
+            onClick={() => setShowRoleModal(!showRoleModal)}
+            style={menuItemStyle("change-role")}
+            onMouseOver={(e) => handleMouseEnter(e, "change-role")}
+            onMouseOut={(e) => handleMouseLeave(e, "change-role")}
+          >
+            <span style={{ minWidth: "18px", display: "flex" }}>
+              <MdSwitchAccount size={18} />
+            </span>
+            <span
+              style={{
+                lineHeight: "18px",
+                opacity: sidebarOpen ? 1 : 0,
+                transition: "opacity 0.3s ease, max-width 0.3s ease",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                maxWidth: sidebarOpen ? "200px" : "0",
+              }}
+            >
+              Change Role
+            </span>
+          </div>
+        )}
+
         <div
           onClick={() => setActiveMenu("profile")}
           style={menuItemStyle("profile")}
