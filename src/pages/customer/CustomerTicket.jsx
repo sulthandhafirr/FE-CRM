@@ -153,7 +153,7 @@ export default function CustomerTicket() {
 
       {/* Dynamic Content */}
       <div style={{ padding: "30px", flex: 1, overflowY: "auto" }}>
-        <>
+        
           <div
             style={{
               fontSize: "28px",
@@ -301,7 +301,6 @@ export default function CustomerTicket() {
               </Paper>
             )}
           </div>
-        </>
       </div>
 
       <CreateTicketModal
