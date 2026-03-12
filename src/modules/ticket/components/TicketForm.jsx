@@ -202,7 +202,12 @@ export default function TicketForm({ open, onClose }) {
 
                 <Box>
                   <Typography
-                    sx={{ fontSize: 14, fontWeight: 700, color: "#344054", mb: 1 }}
+                    sx={{
+                      fontSize: 14,
+                      fontWeight: 700,
+                      color: "#344054",
+                      mb: 1,
+                    }}
                   >
                     Attachments (optional)
                   </Typography>
@@ -221,14 +226,23 @@ export default function TicketForm({ open, onClose }) {
                       px: 2,
                       cursor: "pointer",
                       transition: "all 0.2s ease",
-                      "&:hover": { borderColor: "#FF8040", background: "#FFF7F2" },
+                      "&:hover": {
+                        borderColor: "#FF8040",
+                        background: "#FFF7F2",
+                      },
                     }}
                   >
-                    <Typography sx={{ fontSize: 22, lineHeight: 1, mb: 1 }}>+</Typography>
-                    <Typography sx={{ fontSize: 15, fontWeight: 600, color: "#475467" }}>
+                    <Typography sx={{ fontSize: 22, lineHeight: 1, mb: 1 }}>
+                      +
+                    </Typography>
+                    <Typography
+                      sx={{ fontSize: 15, fontWeight: 600, color: "#475467" }}
+                    >
                       Click to upload files
                     </Typography>
-                    <Typography sx={{ fontSize: 12, color: "#98A2B3", mt: 0.5 }}>
+                    <Typography
+                      sx={{ fontSize: 12, color: "#98A2B3", mt: 0.5 }}
+                    >
                       JPG, PNG, PDF, Excel, CSV (max 10MB each)
                     </Typography>
                     <input
@@ -290,7 +304,12 @@ export default function TicketForm({ open, onClose }) {
                                 ),
                               })
                             }
-                            sx={{ minWidth: "auto", px: 1, color: "#D92D20", fontWeight: 700 }}
+                            sx={{
+                              minWidth: "auto",
+                              px: 1,
+                              color: "#D92D20",
+                              fontWeight: 700,
+                            }}
                           >
                             Remove
                           </Button>
@@ -338,6 +357,41 @@ export default function TicketForm({ open, onClose }) {
               </Stack>
             </form>
           </Box>
+
+          {isSubmitting && (
+            <Box
+              sx={{
+                position: "absolute",
+                inset: 0,
+                zIndex: 20,
+                backgroundColor: "rgba(15, 23, 42, 0.28)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Box
+                sx={{
+                  backgroundColor: "#fff",
+                  borderRadius: "12px",
+                  px: 3,
+                  py: 2,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 1,
+                  boxShadow: "0 10px 24px rgba(2, 6, 23, 0.2)",
+                }}
+              >
+                <LoadingSpinner />
+                <Typography
+                  sx={{ fontSize: 13, color: "#475467", fontWeight: 600 }}
+                >
+                  Submitting ticket...
+                </Typography>
+              </Box>
+            </Box>
+          )}
         </Paper>
       </Box>
     </Modal>
