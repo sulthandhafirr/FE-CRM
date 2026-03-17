@@ -1,37 +1,58 @@
 import { useState } from "react";
-import { MdChat } from "react-icons/md";
+import { useQuery } from "@tanstack/react-query";
+import { MdChat, MdPeople, MdSupportAgent } from "react-icons/md";
 import ChatBot from "../../../components/ui/ChatBot";
+import { getDashboardStats } from "../dashboard.service";
+
+const StatCard = ({ title, value, icon: Icon, loading }) => (
+  <div style={{
+    flex: 1, background: "white", padding: "25px",
+    borderRadius: "12px", border: "2px solid #FF8040",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+  }}>
+    <div style={{
+      display: "flex", alignItems: "center",
+      justifyContent: "space-between", marginBottom: "10px",
+    }}>
+      <div style={{ fontSize: "16px", color: "#333", fontWeight: "500" }}>{title}</div>
+      <Icon size={22} color="#FF8040" />
+    </div>
+    <div style={{ fontSize: "36px", fontWeight: "700", color: "#FF8040" }}>
+      {loading ? <span style={{ fontSize: "20px", color: "#ddd" }}>—</span> : (value ?? 0)}
+    </div>
+  </div>
+);
 
 export default function CustomerDashboardPage() {
   const [chatOpen, setChatOpen] = useState(false);
 
+  const { data: stats, isLoading: statsLoading } = useQuery({
+    queryKey: ["dashboard-stats"],
+    queryFn: getDashboardStats,
+    staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 15,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
+
   return (
     <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
-      {/* Dashboard Content */}
       <div style={{ padding: "30px", flex: 1, overflowY: "auto" }}>
+
         {/* Top Cards Row */}
         <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
-          <div style={{
-            flex: 1, background: "white", padding: "25px",
-            borderRadius: "12px", border: "2px solid #FF8040",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-          }}>
-            <div style={{ fontSize: "16px", color: "#333", marginBottom: "10px", fontWeight: "500" }}>
-              Total Technician
-            </div>
-            <div style={{ fontSize: "36px", fontWeight: "700", color: "#FF8040" }}>45</div>
-          </div>
-
-          <div style={{
-            flex: 1, background: "white", padding: "25px",
-            borderRadius: "12px", border: "2px solid #FF8040",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-          }}>
-            <div style={{ fontSize: "16px", color: "#333", marginBottom: "10px", fontWeight: "500" }}>
-              Total CS Agent
-            </div>
-            <div style={{ fontSize: "36px", fontWeight: "700", color: "#FF8040" }}>17</div>
-          </div>
+          <StatCard
+            title="Total Technician"
+            value={stats?.totalTechnician}
+            icon={MdPeople}
+            loading={statsLoading}
+          />
+          <StatCard
+            title="Total CS Agent"
+            value={stats?.totalCsAgent}
+            icon={MdSupportAgent}
+            loading={statsLoading}
+          />
         </div>
 
         {/* Charts Row */}
@@ -77,14 +98,13 @@ export default function CustomerDashboardPage() {
           position: "fixed", bottom: "30px", right: "30px",
           width: "60px", height: "60px", borderRadius: "50%",
           background: "#FF8040", border: "none", color: "white",
-          fontSize: "28px", cursor: "pointer",
+          cursor: "pointer",
           boxShadow: "0 4px 12px rgba(255, 128, 64, 0.4)",
           display: "flex", alignItems: "center", justifyContent: "center",
         }}
       >
         <MdChat size={28} />
       </button>
-
       <ChatBot isOpen={chatOpen} onClose={() => setChatOpen(false)} />
     </div>
   );
