@@ -1,5 +1,6 @@
 export const ROUTE = {
   login: "/login",
+  login: "",
   customerDashboard: "/dashboard/customer",
   customerTicket: "/dashboard/customer/ticket",
   customerHistory: "/dashboard/customer/history",
