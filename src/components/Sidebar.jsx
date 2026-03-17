@@ -10,6 +10,7 @@ import {
   MdLogout,
   MdAdminPanelSettings,
   MdSwitchAccount,
+  MdWorkHistory,
 } from "react-icons/md";
 import { supabase } from "../lib/supabase";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
@@ -48,6 +49,12 @@ const roleMenuItems = {
       label: "Ticket",
       icon: MdConfirmationNumber,
       route: ROUTE.agentTicket,
+    },
+    {
+      key: "Performance",
+      label: "Performance",
+      icon: MdWorkHistory,
+      route: ROUTE.agentPerformance,
     },
   ],
   technician: [
