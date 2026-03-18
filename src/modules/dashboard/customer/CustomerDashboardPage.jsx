@@ -4,7 +4,7 @@ import { MdChat, MdPeople, MdSupportAgent } from "react-icons/md";
 import ChatBot from "../../../components/ui/ChatBot";
 import { getDashboardStats } from "../dashboard.service";
 
-const StatCard = ({ title, value, icon: Icon, loading }) => (
+const StatCard = ({ title, value, loading }) => (
   <div style={{
     flex: 1, background: "white", padding: "25px",
     borderRadius: "12px", border: "2px solid #FF8040",

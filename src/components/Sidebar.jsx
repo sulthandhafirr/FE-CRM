@@ -341,7 +341,7 @@ export default function Sidebar({
           </span>
           <span
             style={{
-              lineHeight: "18px",
+              lineHeight: "21px",
               opacity: sidebarOpen ? 1 : 0,
               transition: "opacity 0.3s ease, max-width 0.3s ease",
               whiteSpace: "nowrap",
