@@ -113,7 +113,7 @@ export default function CustomerTicketPage() {
       {/* Dynamic Content */}
       <div style={{ padding: "30px", flex: 1, overflowY: "auto" }}>
         <div style={{ fontSize: "28px", fontWeight: "700", marginBottom: "25px", color: "#333" }}>
-          My Active Ticket{" "}
+          Active Ticket{" "}
           <span style={{ color: "#FF8040" }}>• {tickets.length}</span>
         </div>
         <div style={{ background: "white", borderRadius: "12px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>

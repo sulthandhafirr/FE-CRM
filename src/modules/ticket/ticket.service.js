@@ -29,6 +29,11 @@ export const saveAttachments = async (ticketId, attachments) => {
   await api.post(`/api/tickets/${ticketId}/attachments`, attachments);
 };
 
+export const getTicketHistory = async () => {
+  const response = await api.get("/api/tickets/history");
+  return response.data
+}
+
 // ─── Agent ticket calls (via backend API) ────────────────────────────────────
 
 // GET /api/tickets/all — agent/admin only, returns all tickets
