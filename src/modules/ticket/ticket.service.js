@@ -14,11 +14,19 @@ export const createTicket = async ({ subject, description }) => {
 };
 
 export const getUploadUrls = async ({ ticketId, files }) => {
-  const { data } = await api.post("/api/tickets/upload-url", { ticketId, files });
+  const { data } = await api.post("/api/tickets/upload-url", {
+    ticketId,
+    files,
+  });
   return data;
 };
 
-export const uploadAttachmentToStorage = async (filePath, token, file, contentType) => {
+export const uploadAttachmentToStorage = async (
+  filePath,
+  token,
+  file,
+  contentType,
+) => {
   const { error } = await supabase.storage
     .from("ticket-attachment")
     .uploadToSignedUrl(filePath, token, file, { contentType });
@@ -31,8 +39,20 @@ export const saveAttachments = async (ticketId, attachments) => {
 
 export const getTicketHistory = async () => {
   const response = await api.get("/api/tickets/history");
-  return response.data
-}
+  return response.data;
+};
+
+export const getTicketById = async (ticketId) => {
+  const response = await api.get(`/api/tickets/${ticketId}`);
+  return response.data;
+};
+
+export const getAttachmentDownloadUrl = async (ticketId, attachmentId) => {
+  const response = await api.get(
+    `/api/tickets/${ticketId}/attachments/${attachmentId}/download-url`,
+  );
+  return response.data;
+};
 
 // ─── Agent ticket calls (via backend API) ────────────────────────────────────
 

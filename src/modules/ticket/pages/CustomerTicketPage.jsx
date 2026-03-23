@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { MdChat } from "react-icons/md";
 import {
   Paper,
@@ -20,6 +21,7 @@ import { getMyTickets } from "../ticket.service";
 import { getStatusColor, formatTicketDate } from "../ticket.schema";
 
 export default function CustomerTicketPage() {
+  const navigate = useNavigate();
   const [chatOpen, setChatOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [orderBy, setOrderBy] = useState("createdAt");
@@ -79,7 +81,10 @@ export default function CustomerTicketPage() {
   }, [tickets, order, orderBy]);
 
   const safePage = useMemo(() => {
-    const maxPage = Math.max(0, Math.ceil(sortedTickets.length / rowsPerPage) - 1);
+    const maxPage = Math.max(
+      0,
+      Math.ceil(sortedTickets.length / rowsPerPage) - 1,
+    );
     return Math.min(page, maxPage);
   }, [page, rowsPerPage, sortedTickets.length]);
 
@@ -89,21 +94,36 @@ export default function CustomerTicketPage() {
   }, [rowsPerPage, safePage, sortedTickets]);
 
   return (
-    <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+    <div
+      style={{
+        fontFamily:
+          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      }}
+    >
       {/* Top Bar */}
-      <div style={{
-        background: "white", padding: "15px 30px",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        boxShadow: "0 2px 5px rgba(0,0,0,0.05)", height: "70px",
-      }}>
+      <div
+        style={{
+          background: "white",
+          padding: "15px 30px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          boxShadow: "0 2px 5px rgba(0,0,0,0.05)",
+          height: "70px",
+        }}
+      >
         <SearchBar />
 
         <button
           onClick={() => setCreateModalOpen(true)}
           style={{
-            background: "#FF8040", color: "white", border: "none",
-            padding: "10px 25px", borderRadius: "8px",
-            fontWeight: "600", cursor: "pointer",
+            background: "#FF8040",
+            color: "white",
+            border: "none",
+            padding: "10px 25px",
+            borderRadius: "8px",
+            fontWeight: "600",
+            cursor: "pointer",
           }}
         >
           Create Ticket +
@@ -112,17 +132,33 @@ export default function CustomerTicketPage() {
 
       {/* Dynamic Content */}
       <div style={{ padding: "30px", flex: 1, overflowY: "auto" }}>
-        <div style={{ fontSize: "28px", fontWeight: "700", marginBottom: "25px", color: "#333" }}>
+        <div
+          style={{
+            fontSize: "28px",
+            fontWeight: "700",
+            marginBottom: "25px",
+            color: "#333",
+          }}
+        >
           Active Ticket{" "}
           <span style={{ color: "#FF8040" }}>• {tickets.length}</span>
         </div>
-        <div style={{ background: "white", borderRadius: "12px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
+        <div
+          style={{
+            background: "white",
+            borderRadius: "12px",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+          }}
+        >
           {loading ? (
             <div style={{ textAlign: "center", padding: "20px" }}>
               <LoadingSpinner />
             </div>
           ) : (
-            <Paper elevation={0} sx={{ borderRadius: "12px", overflow: "hidden" }}>
+            <Paper
+              elevation={0}
+              sx={{ borderRadius: "12px", overflow: "hidden" }}
+            >
               <TableContainer>
                 <Table>
                   <TableHead>
@@ -145,7 +181,9 @@ export default function CustomerTicketPage() {
                           Subject
                         </TableSortLabel>
                       </TableCell>
-                      <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>Status</TableCell>
+                      <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
+                        Status
+                      </TableCell>
                       <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
                         <TableSortLabel
                           active={orderBy === "handler"}
@@ -164,25 +202,48 @@ export default function CustomerTicketPage() {
                           Created at
                         </TableSortLabel>
                       </TableCell>
-                      <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>Action</TableCell>
+                      <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
+                        Action
+                      </TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {paginatedTickets.map((ticket) => (
-                      <TableRow key={ticket.id} sx={{ borderBottom: "1px solid #f0f0f0" }}>
-                        <TableCell sx={{ color: "#666", fontSize: "13px" }}>{ticket.id}</TableCell>
+                      <TableRow
+                        key={ticket.id}
+                        sx={{ borderBottom: "1px solid #f0f0f0" }}
+                      >
+                        <TableCell sx={{ color: "#666", fontSize: "13px" }}>
+                          {ticket.id}
+                        </TableCell>
                         <TableCell>{ticket.subject}</TableCell>
-                        <TableCell sx={{ color: getStatusColor(ticket.status), fontWeight: 600 }}>
+                        <TableCell
+                          sx={{
+                            color: getStatusColor(ticket.status),
+                            fontWeight: 600,
+                          }}
+                        >
                           {ticket.status}
                         </TableCell>
-                        <TableCell sx={{ color: "#666" }}>{ticket.handler || "-"}</TableCell>
-                        <TableCell>{formatTicketDate(ticket.createdAt)}</TableCell>
+                        <TableCell sx={{ color: "#666" }}>
+                          {ticket.handler || "-"}
+                        </TableCell>
                         <TableCell>
-                          <button style={{
-                            background: "#FF8040", color: "white", border: "none",
-                            padding: "6px 15px", borderRadius: "6px", cursor: "pointer",
-                          }}>
-                            Follow up
+                          {formatTicketDate(ticket.createdAt)}
+                        </TableCell>
+                        <TableCell>
+                          <button
+                            onClick={() => navigate(`${ticket.id}`)}
+                            style={{
+                              background: "#FF8040",
+                              color: "white",
+                              border: "none",
+                              padding: "6px 15px",
+                              borderRadius: "6px",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Details
                           </button>
                         </TableCell>
                       </TableRow>
@@ -190,7 +251,10 @@ export default function CustomerTicketPage() {
 
                     {sortedTickets.length === 0 && (
                       <TableRow>
-                        <TableCell colSpan={6} sx={{ textAlign: "center", py: 4, color: "#999" }}>
+                        <TableCell
+                          colSpan={6}
+                          sx={{ textAlign: "center", py: 4, color: "#999" }}
+                        >
                           No tickets found.
                         </TableCell>
                       </TableRow>
@@ -213,17 +277,29 @@ export default function CustomerTicketPage() {
         </div>
       </div>
 
-      <TicketForm open={createModalOpen} onClose={() => setCreateModalOpen(false)} />
+      <TicketForm
+        open={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+      />
 
       {/* Floating Chat */}
       <button
         onClick={() => setChatOpen(!chatOpen)}
         style={{
-          position: "fixed", bottom: "30px", right: "30px",
-          width: "60px", height: "60px", borderRadius: "50%",
-          background: "#FF8040", border: "none", color: "white",
-          cursor: "pointer", boxShadow: "0 4px 12px rgba(255, 128, 64, 0.4)",
-          display: "flex", alignItems: "center", justifyContent: "center",
+          position: "fixed",
+          bottom: "30px",
+          right: "30px",
+          width: "60px",
+          height: "60px",
+          borderRadius: "50%",
+          background: "#FF8040",
+          border: "none",
+          color: "white",
+          cursor: "pointer",
+          boxShadow: "0 4px 12px rgba(255, 128, 64, 0.4)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
         <MdChat size={28} />

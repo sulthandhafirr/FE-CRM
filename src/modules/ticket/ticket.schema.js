@@ -30,7 +30,12 @@ export const getPriorityColor = (priority) => {
 };
 
 export const formatTicketDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString("en-ID", {
+  if (!dateString) return "-";
+
+  const parsed = new Date(dateString);
+  if (Number.isNaN(parsed.getTime())) return "-";
+
+  return parsed.toLocaleDateString("en-ID", {
     day: "2-digit",
     month: "long",
     year: "numeric",

@@ -6,6 +6,7 @@ import LoginPage from "../modules/auth/login/LoginPage";
 import CustomerDashboardPage from "../modules/dashboard/customer/CustomerDashboardPage";
 import AgentDashboardPage from "../modules/dashboard/agent/AgentDashboardPage";
 import CustomerTicketPage from "../modules/ticket/pages/CustomerTicketPage";
+import CustomerTicketViewDetailPage from "../modules/ticket/components/CustomerTicketViewDetailPage";
 import CustomerHistoryPage from "../modules/history/CustomerHistoryPage";
 import AgentTicketPage from "../modules/ticket/pages/AgentTicketPage";
 import UltrauserMenuPage from "../modules/ultrauser/menu/UltrauserMenuPage";
@@ -51,9 +52,19 @@ export default function Router() {
       {/* Customer Routes */}
       <Route element={<ProtectedRoute allowedRoles={["customer"]} />}>
         <Route element={<MainLayout />}>
-          <Route path={ROUTE.customerDashboard} element={<CustomerDashboardPage />} />
+          <Route
+            path={ROUTE.customerDashboard}
+            element={<CustomerDashboardPage />}
+          />
           <Route path={ROUTE.customerTicket} element={<CustomerTicketPage />} />
-          <Route path={ROUTE.customerHistory} element={<CustomerHistoryPage />} />
+          <Route
+            path={ROUTE.customerTicketDetail}
+            element={<CustomerTicketViewDetailPage />}
+          />
+          <Route
+            path={ROUTE.customerHistory}
+            element={<CustomerHistoryPage />}
+          />
         </Route>
       </Route>
 
@@ -68,13 +79,38 @@ export default function Router() {
       {/* Ultrauser Routes */}
       <Route element={<ProtectedRoute allowedRoles={["ultrauser"]} />}>
         <Route element={<MainLayout />}>
-          <Route path={ROUTE.ultrauserDashboard} element={<CustomerDashboardPage />} />
-          <Route path={ROUTE.ultrauserTicket} element={<UltrauserTicketPage />} />
-          <Route path={ROUTE.ultrauserTicketCustomer} element={<CustomerTicketPage />} />
-          <Route path={ROUTE.ultrauserTicketAgent} element={<AgentTicketPage />} />
-          <Route path={ROUTE.ultrauserTicketTechnician} element={<ComingSoonPage title="Technician Ticket View" />} />
-          <Route path={ROUTE.ultrauserTicketAdmin} element={<ComingSoonPage title="Admin Ticket View" />} />
-          <Route path={ROUTE.ultrauserHistory} element={<CustomerHistoryPage />} />
+          <Route
+            path={ROUTE.ultrauserDashboard}
+            element={<CustomerDashboardPage />}
+          />
+          <Route
+            path={ROUTE.ultrauserTicket}
+            element={<UltrauserTicketPage />}
+          />
+          <Route
+            path={ROUTE.ultrauserTicketCustomer}
+            element={<CustomerTicketPage />}
+          />
+          <Route
+            path={ROUTE.ultrauserTicketCustomerDetail}
+            element={<CustomerTicketViewDetailPage />}
+          />
+          <Route
+            path={ROUTE.ultrauserTicketAgent}
+            element={<AgentTicketPage />}
+          />
+          <Route
+            path={ROUTE.ultrauserTicketTechnician}
+            element={<ComingSoonPage title="Technician Ticket View" />}
+          />
+          <Route
+            path={ROUTE.ultrauserTicketAdmin}
+            element={<ComingSoonPage title="Admin Ticket View" />}
+          />
+          <Route
+            path={ROUTE.ultrauserHistory}
+            element={<CustomerHistoryPage />}
+          />
           <Route path={ROUTE.ultrauserMenu} element={<UltrauserMenuPage />} />
           <Route path={ROUTE.ultrauserUsers} element={<ManageUsersPage />} />
           <Route path={ROUTE.ultrauserCompany} element={<CompanyListPage />} />
@@ -100,10 +136,7 @@ export default function Router() {
       </Route> */}
 
       {/* Wildcard */}
-      <Route
-        path="*"
-        element={<NotFoundPage />}
-      />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }

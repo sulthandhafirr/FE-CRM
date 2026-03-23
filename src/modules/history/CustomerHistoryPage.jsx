@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation, useNavigate } from "react-router-dom";
 import { MdChat } from "react-icons/md";
 import {
   Paper,
@@ -17,8 +18,11 @@ import SearchBar from "../../components/ui/SearchBar";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import { getTicketHistory } from "../ticket/ticket.service";
 import { formatTicketDate } from "../ticket/ticket.schema";
+import { ROUTE } from "../../app/routes";
 
 export default function CustomerHistoryPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [chatOpen, setChatOpen] = useState(false);
   const [orderBy, setOrderBy] = useState("resolvedAt");
   const [order, setOrder] = useState("desc");
@@ -88,6 +92,14 @@ export default function CustomerHistoryPage() {
     const start = safePage * rowsPerPage;
     return sortedTickets.slice(start, start + rowsPerPage);
   }, [rowsPerPage, safePage, sortedTickets]);
+
+  const handleViewDetail = (ticketId) => {
+    const isUltrauserHistory = location.pathname.startsWith("/ultrauser");
+    const targetPath = isUltrauserHistory
+      ? ROUTE.ultrauserTicketCustomerDetail.replace(":ticketId", ticketId)
+      : ROUTE.customerTicketDetail.replace(":ticketId", ticketId);
+    navigate(targetPath);
+  };
 
   return (
     <div
@@ -183,6 +195,9 @@ export default function CustomerHistoryPage() {
                           Solved At
                         </TableSortLabel>
                       </TableCell>
+                      <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
+                        Action
+                      </TableCell>
                       {/* <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
                         Satisfaction
                       </TableCell> */}
@@ -204,6 +219,21 @@ export default function CustomerHistoryPage() {
                         <TableCell>{ticket.handler || "-"}</TableCell>
                         <TableCell>
                           {formatTicketDate(ticket.resolvedAt)}
+                        </TableCell>
+                        <TableCell>
+                          <button
+                            onClick={() => handleViewDetail(ticket.id)}
+                            style={{
+                              background: "#FF8040",
+                              color: "white",
+                              border: "none",
+                              padding: "6px 15px",
+                              borderRadius: "6px",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Details
+                          </button>
                         </TableCell>
                         {/* <TableCell sx={{ color: "#666" }}>
                           {ticket.satisfaction || "-"}
