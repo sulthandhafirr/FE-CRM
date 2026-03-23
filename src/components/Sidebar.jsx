@@ -15,6 +15,7 @@ import {
 import { supabase } from "../lib/supabase";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import { useQueryClient } from "@tanstack/react-query";
 
 const roleMenuItems = {
   customer: [
@@ -135,6 +136,8 @@ export default function Sidebar({
     fontWeight: "500",
   });
 
+  const queryClient = useQueryClient();
+
   const handleMouseEnter = (e, menuKey) => {
     if (activeMenu !== menuKey) e.currentTarget.style.background = "#f5f5f5";
   };
@@ -145,6 +148,8 @@ export default function Sidebar({
   };
 
   const handleSignOut = async () => {
+    // queryClient.removeQueries({ queryKey: ["my-tickets"] }); 
+    queryClient.clear();
     await supabase.auth.signOut();
     navigate(ROUTE.login);
   };
