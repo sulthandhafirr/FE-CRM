@@ -1,15 +1,27 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { MdArrowBack, MdAttachFile, MdDescription } from "react-icons/md";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  MdArrowBack,
+  MdAttachFile,
+  MdSupportAgent,
+  MdPerson,
+} from "react-icons/md";
 import LoadingSpinner from "../../../components/ui/LoadingSpinner";
-import { getTicketById, getAttachmentDownloadUrl } from "../ticket.service";
+import {
+  getTicketById,
+  getAttachmentDownloadUrl,
+  getTicketComments,
+  createTicketComment,
+} from "../ticket.service";
 import { getStatusColor, formatTicketDate } from "../ticket.schema";
 
 export default function CustomerTicketViewDetailPage() {
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { ticketId } = useParams();
   const [downloadingId, setDownloadingId] = useState(null);
+  const [responseText, setResponseText] = useState("");
 
   const {
     data: ticket,
@@ -24,6 +36,28 @@ export default function CustomerTicketViewDetailPage() {
   });
 
   const attachments = useMemo(() => ticket?.attachments || [], [ticket]);
+
+  const {
+    data: comments = [],
+    isLoading: commentsLoading,
+    isError: commentsError,
+  } = useQuery({
+    queryKey: ["ticket-comments", ticketId],
+    queryFn: () => getTicketComments(ticketId),
+    enabled: Boolean(ticketId),
+    staleTime: 1000 * 60,
+    refetchOnWindowFocus: false,
+  });
+
+  const { mutateAsync: submitComment, isPending: isSubmittingComment } =
+    useMutation({
+      mutationFn: (message) => createTicketComment(ticketId, message),
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ["ticket-comments", ticketId],
+        });
+      },
+    });
 
   const handleDownloadAttachment = async (attachmentId) => {
     try {
@@ -42,6 +76,20 @@ export default function CustomerTicketViewDetailPage() {
       alert("Failed to download attachment. Please try again.");
     } finally {
       setDownloadingId(null);
+    }
+  };
+
+  const handleSubmitResponse = async (event) => {
+    event.preventDefault();
+    const message = responseText.trim();
+    if (!message) return;
+
+    try {
+      await submitComment(message);
+      setResponseText("");
+    } catch (error) {
+      console.error("Failed to submit comment:", error);
+      alert("Failed to submit response. Please try again.");
     }
   };
 
@@ -130,17 +178,13 @@ export default function CustomerTicketViewDetailPage() {
                   style={{
                     display: "grid",
                     gridTemplateColumns: "2fr 1fr",
-                    gap: "20px",
+                    gap: "24px",
                     alignItems: "start",
                   }}
                 >
                   <div
                     style={{
-                      background: "white",
-                      borderRadius: "12px",
-                      padding: "26px",
-                      border: "1px solid #f1f5f9",
-                      boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                      padding: "12px 6px",
                     }}
                   >
                     <h2
@@ -246,15 +290,86 @@ export default function CustomerTicketViewDetailPage() {
                         </div>
                       </div>
                     </div>
+
+                    <div
+                      style={{
+                        marginTop: "26px",
+                        paddingTop: "20px",
+                        borderTop: "1px solid #f1f5f9",
+                      }}
+                    >
+                      <h3
+                        style={{
+                          fontSize: "20px",
+                          fontWeight: "700",
+                          marginBottom: "14px",
+                          color: "#333",
+                        }}
+                      >
+                        Add Response
+                      </h3>
+                      <form onSubmit={handleSubmitResponse}>
+                        <textarea
+                          rows={4}
+                          placeholder="Write your response..."
+                          value={responseText}
+                          onChange={(event) =>
+                            setResponseText(event.target.value)
+                          }
+                          style={{
+                            width: "100%",
+                            padding: "12px",
+                            borderRadius: "8px",
+                            border: "1px solid #ddd",
+                            resize: "none",
+                            fontSize: "14px",
+                            outline: "none",
+                            marginBottom: "12px",
+                            boxSizing: "border-box",
+                          }}
+                        />
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                          }}
+                        >
+                          <button
+                            type="submit"
+                            disabled={
+                              isSubmittingComment || !responseText.trim()
+                            }
+                            style={{
+                              padding: "10px 30px",
+                              borderRadius: "8px",
+                              border: "none",
+                              background: "#FF8040",
+                              color: "white",
+                              fontWeight: "600",
+                              cursor:
+                                isSubmittingComment || !responseText.trim()
+                                  ? "not-allowed"
+                                  : "pointer",
+                              opacity:
+                                isSubmittingComment || !responseText.trim()
+                                  ? 0.7
+                                  : 1,
+                              fontSize: "14px",
+                            }}
+                          >
+                            {isSubmittingComment ? "Submitting..." : "Submit"}
+                          </button>
+                        </div>
+                      </form>
+                    </div>
                   </div>
 
                   <div
                     style={{
-                      background: "white",
-                      borderRadius: "12px",
+                      background: "#fffdfb",
+                      borderRadius: "14px",
                       padding: "22px",
-                      border: "1px solid #f1f5f9",
-                      boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                      border: "1px solid #fce6d8",
                     }}
                   >
                     <h3
@@ -334,6 +449,160 @@ export default function CustomerTicketViewDetailPage() {
                         ))}
                       </div>
                     )}
+
+                    <div
+                      style={{
+                        height: "1px",
+                        background: "#fce6d8",
+                        margin: "18px 0",
+                      }}
+                    />
+
+                    <div
+                      style={{
+                        minHeight: "280px",
+                      }}
+                    >
+                      <h3
+                        style={{
+                          fontSize: "18px",
+                          fontWeight: "700",
+                          marginBottom: "16px",
+                          color: "#333",
+                        }}
+                      >
+                        Timeline
+                      </h3>
+
+                      {commentsLoading ? (
+                        <div style={{ textAlign: "center", padding: "16px 0" }}>
+                          <LoadingSpinner />
+                        </div>
+                      ) : commentsError ? (
+                        <div style={{ color: "#9ca3af", fontSize: "14px" }}>
+                          Failed to load timeline.
+                        </div>
+                      ) : comments.length === 0 ? (
+                        <div style={{ color: "#9ca3af", fontSize: "14px" }}>
+                          No timeline events yet.
+                        </div>
+                      ) : (
+                        <div
+                          style={{ position: "relative", paddingLeft: "30px" }}
+                        >
+                          <div
+                            style={{
+                              position: "absolute",
+                              left: "11px",
+                              top: "10px",
+                              bottom: "10px",
+                              width: "2px",
+                              background: "#FF8040",
+                            }}
+                          />
+
+                          {comments.map((comment, index) => {
+                            const commentDate = new Date(comment.createdAt);
+                            const dateStr = Number.isNaN(commentDate.getTime())
+                              ? "-"
+                              : commentDate.toLocaleDateString("en-GB", {
+                                  day: "2-digit",
+                                  month: "long",
+                                  year: "numeric",
+                                });
+                            const timeStr = Number.isNaN(commentDate.getTime())
+                              ? "-"
+                              : commentDate.toLocaleTimeString("en-GB", {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                });
+                            const isAgentReply =
+                              ticket?.handler &&
+                              comment.senderName &&
+                              comment.senderName === ticket.handler;
+
+                            return (
+                              <div
+                                key={comment.id ?? index}
+                                style={{
+                                  position: "relative",
+                                  marginBottom: "18px",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    position: "absolute",
+                                    left: "-30px",
+                                    top: "2px",
+                                    width: "22px",
+                                    height: "22px",
+                                    borderRadius: "50%",
+                                    background: "white",
+                                    border: "2px solid #FF8040",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                  }}
+                                >
+                                  {isAgentReply ? (
+                                    <MdSupportAgent size={12} color="#FF8040" />
+                                  ) : (
+                                    <MdPerson size={12} color="#FF8040" />
+                                  )}
+                                </div>
+
+                                <div
+                                  style={{
+                                    border: "1px solid #fde4d4",
+                                    borderRadius: "10px",
+                                    padding: "10px 12px",
+                                    background: "#fffdfb",
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      justifyContent: "space-between",
+                                      gap: "8px",
+                                      marginBottom: "4px",
+                                    }}
+                                  >
+                                    <div
+                                      style={{
+                                        fontWeight: "600",
+                                        fontSize: "13px",
+                                        color: "#333",
+                                      }}
+                                    >
+                                      {comment.senderName || "Unknown sender"}
+                                    </div>
+                                    <div
+                                      style={{
+                                        fontSize: "11px",
+                                        color: "#9ca3af",
+                                        whiteSpace: "nowrap",
+                                      }}
+                                    >
+                                      {dateStr} • {timeStr}
+                                    </div>
+                                  </div>
+                                  <div
+                                    style={{
+                                      fontSize: "13px",
+                                      color: "#555",
+                                      lineHeight: "1.5",
+                                      wordBreak: "break-word",
+                                    }}
+                                  >
+                                    {comment.message || "-"}
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               )}

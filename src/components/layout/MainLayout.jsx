@@ -19,14 +19,21 @@ export default function MainLayout() {
   );
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "#f5f5f5" }}>
+    <div
+      style={{
+        display: "flex",
+        height: "100vh",
+        background: "#f5f5f5",
+        overflow: "hidden",
+      }}
+    >
       <Sidebar
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
         activeMenu={activeMenu}
         setActiveMenu={setActiveMenu}
       />
-      <main style={{ flex: 1, overflow: "auto" }}>
+      <main style={{ flex: 1, overflowY: "auto", overflowX: "hidden" }}>
         <Outlet />
       </main>
     </div>

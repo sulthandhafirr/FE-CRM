@@ -54,6 +54,18 @@ export const getAttachmentDownloadUrl = async (ticketId, attachmentId) => {
   return response.data;
 };
 
+export const getTicketComments = async (ticketId) => {
+  const response = await api.get(`/api/tickets/${ticketId}/comments`);
+  return response.data;
+};
+
+export const createTicketComment = async (ticketId, message) => {
+  const { data } = await api.post(`/api/tickets/${ticketId}/comments`, {
+    message,
+  });
+  return data;
+};
+
 // ─── Agent ticket calls (via backend API) ────────────────────────────────────
 
 // GET /api/tickets/all — agent/admin only, returns all tickets
