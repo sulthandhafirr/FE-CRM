@@ -59,7 +59,12 @@ const roleMenuItems = {
     },
   ],
   technician: [
-    // tambah buat page technician disini
+    {
+      key: "dashboard",
+      label: "Dashboard",
+      icon: MdDashboard,
+      route: ROUTE.technicianDashboard,
+    },
   ],
   admin: [
     // tambah buat page admin disini
@@ -107,6 +112,7 @@ const ROLE_OPTIONS = [
 const getTargetRoute = (r) => {
   if (r === "cs_agent") return ROUTE.agentDashboard;
   if (r === "ultrauser") return ROUTE.ultrauserDashboard;
+  if (r === "technician") return ROUTE.technicianDashboard;
   return ROUTE.customerDashboard;
 };
 

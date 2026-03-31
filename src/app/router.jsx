@@ -5,6 +5,7 @@ import MainLayout from "../components/layout/MainLayout";
 import LoginPage from "../modules/auth/login/LoginPage";
 import CustomerDashboardPage from "../modules/dashboard/customer/CustomerDashboardPage";
 import AgentDashboardPage from "../modules/dashboard/agent/AgentDashboardPage";
+import TechnicianDashboardPage from "../modules/dashboard/technician/TechnicianDashboardPage";
 import CustomerTicketPage from "../modules/ticket/pages/CustomerTicketPage";
 import CustomerTicketViewDetailPage from "../modules/ticket/components/CustomerTicketViewDetailPage";
 import CustomerHistoryPage from "../modules/history/CustomerHistoryPage";
@@ -32,7 +33,7 @@ const getRoleRoute = (role) => {
   // if (role === 'admin') return ROUTE.adminDashboard;
   if (role === "cs_agent") return ROUTE.agentDashboard;
   if (role === "ultrauser") return ROUTE.ultrauserDashboard;
-  // if (role === 'technician') return ROUTE.technicianDashboard;
+  if (role === 'technician') return ROUTE.technicianDashboard;
   return ROUTE.customerDashboard;
 };
 
@@ -120,12 +121,12 @@ export default function Router() {
       {/* UNCOMMAND HERE */}
 
       {/* Technician Routes */}
-      {/* <Route element={<ProtectedRoute allowedRoles={["technician"]} />}>
+      <Route element={<ProtectedRoute allowedRoles={["technician"]} />}>
         <Route element={<MainLayout />}>
-          <Route path={ROUTE.technicianDashboard} element={<technicianDashboard />} />
-          <Route path={ROUTE.technicianTicket} element={<technicianTicket />} />
+          <Route path={ROUTE.technicianDashboard} element={<TechnicianDashboardPage />} />
+          {/* <Route path={ROUTE.technicianTicket} element={<technicianTicket />} /> */}
         </Route>
-      </Route> */}
+      </Route>
 
       {/* Admin Routes */}
       {/* <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>

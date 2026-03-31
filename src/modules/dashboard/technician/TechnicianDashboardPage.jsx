@@ -38,14 +38,16 @@ const StatCard = ({ title, value, icon, loading }) => (
   </div>
 );
 
-export default function AgentDashboardPage() {
+export default function TechnicianDashboardPage() {
   const [chatOpen, setChatOpen] = useState(false);
 
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["dashboard-stats"],
     queryFn: getDashboardStats,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 15,
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 
   return (
