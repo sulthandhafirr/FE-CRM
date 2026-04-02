@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { useTranslation } from "react-i18next";
 import { ROUTE } from "../app/routes";
 import {
   MdDashboard,
@@ -17,114 +18,111 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { useQueryClient } from "@tanstack/react-query";
 
-const roleMenuItems = {
-  customer: [
-    {
-      key: "dashboard",
-      label: "Dashboard",
-      icon: MdDashboard,
-      route: ROUTE.customerDashboard,
-    },
-    {
-      key: "ticket",
-      label: "Ticket",
-      icon: MdConfirmationNumber,
-      route: ROUTE.customerTicket,
-    },
-    {
-      key: "history",
-      label: "History",
-      icon: MdHistory,
-      route: ROUTE.customerHistory,
-    },
-  ],
-  cs_agent: [
-    {
-      key: "dashboard",
-      label: "Dashboard",
-      icon: MdDashboard,
-      route: ROUTE.agentDashboard,
-    },
-    {
-      key: "ticket",
-      label: "Ticket",
-      icon: MdConfirmationNumber,
-      route: ROUTE.agentTicket,
-    },
-    {
-      key: "Performance",
-      label: "Performance",
-      icon: MdWorkHistory,
-      route: ROUTE.agentPerformance,
-    },
-  ],
-  technician: [
-    {
-      key: "dashboard",
-      label: "Dashboard",
-      icon: MdDashboard,
-      route: ROUTE.technicianDashboard,
-    },
-  ],
-  admin: [
-    // tambah buat page admin disini
-  ],
-  ultrauser: [
-    {
-      key: "dashboard",
-      label: "Dashboard",
-      icon: MdDashboard,
-      route: ROUTE.ultrauserDashboard,
-    },
-    {
-      key: "ticket",
-      label: "Ticket",
-      icon: MdConfirmationNumber,
-      route: ROUTE.ultrauserTicket,
-    },
-    {
-      key: "history",
-      label: "History",
-      icon: MdHistory,
-      route: ROUTE.ultrauserHistory,
-    },
-    {
-      key: "ultrauser-menu",
-      label: "Menu (ultrauser)",
-      icon: MdAdminPanelSettings,
-      route: ROUTE.ultrauserMenu,
-    },
-  ],
-
-  // ADD MORE ROLE [
-
-  // ]
-};
-
-const ROLE_OPTIONS = [
-  { value: "customer", label: "Customer" },
-  { value: "cs_agent", label: "CS Agent" },
-  { value: "technician", label: "Technician" },
-  { value: "admin", label: "Admin" },
-  { value: "ultrauser", label: "Ultrauser" },
-];
-
-const getTargetRoute = (r) => {
-  if (r === "cs_agent") return ROUTE.agentDashboard;
-  if (r === "ultrauser") return ROUTE.ultrauserDashboard;
-  if (r === "technician") return ROUTE.technicianDashboard;
-  return ROUTE.customerDashboard;
-};
-
 export default function Sidebar({
   sidebarOpen,
   setSidebarOpen,
   activeMenu,
   setActiveMenu,
 }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { role, trueRole, changeRole } = useAuth();
   const [showRoleModal, setShowRoleModal] = useState(false);
+
+  const roleMenuItems = {
+    customer: [
+      {
+        key: "dashboard",
+        label: t("nav.dashboard"),
+        icon: MdDashboard,
+        route: ROUTE.customerDashboard,
+      },
+      {
+        key: "ticket",
+        label: t("nav.ticket"),
+        icon: MdConfirmationNumber,
+        route: ROUTE.customerTicket,
+      },
+      {
+        key: "history",
+        label: t("nav.history"),
+        icon: MdHistory,
+        route: ROUTE.customerHistory,
+      },
+    ],
+    cs_agent: [
+      {
+        key: "dashboard",
+        label: t("nav.dashboard"),
+        icon: MdDashboard,
+        route: ROUTE.agentDashboard,
+      },
+      {
+        key: "ticket",
+        label: t("nav.ticket"),
+        icon: MdConfirmationNumber,
+        route: ROUTE.agentTicket,
+      },
+      {
+        key: "Performance",
+        label: t("nav.performance"),
+        icon: MdWorkHistory,
+        route: ROUTE.agentPerformance,
+      },
+    ],
+    technician: [
+      {
+        key: "dashboard",
+        label: t("nav.dashboard"),
+        icon: MdDashboard,
+        route: ROUTE.technicianDashboard,
+      },
+    ],
+    admin: [
+      // tambah buat page admin disini
+    ],
+    ultrauser: [
+      {
+        key: "dashboard",
+        label: t("nav.dashboard"),
+        icon: MdDashboard,
+        route: ROUTE.ultrauserDashboard,
+      },
+      {
+        key: "ticket",
+        label: t("nav.ticket"),
+        icon: MdConfirmationNumber,
+        route: ROUTE.ultrauserTicket,
+      },
+      {
+        key: "history",
+        label: t("nav.history"),
+        icon: MdHistory,
+        route: ROUTE.ultrauserHistory,
+      },
+      {
+        key: "ultrauser-menu",
+        label: t("nav.menu"),
+        icon: MdAdminPanelSettings,
+        route: ROUTE.ultrauserMenu,
+      },
+    ],
+  };
+
+  const ROLE_OPTIONS = [
+    { value: "customer", label: t("roles.customer") },
+    { value: "cs_agent", label: t("roles.cs_agent") },
+    { value: "technician", label: t("roles.technician") },
+    { value: "admin", label: t("roles.admin") },
+    { value: "ultrauser", label: t("roles.ultrauser") },
+  ];
+
+  const getTargetRoute = (r) => {
+    if (r === "cs_agent") return ROUTE.agentDashboard;
+    if (r === "ultrauser") return ROUTE.ultrauserDashboard;
+    if (r === "technician") return ROUTE.technicianDashboard;
+    return ROUTE.customerDashboard;
+  };
 
   const menuItems = roleMenuItems[role] || [];
 
@@ -154,7 +152,7 @@ export default function Sidebar({
   };
 
   const handleSignOut = async () => {
-    // queryClient.removeQueries({ queryKey: ["my-tickets"] }); 
+    // queryClient.removeQueries({ queryKey: ["my-tickets"] });
     queryClient.clear();
     await supabase.auth.signOut();
     navigate(ROUTE.login);
@@ -253,7 +251,7 @@ export default function Sidebar({
                   letterSpacing: "0.05em",
                 }}
               >
-                Switch Role
+                {t("common.switchRole")}
               </div>
               {ROLE_OPTIONS.map((opt) => (
                 <div
@@ -313,7 +311,7 @@ export default function Sidebar({
                 maxWidth: sidebarOpen ? "200px" : "0",
               }}
             >
-              Change Role
+              {t("nav.changeRole")}
             </span>
           </div>
         )}
@@ -337,7 +335,7 @@ export default function Sidebar({
               maxWidth: sidebarOpen ? "200px" : "0",
             }}
           >
-            Profile
+            {t("nav.profile")}
           </span>
         </div>
 
@@ -360,7 +358,7 @@ export default function Sidebar({
               maxWidth: sidebarOpen ? "200px" : "0",
             }}
           >
-            Logout
+            {t("common.logout")}
           </span>
         </div>
       </div>

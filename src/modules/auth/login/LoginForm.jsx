@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { signInWithEmail } from "./login.service";
 
 export default function LoginForm() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [companyId, setCompanyId] = useState("");
@@ -15,7 +17,7 @@ export default function LoginForm() {
     setError("");
 
     if (!companyId.trim()) {
-      setError("Please enter Company ID");
+      setError(t("pages.loginForm.errors.companyIdRequired"));
       setLoading(false);
       return;
     }
@@ -49,10 +51,10 @@ export default function LoginForm() {
             color: "#1a202c",
           }}
         >
-          Sign in
+          {t("pages.loginForm.title")}
         </h2>
         <p style={{ color: "#718096", fontSize: "13px" }}>
-          Please enter your Email, Password and Company ID
+          {t("pages.loginForm.subtitle")}
         </p>
       </div>
 
@@ -68,11 +70,11 @@ export default function LoginForm() {
               color: "#374151",
             }}
           >
-            Email
+            {t("pages.loginForm.fields.emailLabel")}
           </label>
           <input
             type="email"
-            placeholder="Please enter your email."
+            placeholder={t("pages.loginForm.fields.emailPlaceholder")}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -103,11 +105,11 @@ export default function LoginForm() {
               color: "#374151",
             }}
           >
-            Password
+            {t("pages.loginForm.fields.passwordLabel")}
           </label>
           <input
             type={showPassword ? "text" : "password"}
-            placeholder="Please enter your password."
+            placeholder={t("pages.loginForm.fields.passwordPlaceholder")}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -138,11 +140,11 @@ export default function LoginForm() {
               color: "#374151",
             }}
           >
-            Company id
+            {t("pages.loginForm.fields.companyIdLabel")}
           </label>
           <input
             type="text"
-            placeholder="Please enter your Company ID."
+            placeholder={t("pages.loginForm.fields.companyIdPlaceholder")}
             value={companyId}
             onChange={(e) => setCompanyId(e.target.value)}
             required
@@ -186,7 +188,7 @@ export default function LoginForm() {
                 accentColor: "#FF6B6B",
               }}
             />
-            Show password
+            {t("pages.loginForm.showPassword")}
           </label>
         </div>
 
@@ -225,10 +227,14 @@ export default function LoginForm() {
             fontFamily: "inherit",
             marginBottom: "10px",
           }}
-          onMouseOver={(e) => !loading && (e.target.style.borderColor = "#FF6B6B")}
+          onMouseOver={(e) =>
+            !loading && (e.target.style.borderColor = "#FF6B6B")
+          }
           onMouseOut={(e) => (e.target.style.borderColor = "#e5e7eb")}
         >
-          {loading ? "Signing in..." : "Login"}
+          {loading
+            ? t("pages.loginForm.signingIn")
+            : t("pages.loginForm.login")}
         </button>
 
         <div
@@ -239,9 +245,11 @@ export default function LoginForm() {
             marginTop: "8px",
           }}
         >
-          Don&apos;t have account?{" "}
-          <span style={{ color: "#374151", fontWeight: "600", cursor: "pointer" }}>
-            Contact admin
+          {t("pages.loginForm.noAccount")}{" "}
+          <span
+            style={{ color: "#374151", fontWeight: "600", cursor: "pointer" }}
+          >
+            {t("pages.loginForm.contactAdmin")}
           </span>
         </div>
       </form>

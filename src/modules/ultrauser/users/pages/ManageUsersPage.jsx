@@ -1,11 +1,19 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import UserTable from "../components/UserTable";
 import UserForm from "../components/UserForm";
-import { getUsers, getRoles, createUser, updateUser, deleteUser } from "../user.service";
+import {
+  getUsers,
+  getRoles,
+  createUser,
+  updateUser,
+  deleteUser,
+} from "../user.service";
 import { ROUTE } from "../../../../app/routes";
 
 export default function ManageUsersPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
@@ -23,11 +31,11 @@ export default function ManageUsersPage() {
       setUsers(data);
       setRoles(roleList);
     } catch (err) {
-      setError(err?.message ?? "Failed to load users.");
+      setError(err?.message ?? t("pages.manageUsers.errors.load"));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     fetchUsers();
@@ -47,7 +55,10 @@ export default function ManageUsersPage() {
     try {
       setSubmitting(true);
       if (editingUser) {
-        await updateUser(editingUser.id, { name: data.name, roleId: data.roleId });
+        await updateUser(editingUser.id, {
+          name: data.name,
+          roleId: data.roleId,
+        });
       } else {
         await createUser(data);
       }
@@ -55,19 +66,20 @@ export default function ManageUsersPage() {
       setEditingUser(null);
       await fetchUsers();
     } catch (err) {
-      alert(err?.message ?? "Operation failed. Please try again.");
+      alert(err?.message ?? t("pages.manageUsers.errors.operation"));
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDelete = async (user) => {
-    if (!confirm(`Delete user "${user.name}"? This cannot be undone.`)) return;
+    if (!confirm(t("pages.manageUsers.confirmDelete", { name: user.name })))
+      return;
     try {
       await deleteUser(user.id);
       await fetchUsers();
     } catch (err) {
-      alert(err?.message ?? "Delete failed.");
+      alert(err?.message ?? t("pages.manageUsers.errors.delete"));
     }
   };
 
@@ -115,10 +127,10 @@ export default function ManageUsersPage() {
               margin: "0 0 2px 0",
             }}
           >
-            User Management
+            {t("pages.manageUsers.title")}
           </h1>
           <p style={{ color: "#718096", fontSize: "13px", margin: 0 }}>
-            View, create, edit, and delete CRM user accounts.
+            {t("pages.manageUsers.description")}
           </p>
         </div>
         <button
@@ -135,7 +147,7 @@ export default function ManageUsersPage() {
             fontSize: "14px",
           }}
         >
-          + Add User
+          {t("pages.manageUsers.addUser")}
         </button>
       </div>
 
@@ -169,7 +181,7 @@ export default function ManageUsersPage() {
             <div
               style={{ textAlign: "center", padding: "60px", color: "#9ca3af" }}
             >
-              Loading users...
+              {t("pages.manageUsers.loading")}
             </div>
           ) : (
             <UserTable
@@ -213,7 +225,9 @@ export default function ManageUsersPage() {
                 margin: "0 0 20px 0",
               }}
             >
-              {editingUser ? "Edit User" : "Create New User"}
+              {editingUser
+                ? t("pages.manageUsers.editUser")
+                : t("pages.manageUsers.createUser")}
             </h2>
             <UserForm
               initial={editingUser}

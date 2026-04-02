@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Button,
@@ -19,6 +20,7 @@ import {
 import LoadingSpinner from "../../../components/ui/LoadingSpinner";
 
 export default function TicketForm({ open, onClose }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -79,12 +81,12 @@ export default function TicketForm({ open, onClose }) {
       }
 
       await queryClient.invalidateQueries({ queryKey: ["my-tickets"] });
-      alert("Ticket created successfully!");
+      alert(t("pages.ticketForm.alerts.created"));
       setFormData({ subject: "", description: "", attachments: [] });
       onClose();
     } catch (error) {
       console.error("Submit error:", error);
-      alert("Something went wrong. Please try again.");
+      alert(t("pages.ticketForm.alerts.failed"));
     } finally {
       setIsSubmitting(false);
     }
@@ -148,10 +150,10 @@ export default function TicketForm({ open, onClose }) {
                 <Typography
                   sx={{ fontSize: { xs: 24, sm: 28 }, fontWeight: 800 }}
                 >
-                  Create New Ticket
+                  {t("pages.ticketForm.title")}
                 </Typography>
                 <Typography sx={{ fontSize: 13, color: "#667085", mt: 0.5 }}>
-                  Fill the details below and submit your request.
+                  {t("pages.ticketForm.subtitle")}
                 </Typography>
               </Box>
               <Button
@@ -178,8 +180,8 @@ export default function TicketForm({ open, onClose }) {
               <Stack spacing={2.5}>
                 <TextField
                   required
-                  label="Subject"
-                  placeholder="Enter subject"
+                  label={t("pages.ticketForm.fields.subjectLabel")}
+                  placeholder={t("pages.ticketForm.fields.subjectPlaceholder")}
                   value={formData.subject}
                   onChange={(e) =>
                     setFormData({ ...formData, subject: e.target.value })
@@ -191,8 +193,10 @@ export default function TicketForm({ open, onClose }) {
                   required
                   multiline
                   rows={5}
-                  label="Describe your problem"
-                  placeholder="Describe detail here..."
+                  label={t("pages.ticketForm.fields.descriptionLabel")}
+                  placeholder={t(
+                    "pages.ticketForm.fields.descriptionPlaceholder",
+                  )}
                   value={formData.description}
                   onChange={(e) =>
                     setFormData({ ...formData, description: e.target.value })
@@ -209,7 +213,7 @@ export default function TicketForm({ open, onClose }) {
                       mb: 1,
                     }}
                   >
-                    Attachments (optional)
+                    {t("pages.ticketForm.fields.attachmentsLabel")}
                   </Typography>
 
                   <Box
@@ -238,12 +242,12 @@ export default function TicketForm({ open, onClose }) {
                     <Typography
                       sx={{ fontSize: 15, fontWeight: 600, color: "#475467" }}
                     >
-                      Click to upload files
+                      {t("pages.ticketForm.upload.clickToUpload")}
                     </Typography>
                     <Typography
                       sx={{ fontSize: 12, color: "#98A2B3", mt: 0.5 }}
                     >
-                      JPG, PNG, PDF, Excel, CSV (max 10MB each)
+                      {t("pages.ticketForm.upload.typesHint")}
                     </Typography>
                     <input
                       type="file"
@@ -311,7 +315,7 @@ export default function TicketForm({ open, onClose }) {
                               fontWeight: 700,
                             }}
                           >
-                            Remove
+                            {t("pages.ticketForm.remove")}
                           </Button>
                         </Box>
                       ))}
@@ -337,7 +341,7 @@ export default function TicketForm({ open, onClose }) {
                     fontWeight: 700,
                   }}
                 >
-                  Cancel
+                  {t("pages.ticketForm.cancel")}
                 </Button>
                 <Button
                   type="submit"
@@ -352,7 +356,9 @@ export default function TicketForm({ open, onClose }) {
                     "&:hover": { background: "#e6723a" },
                   }}
                 >
-                  {isSubmitting ? "Submitting..." : "Submit Ticket"}
+                  {isSubmitting
+                    ? t("pages.ticketForm.submitting")
+                    : t("pages.ticketForm.submitTicket")}
                 </Button>
               </Stack>
             </form>
@@ -387,7 +393,7 @@ export default function TicketForm({ open, onClose }) {
                 <Typography
                   sx={{ fontSize: 13, color: "#475467", fontWeight: 600 }}
                 >
-                  Submitting ticket...
+                  {t("pages.ticketForm.submittingTicket")}
                 </Typography>
               </Box>
             </Box>

@@ -1,6 +1,7 @@
 import { createElement, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { MdChat, MdPeople, MdSupportAgent } from "react-icons/md";
+import { useTranslation } from "react-i18next";
 import ChatBot from "../../../components/ui/ChatBot";
 import { getDashboardStats } from "../dashboard.service";
 
@@ -39,6 +40,7 @@ const StatCard = ({ title, value, icon, loading }) => (
 );
 
 export default function AgentDashboardPage() {
+  const { t } = useTranslation();
   const [chatOpen, setChatOpen] = useState(false);
 
   const { data: stats, isLoading: statsLoading } = useQuery({
@@ -59,13 +61,13 @@ export default function AgentDashboardPage() {
         {/* Top Cards Row */}
         <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
           <StatCard
-            title="Total Technician"
+            title={t("pages.dashboard.totalTechnician")}
             value={stats?.totalTechnician}
             icon={MdPeople}
             loading={statsLoading}
           />
           <StatCard
-            title="Total CS Agent"
+            title={t("pages.dashboard.totalCsAgent")}
             value={stats?.totalCsAgent}
             icon={MdSupportAgent}
             loading={statsLoading}
@@ -93,7 +95,7 @@ export default function AgentDashboardPage() {
                 marginBottom: "20px",
               }}
             >
-              Ticket Solved by AI
+              {t("pages.dashboard.ticketSolvedByAi")}
             </div>
             <div
               style={{
@@ -105,7 +107,7 @@ export default function AgentDashboardPage() {
                 fontSize: "14px",
               }}
             >
-              Chart will be implemented here (Line Chart)
+              {t("pages.dashboard.lineChartPlaceholder")}
             </div>
           </div>
 
@@ -128,7 +130,7 @@ export default function AgentDashboardPage() {
                 marginBottom: "20px",
               }}
             >
-              Ticket Priority
+              {t("pages.dashboard.ticketPriority")}
             </div>
             <div
               style={{
@@ -140,7 +142,7 @@ export default function AgentDashboardPage() {
                 fontSize: "14px",
               }}
             >
-              Chart will be implemented here (Bar Chart)
+              {t("pages.dashboard.barChartPlaceholder")}
             </div>
           </div>
         </div>

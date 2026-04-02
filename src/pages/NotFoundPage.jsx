@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { MdArrowBack, MdHome } from "react-icons/md";
+import { useTranslation } from "react-i18next";
 
 export default function NotFoundPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <div
@@ -12,7 +14,8 @@ export default function NotFoundPage() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        fontFamily:
+          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
         padding: "24px",
       }}
     >
@@ -61,7 +64,7 @@ export default function NotFoundPage() {
             margin: "0 0 12px",
           }}
         >
-          Oops!
+          {t("pages.notFound.title")}
         </h1>
 
         {/* Description */}
@@ -74,7 +77,7 @@ export default function NotFoundPage() {
             fontWeight: "500",
           }}
         >
-          Looks like that page is lost.
+          {t("pages.notFound.subtitle")}
         </p>
         <p
           style={{
@@ -84,7 +87,7 @@ export default function NotFoundPage() {
             lineHeight: "1.6",
           }}
         >
-          The page you're looking for doesn't exist or has been moved.
+          {t("pages.notFound.description")}
         </p>
 
         {/* Buttons */}
@@ -122,7 +125,7 @@ export default function NotFoundPage() {
             }}
           >
             <MdArrowBack size={18} />
-            Go Back
+            {t("pages.notFound.goBack")}
           </button>
 
           <button
@@ -144,15 +147,17 @@ export default function NotFoundPage() {
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = "#e6723a";
-              e.currentTarget.style.boxShadow = "0 6px 16px rgba(255,128,64,0.4)";
+              e.currentTarget.style.boxShadow =
+                "0 6px 16px rgba(255,128,64,0.4)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = "#FF8040";
-              e.currentTarget.style.boxShadow = "0 4px 12px rgba(255,128,64,0.3)";
+              e.currentTarget.style.boxShadow =
+                "0 4px 12px rgba(255,128,64,0.3)";
             }}
           >
             <MdHome size={18} />
-            Go Home
+            {t("pages.notFound.goHome")}
           </button>
         </div>
       </div>

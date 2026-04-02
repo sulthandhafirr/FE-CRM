@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "../Sidebar";
+import LanguageToggle from "../ui/LanguageToggle";
 import { ROUTE } from "../../app/routes";
 
 const routeToMenuKey = {
@@ -15,7 +16,7 @@ export default function MainLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
   const [activeMenu, setActiveMenu] = useState(
-    routeToMenuKey[location.pathname] || "dashboard"
+    routeToMenuKey[location.pathname] || "dashboard",
   );
 
   return (
@@ -34,6 +35,7 @@ export default function MainLayout() {
         setActiveMenu={setActiveMenu}
       />
       <main style={{ flex: 1, overflowY: "auto", overflowX: "hidden" }}>
+        <LanguageToggle />
         <Outlet />
       </main>
     </div>

@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { ROUTE } from "./routes";
 import { useAuth } from "../hooks/useAuth";
 import MainLayout from "../components/layout/MainLayout";
@@ -33,11 +34,12 @@ const getRoleRoute = (role) => {
   // if (role === 'admin') return ROUTE.adminDashboard;
   if (role === "cs_agent") return ROUTE.agentDashboard;
   if (role === "ultrauser") return ROUTE.ultrauserDashboard;
-  if (role === 'technician') return ROUTE.technicianDashboard;
+  if (role === "technician") return ROUTE.technicianDashboard;
   return ROUTE.customerDashboard;
 };
 
 export default function Router() {
+  const { t } = useTranslation();
   const { user, role, loading } = useAuth();
 
   if (loading) return <LoadingSpinner />;
@@ -102,11 +104,17 @@ export default function Router() {
           />
           <Route
             path={ROUTE.ultrauserTicketTechnician}
-            element={<ComingSoonPage title="Technician Ticket View" />}
+            element={
+              <ComingSoonPage
+                title={t("pages.comingSoon.technicianTicketView")}
+              />
+            }
           />
           <Route
             path={ROUTE.ultrauserTicketAdmin}
-            element={<ComingSoonPage title="Admin Ticket View" />}
+            element={
+              <ComingSoonPage title={t("pages.comingSoon.adminTicketView")} />
+            }
           />
           <Route
             path={ROUTE.ultrauserHistory}
@@ -123,7 +131,10 @@ export default function Router() {
       {/* Technician Routes */}
       <Route element={<ProtectedRoute allowedRoles={["technician"]} />}>
         <Route element={<MainLayout />}>
-          <Route path={ROUTE.technicianDashboard} element={<TechnicianDashboardPage />} />
+          <Route
+            path={ROUTE.technicianDashboard}
+            element={<TechnicianDashboardPage />}
+          />
           {/* <Route path={ROUTE.technicianTicket} element={<technicianTicket />} /> */}
         </Route>
       </Route>

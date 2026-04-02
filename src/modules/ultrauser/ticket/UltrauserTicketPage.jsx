@@ -1,49 +1,52 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { ROUTE } from "../../../app/routes";
-
-const VIEW_OPTIONS = [
-  {
-    title: "Customer View",
-    description: "Browse and manage tickets from the customer's perspective.",
-    route: ROUTE.ultrauserTicketCustomer,
-    color: "#3b82f6",
-    bg: "#eff6ff",
-    border: "#bfdbfe",
-  },
-  {
-    title: "CS Agent View",
-    description: "Handle and respond to tickets as a customer service agent.",
-    route: ROUTE.ultrauserTicketAgent,
-    color: "#FF8040",
-    bg: "#fff4ee",
-    border: "#fcd9bc",
-  },
-  {
-    title: "Technician View",
-    description: "View tickets assigned to technical team members.",
-    route: ROUTE.ultrauserTicketTechnician,
-    color: "#8b5cf6",
-    bg: "#f5f3ff",
-    border: "#ddd6fe",
-  },
-  {
-    title: "Admin View",
-    description: "Full administrative overview of all ticket activity.",
-    route: ROUTE.ultrauserTicketAdmin,
-    color: "#16a34a",
-    bg: "#f0fdf4",
-    border: "#bbf7d0",
-  },
-];
 
 export default function UltrauserTicketPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
+  const VIEW_OPTIONS = [
+    {
+      title: t("pages.ultrauserTicket.customer.title"),
+      description: t("pages.ultrauserTicket.customer.description"),
+      route: ROUTE.ultrauserTicketCustomer,
+      color: "#3b82f6",
+      bg: "#eff6ff",
+      border: "#bfdbfe",
+    },
+    {
+      title: t("pages.ultrauserTicket.agent.title"),
+      description: t("pages.ultrauserTicket.agent.description"),
+      route: ROUTE.ultrauserTicketAgent,
+      color: "#FF8040",
+      bg: "#fff4ee",
+      border: "#fcd9bc",
+    },
+    {
+      title: t("pages.ultrauserTicket.technician.title"),
+      description: t("pages.ultrauserTicket.technician.description"),
+      route: ROUTE.ultrauserTicketTechnician,
+      color: "#8b5cf6",
+      bg: "#f5f3ff",
+      border: "#ddd6fe",
+    },
+    {
+      title: t("pages.ultrauserTicket.admin.title"),
+      description: t("pages.ultrauserTicket.admin.description"),
+      route: ROUTE.ultrauserTicketAdmin,
+      color: "#16a34a",
+      bg: "#f0fdf4",
+      border: "#bbf7d0",
+    },
+  ];
 
   return (
     <div
       style={{
         padding: "40px",
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        fontFamily:
+          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
         minHeight: "100vh",
         background: "#f9fafb",
       }}
@@ -123,7 +126,7 @@ export default function UltrauserTicketPage() {
                 fontSize: "14px",
               }}
             >
-              Open view →
+              {t("pages.ultrauserTicket.openView")}
             </div>
           </div>
         ))}

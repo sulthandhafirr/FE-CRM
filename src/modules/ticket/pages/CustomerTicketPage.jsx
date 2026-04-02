@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { MdChat } from "react-icons/md";
+import { useTranslation } from "react-i18next";
 import {
   Paper,
   Table,
@@ -21,6 +22,7 @@ import { getMyTickets } from "../ticket.service";
 import { getStatusColor, formatTicketDate } from "../ticket.schema";
 
 export default function CustomerTicketPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [chatOpen, setChatOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -126,7 +128,7 @@ export default function CustomerTicketPage() {
             cursor: "pointer",
           }}
         >
-          Create Ticket +
+          {t("pages.customerTicket.createTicket")}
         </button>
       </div>
 
@@ -140,7 +142,7 @@ export default function CustomerTicketPage() {
             color: "#333",
           }}
         >
-          Active Ticket{" "}
+          {t("pages.customerTicket.title")}{" "}
           <span style={{ color: "#FF8040" }}>• {tickets.length}</span>
         </div>
         <div
@@ -169,7 +171,7 @@ export default function CustomerTicketPage() {
                           direction={orderBy === "id" ? order : "asc"}
                           onClick={() => handleRequestSort("id")}
                         >
-                          Ticket ID
+                          {t("pages.customerTicket.columns.ticketId")}
                         </TableSortLabel>
                       </TableCell>
                       <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
@@ -178,11 +180,11 @@ export default function CustomerTicketPage() {
                           direction={orderBy === "subject" ? order : "asc"}
                           onClick={() => handleRequestSort("subject")}
                         >
-                          Subject
+                          {t("pages.customerTicket.columns.subject")}
                         </TableSortLabel>
                       </TableCell>
                       <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
-                        Status
+                        {t("pages.customerTicket.columns.status")}
                       </TableCell>
                       <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
                         <TableSortLabel
@@ -190,7 +192,7 @@ export default function CustomerTicketPage() {
                           direction={orderBy === "handler" ? order : "asc"}
                           onClick={() => handleRequestSort("handler")}
                         >
-                          Handler
+                          {t("pages.customerTicket.columns.handler")}
                         </TableSortLabel>
                       </TableCell>
                       <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
@@ -199,11 +201,11 @@ export default function CustomerTicketPage() {
                           direction={orderBy === "createdAt" ? order : "asc"}
                           onClick={() => handleRequestSort("createdAt")}
                         >
-                          Created at
+                          {t("pages.customerTicket.columns.createdAt")}
                         </TableSortLabel>
                       </TableCell>
                       <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
-                        Action
+                        {t("pages.customerTicket.columns.action")}
                       </TableCell>
                     </TableRow>
                   </TableHead>
@@ -243,7 +245,7 @@ export default function CustomerTicketPage() {
                               cursor: "pointer",
                             }}
                           >
-                            Details
+                            {t("pages.customerTicket.details")}
                           </button>
                         </TableCell>
                       </TableRow>
@@ -255,7 +257,7 @@ export default function CustomerTicketPage() {
                           colSpan={6}
                           sx={{ textAlign: "center", py: 4, color: "#999" }}
                         >
-                          No tickets found.
+                          {t("pages.customerTicket.empty")}
                         </TableCell>
                       </TableRow>
                     )}

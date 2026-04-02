@@ -1,26 +1,28 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import LoginForm from "./LoginForm";
 
 export default function LoginPage() {
+  const { t } = useTranslation();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // Images for carousel
   const images = [
     {
-      title: "AI Virtual Assistant",
-      version: "1.0",
+      title: t("pages.login.carousel.aiAssistant"),
+      version: t("pages.login.version"),
     },
     {
-      title: "Monitoring Dashboard",
-      version: "1.0",
+      title: t("pages.login.carousel.monitoringDashboard"),
+      version: t("pages.login.version"),
     },
     {
-      title: "Intelligent Ticket Classification",
-      version: "1.0",
+      title: t("pages.login.carousel.ticketClassification"),
+      version: t("pages.login.version"),
     },
     {
-      title: "Duplicate & Similar Ticket Detection",
-      version: "1.0",
+      title: t("pages.login.carousel.duplicateDetection"),
+      version: t("pages.login.version"),
     },
   ];
 
@@ -115,7 +117,7 @@ export default function LoginPage() {
                   letterSpacing: "3px",
                 }}
               >
-                CRM
+                {t("pages.login.brand.crm")}
               </div>
               <div
                 style={{
@@ -125,7 +127,7 @@ export default function LoginPage() {
                   opacity: "0.9",
                 }}
               >
-                SYSTEM
+                {t("pages.login.brand.system")}
               </div>
             </div>
           </div>
@@ -175,7 +177,8 @@ export default function LoginPage() {
                   display: "inline-block",
                 }}
               >
-                VERSION {images[currentImageIndex].version}
+                {t("pages.login.versionLabel")}{" "}
+                {images[currentImageIndex].version}
               </p>
             </div>
 

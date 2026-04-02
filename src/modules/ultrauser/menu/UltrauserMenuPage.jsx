@@ -1,25 +1,28 @@
 import UltrauserMenuCard from "./UltrauserMenuCard";
+import { useTranslation } from "react-i18next";
 import { ROUTE } from "../../../app/routes";
 
-const MENU_ITEMS = [
-  {
-    title: "User Management",
-    description: "Manage all CRM users view, create, edit, and delete accounts.",
-    link: ROUTE.ultrauserUsers,
-  },
-  {
-    title: "Company Management",
-    description: "View and manage company data registered in the CRM system.",
-    link: ROUTE.ultrauserCompany,
-  },
-  {
-    title: "System Overview",
-    description: "Masih OTW fiturnya, gw masih mager.",
-    link: ROUTE.ultrauserMenu,
-  },
-];
-
 export default function UltrauserMenuPage() {
+  const { t } = useTranslation();
+
+  const MENU_ITEMS = [
+    {
+      title: t("pages.ultrauserMenu.userManagement.title"),
+      description: t("pages.ultrauserMenu.userManagement.description"),
+      link: ROUTE.ultrauserUsers,
+    },
+    {
+      title: t("pages.ultrauserMenu.companyManagement.title"),
+      description: t("pages.ultrauserMenu.companyManagement.description"),
+      link: ROUTE.ultrauserCompany,
+    },
+    {
+      title: t("pages.ultrauserMenu.systemOverview.title"),
+      description: t("pages.ultrauserMenu.systemOverview.description"),
+      link: ROUTE.ultrauserMenu,
+    },
+  ];
+
   return (
     <div
       style={{

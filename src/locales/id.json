@@ -1,0 +1,281 @@
+{
+  "nav": {
+    "dashboard": "Dasbor",
+    "ticket": "Tiket",
+    "history": "Riwayat",
+    "performance": "Performa",
+    "menu": "Menu (ultrauser)",
+    "changeRole": "Ubah Peran",
+    "profile": "Profil"
+  },
+  "common": {
+    "logout": "Keluar",
+    "switchRole": "Ganti Peran",
+    "language": "Bahasa"
+  },
+  "roles": {
+    "customer": "Pelanggan",
+    "cs_agent": "Agen CS",
+    "technician": "Teknisi",
+    "admin": "Admin",
+    "ultrauser": "Ultrauser"
+  },
+  "pages": {
+    "notFound": {
+      "title": "Ups!",
+      "subtitle": "Sepertinya halaman ini tersesat.",
+      "description": "Halaman yang kamu cari tidak ada atau sudah dipindahkan.",
+      "goBack": "Kembali",
+      "goHome": "Ke Beranda"
+    },
+    "comingSoon": {
+      "message": "Halaman ini sedang dikembangkan.",
+      "technicianTicketView": "Tampilan Tiket Teknisi",
+      "adminTicketView": "Tampilan Tiket Admin"
+    },
+    "ultrauserMenu": {
+      "userManagement": {
+        "title": "Manajemen Pengguna",
+        "description": "Kelola semua pengguna CRM: lihat, buat, ubah, dan hapus akun."
+      },
+      "companyManagement": {
+        "title": "Manajemen Perusahaan",
+        "description": "Lihat dan kelola data perusahaan yang terdaftar di sistem CRM."
+      },
+      "systemOverview": {
+        "title": "Ringkasan Sistem",
+        "description": "Fitur ini masih dalam tahap pengembangan."
+      }
+    },
+    "ultrauserTicket": {
+      "customer": {
+        "title": "Tampilan Pelanggan",
+        "description": "Telusuri dan kelola tiket dari sudut pandang pelanggan."
+      },
+      "agent": {
+        "title": "Tampilan Agen CS",
+        "description": "Tangani dan balas tiket sebagai agen layanan pelanggan."
+      },
+      "technician": {
+        "title": "Tampilan Teknisi",
+        "description": "Lihat tiket yang ditugaskan ke tim teknis."
+      },
+      "admin": {
+        "title": "Tampilan Admin",
+        "description": "Ringkasan administratif penuh untuk seluruh aktivitas tiket."
+      },
+      "openView": "Buka tampilan ->"
+    },
+    "dashboard": {
+      "totalTechnician": "Total Teknisi",
+      "totalCsAgent": "Total Agen CS",
+      "ticketSolvedByAi": "Tiket Diselesaikan oleh AI",
+      "lineChartPlaceholder": "Grafik akan diimplementasikan di sini (Line Chart)",
+      "ticketPriority": "Prioritas Tiket",
+      "barChartPlaceholder": "Grafik akan diimplementasikan di sini (Bar Chart)"
+    },
+    "login": {
+      "version": "1.0",
+      "versionLabel": "VERSI",
+      "brand": {
+        "crm": "CRM",
+        "system": "SYSTEM"
+      },
+      "carousel": {
+        "aiAssistant": "Asisten Virtual AI",
+        "monitoringDashboard": "Dashboard Monitoring",
+        "ticketClassification": "Klasifikasi Tiket Cerdas",
+        "duplicateDetection": "Deteksi Tiket Duplikat & Serupa"
+      }
+    },
+    "loginForm": {
+      "title": "Masuk",
+      "subtitle": "Silakan masukkan Email, Password, dan ID Perusahaan Anda",
+      "showPassword": "Tampilkan password",
+      "signingIn": "Sedang masuk...",
+      "login": "Masuk",
+      "noAccount": "Belum punya akun?",
+      "contactAdmin": "Hubungi admin",
+      "fields": {
+        "emailLabel": "Email",
+        "emailPlaceholder": "Silakan masukkan email Anda.",
+        "passwordLabel": "Password",
+        "passwordPlaceholder": "Silakan masukkan password Anda.",
+        "companyIdLabel": "ID Perusahaan",
+        "companyIdPlaceholder": "Silakan masukkan ID Perusahaan Anda."
+      },
+      "errors": {
+        "companyIdRequired": "Silakan masukkan ID Perusahaan"
+      }
+    },
+    "customerHistory": {
+      "title": "Riwayat Tiket",
+      "details": "Detail",
+      "empty": "Tidak ada data",
+      "columns": {
+        "ticketId": "ID Tiket",
+        "subject": "Subjek",
+        "status": "Status",
+        "solvedBy": "Diselesaikan Oleh",
+        "solvedAt": "Diselesaikan Pada",
+        "action": "Aksi"
+      }
+    },
+    "customerTicket": {
+      "title": "Tiket Aktif",
+      "createTicket": "Buat Tiket +",
+      "details": "Detail",
+      "empty": "Tidak ada tiket.",
+      "columns": {
+        "ticketId": "ID Tiket",
+        "subject": "Subjek",
+        "status": "Status",
+        "handler": "Penangan",
+        "createdAt": "Dibuat pada",
+        "action": "Aksi"
+      }
+    },
+    "manageUsers": {
+      "title": "Manajemen Pengguna",
+      "description": "Lihat, buat, ubah, dan hapus akun pengguna CRM.",
+      "addUser": "+ Tambah Pengguna",
+      "loading": "Memuat pengguna...",
+      "editUser": "Ubah Pengguna",
+      "createUser": "Buat Pengguna Baru",
+      "confirmDelete": "Hapus pengguna \"{{name}}\"? Tindakan ini tidak bisa dibatalkan.",
+      "errors": {
+        "load": "Gagal memuat pengguna.",
+        "operation": "Operasi gagal. Silakan coba lagi.",
+        "delete": "Gagal menghapus."
+      }
+    },
+    "companyList": {
+      "title": "Manajemen Perusahaan",
+      "description": "Lihat dan kelola perusahaan yang terdaftar di sistem CRM.",
+      "addCompany": "+ Tambah Perusahaan",
+      "loading": "Memuat perusahaan...",
+      "editCompany": "Ubah Perusahaan",
+      "createCompany": "Buat Perusahaan Baru",
+      "confirmDelete": "Hapus perusahaan \"{{name}}\"? Tindakan ini tidak bisa dibatalkan.",
+      "errors": {
+        "load": "Gagal memuat perusahaan.",
+        "operation": "Operasi gagal. Silakan coba lagi.",
+        "delete": "Gagal menghapus."
+      },
+      "form": {
+        "companyName": "Nama Perusahaan",
+        "companyNamePlaceholder": "Masukkan nama perusahaan",
+        "domain": "Domain (opsional)",
+        "domainPlaceholder": "contoh: acme.com",
+        "cancel": "Batal",
+        "saving": "Menyimpan...",
+        "saveChanges": "Simpan Perubahan",
+        "createCompany": "Buat Perusahaan"
+      }
+    },
+    "ticketDetail": {
+      "back": "Kembali",
+      "ticketNumber": "Tiket #{{id}}",
+      "notFound": "Detail tiket tidak ditemukan.",
+      "description": "Deskripsi",
+      "noDescription": "Tidak ada deskripsi.",
+      "status": "Status",
+      "handler": "Penangan",
+      "createdAt": "Dibuat Pada",
+      "resolvedAt": "Diselesaikan Pada",
+      "addResponse": "Tambah Respons",
+      "responsePlaceholder": "Tulis respons Anda...",
+      "submitting": "Mengirim...",
+      "submit": "Kirim",
+      "attachments": "Lampiran",
+      "noAttachments": "Tidak ada lampiran.",
+      "loading": "Memuat...",
+      "clickToView": "Klik untuk melihat",
+      "timeline": "Linimasa",
+      "noTimeline": "Belum ada aktivitas linimasa.",
+      "unknownSender": "Pengirim tidak dikenal",
+      "errors": {
+        "download": "Gagal mengunduh lampiran. Silakan coba lagi.",
+        "submit": "Gagal mengirim respons. Silakan coba lagi.",
+        "loadTimeline": "Gagal memuat linimasa."
+      }
+    },
+    "agentTicket": {
+      "back": "Kembali",
+      "confirmDeleteSelected": "Hapus {{count}} tiket terpilih?",
+      "confirmDeleteAllDuplicates": "Hapus semua {{count}} tiket duplikat?",
+      "responseSubmitted": "Respons berhasil dikirim!",
+      "promptDispatch": "Masukkan nama teknisi untuk ditugaskan:",
+      "description": "Deskripsi",
+      "noDescription": "Tidak ada deskripsi.",
+      "createdAt": "Dibuat pada",
+      "priority": "Prioritas",
+      "status": "Status",
+      "customer": "Pelanggan",
+      "addResponse": "Tambah Respons",
+      "responsePlaceholder": "Tulis respons Anda...",
+      "attachment": "Lampiran",
+      "selected": "Dipilih",
+      "dispatch": "Tugaskan",
+      "submitting": "Mengirim...",
+      "submit": "Kirim",
+      "timeline": "Linimasa",
+      "noTimeline": "Belum ada aktivitas linimasa.",
+      "you": "Anda",
+      "unassigned": "Belum ditugaskan",
+      "detail": "Detail",
+      "takeAction": "Ambil Aksi",
+      "duplicatesFound": "{{count}} duplikat ditemukan",
+      "noDuplicates": "Tidak ada duplikat",
+      "duplicateTicketsFor": "Tiket duplikat untuk:",
+      "ticketNumber": "(Tiket #{{id}})",
+      "duplicateTickets": "Tiket Duplikat",
+      "selectAtLeastOne": "Pilih minimal satu tiket untuk dihapus",
+      "deleteSelectedN": "Hapus {{count}} terpilih",
+      "delete": "Hapus",
+      "deleting": "Menghapus...",
+      "deleteAll": "Hapus Semua",
+      "noDuplicatesForSubject": "Tidak ada tiket duplikat untuk subjek ini.",
+      "listOfTickets": "Daftar Tiket",
+      "empty": "Tidak ada tiket.",
+      "columns": {
+        "ticketId": "ID Tiket",
+        "subject": "Subjek",
+        "priority": "Prioritas",
+        "status": "Status",
+        "assignedTo": "Ditugaskan ke",
+        "createdAt": "Dibuat pada",
+        "action": "Aksi"
+      },
+      "errors": {
+        "deleteSome": "Gagal menghapus beberapa tiket.",
+        "deleteAll": "Gagal menghapus semua duplikat.",
+        "submitResponse": "Gagal mengirim respons."
+      }
+    },
+    "ticketForm": {
+      "title": "Buat Tiket Baru",
+      "subtitle": "Isi detail berikut lalu kirim permintaan Anda.",
+      "fields": {
+        "subjectLabel": "Subjek",
+        "subjectPlaceholder": "Masukkan subjek",
+        "descriptionLabel": "Jelaskan masalah Anda",
+        "descriptionPlaceholder": "Jelaskan detailnya di sini...",
+        "attachmentsLabel": "Lampiran (opsional)"
+      },
+      "upload": {
+        "clickToUpload": "Klik untuk mengunggah file",
+        "typesHint": "JPG, PNG, PDF, Excel, CSV (maks 10MB per file)"
+      },
+      "remove": "Hapus",
+      "cancel": "Batal",
+      "submitting": "Mengirim...",
+      "submitTicket": "Kirim Tiket",
+      "submittingTicket": "Sedang mengirim tiket...",
+      "alerts": {
+        "created": "Tiket berhasil dibuat!",
+        "failed": "Terjadi kesalahan. Silakan coba lagi."
+      }
+    }
+  }
+}

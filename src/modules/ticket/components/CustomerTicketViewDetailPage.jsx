@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import {
   MdArrowBack,
   MdAttachFile,
@@ -17,6 +18,7 @@ import {
 import { getStatusColor, formatTicketDate } from "../ticket.schema";
 
 export default function CustomerTicketViewDetailPage() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { ticketId } = useParams();
@@ -73,7 +75,7 @@ export default function CustomerTicketViewDetailPage() {
       window.open(signedUrl, "_blank");
     } catch (error) {
       console.error("Failed to download attachment:", error);
-      alert("Failed to download attachment. Please try again.");
+      alert(t("pages.ticketDetail.errors.download"));
     } finally {
       setDownloadingId(null);
     }
@@ -89,7 +91,7 @@ export default function CustomerTicketViewDetailPage() {
       setResponseText("");
     } catch (error) {
       console.error("Failed to submit comment:", error);
-      alert("Failed to submit response. Please try again.");
+      alert(t("pages.ticketDetail.errors.submit"));
     }
   };
 
@@ -145,7 +147,7 @@ export default function CustomerTicketViewDetailPage() {
                   fontSize: "14px",
                 }}
               >
-                <MdArrowBack size={20} /> Back
+                <MdArrowBack size={20} /> {t("pages.ticketDetail.back")}
               </button>
               <div
                 style={{
@@ -154,7 +156,7 @@ export default function CustomerTicketViewDetailPage() {
                   fontSize: "14px",
                 }}
               >
-                Ticket #{ticketId}
+                {t("pages.ticketDetail.ticketNumber", { id: ticketId })}
               </div>
             </div>
 
@@ -171,7 +173,7 @@ export default function CustomerTicketViewDetailPage() {
                     padding: "24px",
                   }}
                 >
-                  Ticket detail not found.
+                  {t("pages.ticketDetail.notFound")}
                 </div>
               ) : (
                 <div
@@ -205,7 +207,7 @@ export default function CustomerTicketViewDetailPage() {
                         marginBottom: "6px",
                       }}
                     >
-                      Description
+                      {t("pages.ticketDetail.description")}
                     </div>
                     <p
                       style={{
@@ -214,7 +216,8 @@ export default function CustomerTicketViewDetailPage() {
                         marginBottom: "24px",
                       }}
                     >
-                      {ticket.description || "No description provided."}
+                      {ticket.description ||
+                        t("pages.ticketDetail.noDescription")}
                     </p>
 
                     <div
@@ -233,7 +236,7 @@ export default function CustomerTicketViewDetailPage() {
                             marginBottom: "4px",
                           }}
                         >
-                          Status
+                          {t("pages.ticketDetail.status")}
                         </div>
                         <div
                           style={{
@@ -253,7 +256,7 @@ export default function CustomerTicketViewDetailPage() {
                             marginBottom: "4px",
                           }}
                         >
-                          Handler
+                          {t("pages.ticketDetail.handler")}
                         </div>
                         <div style={{ color: "#333" }}>
                           {ticket.handler || "-"}
@@ -268,7 +271,7 @@ export default function CustomerTicketViewDetailPage() {
                             marginBottom: "4px",
                           }}
                         >
-                          Created At
+                          {t("pages.ticketDetail.createdAt")}
                         </div>
                         <div style={{ color: "#333" }}>
                           {formatTicketDate(ticket.createdAt)}
@@ -283,7 +286,7 @@ export default function CustomerTicketViewDetailPage() {
                             marginBottom: "4px",
                           }}
                         >
-                          Resolved At
+                          {t("pages.ticketDetail.resolvedAt")}
                         </div>
                         <div style={{ color: "#333" }}>
                           {formatTicketDate(ticket.resolvedAt)}
@@ -306,12 +309,14 @@ export default function CustomerTicketViewDetailPage() {
                           color: "#333",
                         }}
                       >
-                        Add Response
+                        {t("pages.ticketDetail.addResponse")}
                       </h3>
                       <form onSubmit={handleSubmitResponse}>
                         <textarea
                           rows={4}
-                          placeholder="Write your response..."
+                          placeholder={t(
+                            "pages.ticketDetail.responsePlaceholder",
+                          )}
                           value={responseText}
                           onChange={(event) =>
                             setResponseText(event.target.value)
@@ -357,7 +362,9 @@ export default function CustomerTicketViewDetailPage() {
                               fontSize: "14px",
                             }}
                           >
-                            {isSubmittingComment ? "Submitting..." : "Submit"}
+                            {isSubmittingComment
+                              ? t("pages.ticketDetail.submitting")
+                              : t("pages.ticketDetail.submit")}
                           </button>
                         </div>
                       </form>
@@ -380,12 +387,12 @@ export default function CustomerTicketViewDetailPage() {
                         color: "#333",
                       }}
                     >
-                      Attachments
+                      {t("pages.ticketDetail.attachments")}
                     </h3>
 
                     {attachments.length === 0 ? (
                       <div style={{ color: "#9ca3af", fontSize: "14px" }}>
-                        No attachments.
+                        {t("pages.ticketDetail.noAttachments")}
                       </div>
                     ) : (
                       <div
@@ -441,8 +448,8 @@ export default function CustomerTicketViewDetailPage() {
                                 }}
                               >
                                 {downloadingId === file.id
-                                  ? "Loading..."
-                                  : "Click to view"}
+                                  ? t("pages.ticketDetail.loading")
+                                  : t("pages.ticketDetail.clickToView")}
                               </div>
                             </div>
                           </button>
@@ -471,7 +478,7 @@ export default function CustomerTicketViewDetailPage() {
                           color: "#333",
                         }}
                       >
-                        Timeline
+                        {t("pages.ticketDetail.timeline")}
                       </h3>
 
                       {commentsLoading ? (
@@ -480,11 +487,11 @@ export default function CustomerTicketViewDetailPage() {
                         </div>
                       ) : commentsError ? (
                         <div style={{ color: "#9ca3af", fontSize: "14px" }}>
-                          Failed to load timeline.
+                          {t("pages.ticketDetail.errors.loadTimeline")}
                         </div>
                       ) : comments.length === 0 ? (
                         <div style={{ color: "#9ca3af", fontSize: "14px" }}>
-                          No timeline events yet.
+                          {t("pages.ticketDetail.noTimeline")}
                         </div>
                       ) : (
                         <div
@@ -574,7 +581,8 @@ export default function CustomerTicketViewDetailPage() {
                                         color: "#333",
                                       }}
                                     >
-                                      {comment.senderName || "Unknown sender"}
+                                      {comment.senderName ||
+                                        t("pages.ticketDetail.unknownSender")}
                                     </div>
                                     <div
                                       style={{

@@ -1,0 +1,281 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "ticket": "Ticket",
+    "history": "History",
+    "performance": "Performance",
+    "menu": "Menu (ultrauser)",
+    "changeRole": "Change Role",
+    "profile": "Profile"
+  },
+  "common": {
+    "logout": "Logout",
+    "switchRole": "Switch Role",
+    "language": "Language"
+  },
+  "roles": {
+    "customer": "Customer",
+    "cs_agent": "CS Agent",
+    "technician": "Technician",
+    "admin": "Admin",
+    "ultrauser": "Ultrauser"
+  },
+  "pages": {
+    "notFound": {
+      "title": "Oops!",
+      "subtitle": "Looks like that page is lost.",
+      "description": "The page you're looking for doesn't exist or has been moved.",
+      "goBack": "Go Back",
+      "goHome": "Go Home"
+    },
+    "comingSoon": {
+      "message": "This view is under construction.",
+      "technicianTicketView": "Technician Ticket View",
+      "adminTicketView": "Admin Ticket View"
+    },
+    "ultrauserMenu": {
+      "userManagement": {
+        "title": "User Management",
+        "description": "Manage all CRM users view, create, edit, and delete accounts."
+      },
+      "companyManagement": {
+        "title": "Company Management",
+        "description": "View and manage company data registered in the CRM system."
+      },
+      "systemOverview": {
+        "title": "System Overview",
+        "description": "This feature is still in progress."
+      }
+    },
+    "ultrauserTicket": {
+      "customer": {
+        "title": "Customer View",
+        "description": "Browse and manage tickets from the customer's perspective."
+      },
+      "agent": {
+        "title": "CS Agent View",
+        "description": "Handle and respond to tickets as a customer service agent."
+      },
+      "technician": {
+        "title": "Technician View",
+        "description": "View tickets assigned to technical team members."
+      },
+      "admin": {
+        "title": "Admin View",
+        "description": "Full administrative overview of all ticket activity."
+      },
+      "openView": "Open view ->"
+    },
+    "dashboard": {
+      "totalTechnician": "Total Technician",
+      "totalCsAgent": "Total CS Agent",
+      "ticketSolvedByAi": "Ticket Solved by AI",
+      "lineChartPlaceholder": "Chart will be implemented here (Line Chart)",
+      "ticketPriority": "Ticket Priority",
+      "barChartPlaceholder": "Chart will be implemented here (Bar Chart)"
+    },
+    "login": {
+      "version": "1.0",
+      "versionLabel": "VERSION",
+      "brand": {
+        "crm": "CRM",
+        "system": "SYSTEM"
+      },
+      "carousel": {
+        "aiAssistant": "AI Virtual Assistant",
+        "monitoringDashboard": "Monitoring Dashboard",
+        "ticketClassification": "Intelligent Ticket Classification",
+        "duplicateDetection": "Duplicate & Similar Ticket Detection"
+      }
+    },
+    "loginForm": {
+      "title": "Sign in",
+      "subtitle": "Please enter your Email, Password and Company ID",
+      "showPassword": "Show password",
+      "signingIn": "Signing in...",
+      "login": "Login",
+      "noAccount": "Don't have account?",
+      "contactAdmin": "Contact admin",
+      "fields": {
+        "emailLabel": "Email",
+        "emailPlaceholder": "Please enter your email.",
+        "passwordLabel": "Password",
+        "passwordPlaceholder": "Please enter your password.",
+        "companyIdLabel": "Company id",
+        "companyIdPlaceholder": "Please enter your Company ID."
+      },
+      "errors": {
+        "companyIdRequired": "Please enter Company ID"
+      }
+    },
+    "customerHistory": {
+      "title": "History Ticket",
+      "details": "Details",
+      "empty": "None",
+      "columns": {
+        "ticketId": "Ticket ID",
+        "subject": "Subject",
+        "status": "Status",
+        "solvedBy": "Solved By",
+        "solvedAt": "Solved At",
+        "action": "Action"
+      }
+    },
+    "customerTicket": {
+      "title": "Active Ticket",
+      "createTicket": "Create Ticket +",
+      "details": "Details",
+      "empty": "No tickets found.",
+      "columns": {
+        "ticketId": "Ticket ID",
+        "subject": "Subject",
+        "status": "Status",
+        "handler": "Handler",
+        "createdAt": "Created at",
+        "action": "Action"
+      }
+    },
+    "manageUsers": {
+      "title": "User Management",
+      "description": "View, create, edit, and delete CRM user accounts.",
+      "addUser": "+ Add User",
+      "loading": "Loading users...",
+      "editUser": "Edit User",
+      "createUser": "Create New User",
+      "confirmDelete": "Delete user \"{{name}}\"? This cannot be undone.",
+      "errors": {
+        "load": "Failed to load users.",
+        "operation": "Operation failed. Please try again.",
+        "delete": "Delete failed."
+      }
+    },
+    "companyList": {
+      "title": "Company Management",
+      "description": "View and manage companies registered in the CRM system.",
+      "addCompany": "+ Add Company",
+      "loading": "Loading companies...",
+      "editCompany": "Edit Company",
+      "createCompany": "Create New Company",
+      "confirmDelete": "Delete company \"{{name}}\"? This cannot be undone.",
+      "errors": {
+        "load": "Failed to load companies.",
+        "operation": "Operation failed. Please try again.",
+        "delete": "Delete failed."
+      },
+      "form": {
+        "companyName": "Company Name",
+        "companyNamePlaceholder": "Enter company name",
+        "domain": "Domain (optional)",
+        "domainPlaceholder": "e.g. acme.com",
+        "cancel": "Cancel",
+        "saving": "Saving...",
+        "saveChanges": "Save Changes",
+        "createCompany": "Create Company"
+      }
+    },
+    "ticketDetail": {
+      "back": "Back",
+      "ticketNumber": "Ticket #{{id}}",
+      "notFound": "Ticket detail not found.",
+      "description": "Description",
+      "noDescription": "No description provided.",
+      "status": "Status",
+      "handler": "Handler",
+      "createdAt": "Created At",
+      "resolvedAt": "Resolved At",
+      "addResponse": "Add Response",
+      "responsePlaceholder": "Write your response...",
+      "submitting": "Submitting...",
+      "submit": "Submit",
+      "attachments": "Attachments",
+      "noAttachments": "No attachments.",
+      "loading": "Loading...",
+      "clickToView": "Click to view",
+      "timeline": "Timeline",
+      "noTimeline": "No timeline events yet.",
+      "unknownSender": "Unknown sender",
+      "errors": {
+        "download": "Failed to download attachment. Please try again.",
+        "submit": "Failed to submit response. Please try again.",
+        "loadTimeline": "Failed to load timeline."
+      }
+    },
+    "agentTicket": {
+      "back": "Back",
+      "confirmDeleteSelected": "Delete {{count}} selected ticket(s)?",
+      "confirmDeleteAllDuplicates": "Delete all {{count}} duplicate ticket(s)?",
+      "responseSubmitted": "Response submitted!",
+      "promptDispatch": "Enter technician name to dispatch to:",
+      "description": "Description",
+      "noDescription": "No description provided.",
+      "createdAt": "Created at",
+      "priority": "Priority",
+      "status": "Status",
+      "customer": "Customer",
+      "addResponse": "Add Response",
+      "responsePlaceholder": "Write your response...",
+      "attachment": "Attachment",
+      "selected": "Selected",
+      "dispatch": "Dispatch",
+      "submitting": "Submitting...",
+      "submit": "Submit",
+      "timeline": "Timeline",
+      "noTimeline": "No timeline events yet.",
+      "you": "You",
+      "unassigned": "Unassigned",
+      "detail": "Detail",
+      "takeAction": "Take Action",
+      "duplicatesFound": "{{count}} duplicate(s) found",
+      "noDuplicates": "No duplicates found",
+      "duplicateTicketsFor": "Duplicate tickets for:",
+      "ticketNumber": "(Ticket #{{id}})",
+      "duplicateTickets": "Duplicate Tickets",
+      "selectAtLeastOne": "Select at least one ticket to delete",
+      "deleteSelectedN": "Delete {{count}} selected",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "deleteAll": "Delete All",
+      "noDuplicatesForSubject": "No duplicate tickets found for this subject.",
+      "listOfTickets": "List of Tickets",
+      "empty": "No tickets found.",
+      "columns": {
+        "ticketId": "Ticket ID",
+        "subject": "Subject",
+        "priority": "Priority",
+        "status": "Status",
+        "assignedTo": "Assigned To",
+        "createdAt": "Created at",
+        "action": "Action"
+      },
+      "errors": {
+        "deleteSome": "Failed to delete some tickets.",
+        "deleteAll": "Failed to delete all duplicates.",
+        "submitResponse": "Failed to submit response."
+      }
+    },
+    "ticketForm": {
+      "title": "Create New Ticket",
+      "subtitle": "Fill the details below and submit your request.",
+      "fields": {
+        "subjectLabel": "Subject",
+        "subjectPlaceholder": "Enter subject",
+        "descriptionLabel": "Describe your problem",
+        "descriptionPlaceholder": "Describe detail here...",
+        "attachmentsLabel": "Attachments (optional)"
+      },
+      "upload": {
+        "clickToUpload": "Click to upload files",
+        "typesHint": "JPG, PNG, PDF, Excel, CSV (max 10MB each)"
+      },
+      "remove": "Remove",
+      "cancel": "Cancel",
+      "submitting": "Submitting...",
+      "submitTicket": "Submit Ticket",
+      "submittingTicket": "Submitting ticket...",
+      "alerts": {
+        "created": "Ticket created successfully!",
+        "failed": "Something went wrong. Please try again."
+      }
+    }
+  }
+}

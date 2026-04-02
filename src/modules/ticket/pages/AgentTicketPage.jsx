@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import {
   MdChat,
   MdArrowBack,
@@ -33,7 +34,11 @@ import {
   updateTicket,
   deleteTicket,
 } from "../ticket.service";
-import { getPriorityColor, getStatusColor, formatTicketDate } from "../ticket.schema";
+import {
+  getPriorityColor,
+  getStatusColor,
+  formatTicketDate,
+} from "../ticket.schema";
 
 // ── Pure sort helper (defined outside component — stable reference) ─────────
 function sortTicketsFn(list, ob, o) {
@@ -44,7 +49,10 @@ function sortTicketsFn(list, ob, o) {
       aValue = new Date(aValue ?? 0).getTime();
       bValue = new Date(bValue ?? 0).getTime();
     }
-    if (ob === "id") { aValue = Number(aValue); bValue = Number(bValue); }
+    if (ob === "id") {
+      aValue = Number(aValue);
+      bValue = Number(bValue);
+    }
     if (aValue == null) aValue = "";
     if (bValue == null) bValue = "";
     if (typeof aValue === "string") aValue = aValue.toLowerCase();
@@ -56,6 +64,7 @@ function sortTicketsFn(list, ob, o) {
 }
 
 export default function AgentTicketPage() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   // UI state
@@ -111,25 +120,33 @@ export default function AgentTicketPage() {
       allTickets.filter(
         (t) =>
           t.id !== ticket.id &&
-          t.subject?.trim().toLowerCase() === ticket.subject?.trim().toLowerCase()
+          t.subject?.trim().toLowerCase() ===
+            ticket.subject?.trim().toLowerCase(),
       ),
-    []
+    [],
   );
 
   // ── Sorted lists ──────────────────────────────────────────────────────────
   const sortedTickets = useMemo(
     () => sortTicketsFn(tickets, orderBy, order),
-    [tickets, orderBy, order]
+    [tickets, orderBy, order],
   );
 
   const sortedDuplicates = useMemo(() => {
     if (!duplicateSource) return [];
-    return sortTicketsFn(getDuplicates(duplicateSource, tickets), dupOrderBy, dupOrder);
+    return sortTicketsFn(
+      getDuplicates(duplicateSource, tickets),
+      dupOrderBy,
+      dupOrder,
+    );
   }, [duplicateSource, tickets, dupOrderBy, dupOrder, getDuplicates]);
 
   // ── Pagination — main list ────────────────────────────────────────────────
   const safePage = useMemo(() => {
-    const maxPage = Math.max(0, Math.ceil(sortedTickets.length / rowsPerPage) - 1);
+    const maxPage = Math.max(
+      0,
+      Math.ceil(sortedTickets.length / rowsPerPage) - 1,
+    );
     return Math.min(page, maxPage);
   }, [page, rowsPerPage, sortedTickets.length]);
 
@@ -140,7 +157,10 @@ export default function AgentTicketPage() {
 
   // ── Pagination — duplicates list ──────────────────────────────────────────
   const safeDupPage = useMemo(() => {
-    const maxPage = Math.max(0, Math.ceil(sortedDuplicates.length / dupRowsPerPage) - 1);
+    const maxPage = Math.max(
+      0,
+      Math.ceil(sortedDuplicates.length / dupRowsPerPage) - 1,
+    );
     return Math.min(dupPage, maxPage);
   }, [dupPage, dupRowsPerPage, sortedDuplicates.length]);
 
@@ -152,17 +172,19 @@ export default function AgentTicketPage() {
   // ── Checkbox helpers ──────────────────────────────────────────────────────
   const allVisibleIds = useMemo(
     () => paginatedDuplicates.map((t) => t.id),
-    [paginatedDuplicates]
+    [paginatedDuplicates],
   );
 
   const allChecked = useMemo(
-    () => allVisibleIds.length > 0 && allVisibleIds.every((id) => selectedIds.has(id)),
-    [allVisibleIds, selectedIds]
+    () =>
+      allVisibleIds.length > 0 &&
+      allVisibleIds.every((id) => selectedIds.has(id)),
+    [allVisibleIds, selectedIds],
   );
 
   const someChecked = useMemo(
     () => allVisibleIds.some((id) => selectedIds.has(id)) && !allChecked,
-    [allVisibleIds, selectedIds, allChecked]
+    [allVisibleIds, selectedIds, allChecked],
   );
 
   const toggleOne = useCallback((id) => {
@@ -187,22 +209,39 @@ export default function AgentTicketPage() {
   }, [allVisibleIds]);
 
   // ── Sorting handlers ──────────────────────────────────────────────────────
-  const handleRequestSort = useCallback((property) => {
-    setOrder((prev) => (orderBy === property && prev === "asc" ? "desc" : "asc"));
-    setOrderBy(property);
-    setPage(0);
-  }, [orderBy]);
+  const handleRequestSort = useCallback(
+    (property) => {
+      setOrder((prev) =>
+        orderBy === property && prev === "asc" ? "desc" : "asc",
+      );
+      setOrderBy(property);
+      setPage(0);
+    },
+    [orderBy],
+  );
 
-  const handleDupSort = useCallback((property) => {
-    setDupOrder((prev) => (dupOrderBy === property && prev === "asc" ? "desc" : "asc"));
-    setDupOrderBy(property);
-    setDupPage(0);
-  }, [dupOrderBy]);
+  const handleDupSort = useCallback(
+    (property) => {
+      setDupOrder((prev) =>
+        dupOrderBy === property && prev === "asc" ? "desc" : "asc",
+      );
+      setDupOrderBy(property);
+      setDupPage(0);
+    },
+    [dupOrderBy],
+  );
 
   // ── Delete handlers ───────────────────────────────────────────────────────
   const handleDeleteSelected = async () => {
     if (selectedIds.size === 0) return;
-    if (!window.confirm(`Delete ${selectedIds.size} selected ticket(s)?`)) return;
+    if (
+      !window.confirm(
+        t("pages.agentTicket.confirmDeleteSelected", {
+          count: selectedIds.size,
+        }),
+      )
+    )
+      return;
     try {
       setDeleting(true);
       await Promise.all([...selectedIds].map((id) => deleteTicket(id)));
@@ -210,7 +249,7 @@ export default function AgentTicketPage() {
       queryClient.invalidateQueries(["all-tickets"]);
     } catch (err) {
       console.error("Error deleting tickets:", err.message);
-      alert("Failed to delete some tickets.");
+      alert(t("pages.agentTicket.errors.deleteSome"));
     } finally {
       setDeleting(false);
     }
@@ -218,16 +257,23 @@ export default function AgentTicketPage() {
 
   const handleDeleteAll = async () => {
     if (sortedDuplicates.length === 0) return;
-    if (!window.confirm(`Delete all ${sortedDuplicates.length} duplicate ticket(s)?`)) return;
+    if (
+      !window.confirm(
+        t("pages.agentTicket.confirmDeleteAllDuplicates", {
+          count: sortedDuplicates.length,
+        }),
+      )
+    )
+      return;
     try {
       setDeleting(true);
       await Promise.all(sortedDuplicates.map((t) => deleteTicket(t.id)));
       setSelectedIds(new Set());
       queryClient.invalidateQueries(["all-tickets"]);
-      setPageHistory(["list"]);     // ← reset ke root
+      setPageHistory(["list"]); // ← reset ke root
     } catch (err) {
       console.error("Error deleting all duplicates:", err.message);
-      alert("Failed to delete all duplicates.");
+      alert(t("pages.agentTicket.errors.deleteAll"));
     } finally {
       setDeleting(false);
     }
@@ -238,7 +284,7 @@ export default function AgentTicketPage() {
     setSelectedTicket(ticket);
     setResponseText("");
     setAttachment(null);
-    navigateTo("detail");           // ← ganti
+    navigateTo("detail"); // ← ganti
     try {
       const data = await getTicketTimeline(ticket.id);
       setTimeline(data);
@@ -248,12 +294,15 @@ export default function AgentTicketPage() {
     }
   };
 
-  const openDuplicates = useCallback((ticket) => {
-    setDuplicateSource(ticket);
-    setDupPage(0);
-    setSelectedIds(new Set());
-    navigateTo("duplicates");       // ← ganti
-  }, [navigateTo]);
+  const openDuplicates = useCallback(
+    (ticket) => {
+      setDuplicateSource(ticket);
+      setDupPage(0);
+      setSelectedIds(new Set());
+      navigateTo("duplicates"); // ← ganti
+    },
+    [navigateTo],
+  );
 
   // ── Response / action handlers ────────────────────────────────────────────
   const handleSubmitResponse = async (e) => {
@@ -276,10 +325,10 @@ export default function AgentTicketPage() {
       setAttachment(null);
       const data = await getTicketTimeline(selectedTicket.id);
       setTimeline(data);
-      alert("Response submitted!");
+      alert(t("pages.agentTicket.responseSubmitted"));
     } catch (err) {
       console.error("Error submitting response:", err.message);
-      alert("Failed to submit response.");
+      alert(t("pages.agentTicket.errors.submitResponse"));
     } finally {
       setSubmitting(false);
     }
@@ -295,7 +344,7 @@ export default function AgentTicketPage() {
   };
 
   const handleDispatch = async (ticket) => {
-    const techName = prompt("Enter technician name to dispatch to:");
+    const techName = prompt(t("pages.agentTicket.promptDispatch"));
     if (!techName) return;
     try {
       await updateTicket(ticket.id, { solver: techName, status: "Progress" });
@@ -307,16 +356,19 @@ export default function AgentTicketPage() {
 
   // ── Shared columns config ─────────────────────────────────────────────────
   const columns = [
-    { id: "id",        label: "Ticket ID"   },
-    { id: "subject",   label: "Subject"     },
-    { id: "priority",  label: "Priority"    },
-    { id: "status",    label: "Status"      },
-    { id: "solver",    label: "Assigned To" },
-    { id: "createdAt", label: "Created at"  },
+    { id: "id", label: t("pages.agentTicket.columns.ticketId") },
+    { id: "subject", label: t("pages.agentTicket.columns.subject") },
+    { id: "priority", label: t("pages.agentTicket.columns.priority") },
+    { id: "status", label: t("pages.agentTicket.columns.status") },
+    { id: "solver", label: t("pages.agentTicket.columns.assignedTo") },
+    { id: "createdAt", label: t("pages.agentTicket.columns.createdAt") },
   ];
 
   // ── Row renderer ──────────────────────────────────────────────────────────
-  const renderTicketRow = (ticket, { showDuplicate = true, isDupPage = false } = {}) => {
+  const renderTicketRow = (
+    ticket,
+    { showDuplicate = true, isDupPage = false } = {},
+  ) => {
     const isAssignedToSelf = ticket.solver === "You";
     const isDispatched =
       ticket.solver && ticket.solver !== "Not yet" && !isAssignedToSelf;
@@ -334,25 +386,47 @@ export default function AgentTicketPage() {
           </TableCell>
         )}
 
-        <TableCell sx={{ color: "#666", fontSize: "13px" }}>{ticket.id}</TableCell>
+        <TableCell sx={{ color: "#666", fontSize: "13px" }}>
+          {ticket.id}
+        </TableCell>
         <TableCell>{ticket.subject}</TableCell>
-        <TableCell sx={{ color: getPriorityColor(ticket.priority), fontWeight: 500 }}>
+        <TableCell
+          sx={{ color: getPriorityColor(ticket.priority), fontWeight: 500 }}
+        >
           {ticket.priority ?? "-"}
         </TableCell>
-        <TableCell sx={{ color: getStatusColor(ticket.status), fontWeight: 600 }}>
+        <TableCell
+          sx={{ color: getStatusColor(ticket.status), fontWeight: 600 }}
+        >
           {ticket.status}
         </TableCell>
         <TableCell>
           {isDispatched ? (
-            <span style={{ display: "flex", alignItems: "center", gap: "5px", color: "#333" }}>
+            <span
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "5px",
+                color: "#333",
+              }}
+            >
               <MdPerson size={16} /> {ticket.solver}
             </span>
           ) : isAssignedToSelf ? (
-            <span style={{ display: "flex", alignItems: "center", gap: "5px", color: "#FF8040" }}>
-              <MdSupportAgent size={16} /> You
+            <span
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "5px",
+                color: "#FF8040",
+              }}
+            >
+              <MdSupportAgent size={16} /> {t("pages.agentTicket.you")}
             </span>
           ) : (
-            <span style={{ color: "#999", fontSize: "13px" }}>Unassigned</span>
+            <span style={{ color: "#999", fontSize: "13px" }}>
+              {t("pages.agentTicket.unassigned")}
+            </span>
           )}
         </TableCell>
         <TableCell>{formatTicketDate(ticket.createdAt)}</TableCell>
@@ -361,51 +435,81 @@ export default function AgentTicketPage() {
             <button
               onClick={() => openTicketDetail(ticket)}
               style={{
-                background: "#FF8040", color: "white", border: "none",
-                padding: "6px 14px", borderRadius: "6px",
-                fontWeight: "600", cursor: "pointer", fontSize: "13px",
+                background: "#FF8040",
+                color: "white",
+                border: "none",
+                padding: "6px 14px",
+                borderRadius: "6px",
+                fontWeight: "600",
+                cursor: "pointer",
+                fontSize: "13px",
               }}
             >
-              Detail
+              {t("pages.agentTicket.detail")}
             </button>
 
             {!isAssignedToSelf && !isDispatched && (
               <button
                 onClick={() => handleTakeAction(ticket)}
                 style={{
-                  background: "white", color: "#FF8040",
-                  border: "2px solid #FF8040", padding: "6px 14px",
-                  borderRadius: "6px", fontWeight: "600",
-                  cursor: "pointer", fontSize: "13px",
+                  background: "white",
+                  color: "#FF8040",
+                  border: "2px solid #FF8040",
+                  padding: "6px 14px",
+                  borderRadius: "6px",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                  fontSize: "13px",
                 }}
               >
-                Take Action
+                {t("pages.agentTicket.takeAction")}
               </button>
             )}
 
             {showDuplicate && !isDupPage && (
               <button
                 onClick={() => openDuplicates(ticket)}
-                title={dupCount > 0 ? `${dupCount} duplicate(s) found` : "No duplicates found"}
+                title={
+                  dupCount > 0
+                    ? t("pages.agentTicket.duplicatesFound", {
+                        count: dupCount,
+                      })
+                    : t("pages.agentTicket.noDuplicates")
+                }
                 style={{
                   background: "white",
                   color: dupCount > 0 ? "#FF8040" : "#bbb",
                   border: `2px solid ${dupCount > 0 ? "#FF8040" : "#ddd"}`,
-                  padding: "6px 10px", borderRadius: "6px", fontWeight: "600",
-                  cursor: "pointer", fontSize: "13px",
-                  display: "flex", alignItems: "center", gap: "4px",
+                  padding: "6px 10px",
+                  borderRadius: "6px",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                  fontSize: "13px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
                   position: "relative",
                 }}
               >
                 <MdOutlineFilterNone size={16} />
                 {dupCount > 0 && (
-                  <span style={{
-                    position: "absolute", top: "-6px", right: "-6px",
-                    background: "#FF8040", color: "white",
-                    borderRadius: "50%", width: "16px", height: "16px",
-                    fontSize: "10px", fontWeight: "700",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                  }}>
+                  <span
+                    style={{
+                      position: "absolute",
+                      top: "-6px",
+                      right: "-6px",
+                      background: "#FF8040",
+                      color: "white",
+                      borderRadius: "50%",
+                      width: "16px",
+                      height: "16px",
+                      fontSize: "10px",
+                      fontWeight: "700",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
                     {dupCount}
                   </span>
                 )}
@@ -441,12 +545,19 @@ export default function AgentTicketPage() {
               active={isDupPage ? dupOrderBy === id : orderBy === id}
               direction={
                 isDupPage
-                  ? dupOrderBy === id ? dupOrder : "asc"
-                  : orderBy === id ? order : "asc"
+                  ? dupOrderBy === id
+                    ? dupOrder
+                    : "asc"
+                  : orderBy === id
+                    ? order
+                    : "asc"
               }
-              onClick={() => isDupPage ? handleDupSort(id) : handleRequestSort(id)}
+              onClick={() =>
+                isDupPage ? handleDupSort(id) : handleRequestSort(id)
+              }
               sx={{
-                color: "#FF8040 !important", fontWeight: 700,
+                color: "#FF8040 !important",
+                fontWeight: 700,
                 "&.Mui-active": { color: "#FF8040 !important" },
                 "& .MuiTableSortLabel-icon": { color: "#FF8040 !important" },
               }}
@@ -455,30 +566,49 @@ export default function AgentTicketPage() {
             </TableSortLabel>
           </TableCell>
         ))}
-        <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>Action</TableCell>
+        <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
+          {t("pages.agentTicket.columns.action")}
+        </TableCell>
       </TableRow>
     </TableHead>
   );
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+    <div
+      style={{
+        fontFamily:
+          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      }}
+    >
       {/* Top Bar */}
-      <div style={{
-        background: "white", padding: "15px 30px",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        boxShadow: "0 2px 5px rgba(0,0,0,0.05)", height: "70px",
-      }}>
+      <div
+        style={{
+          background: "white",
+          padding: "15px 30px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          boxShadow: "0 2px 5px rgba(0,0,0,0.05)",
+          height: "70px",
+        }}
+      >
         {pageHistory.length > 1 ? (
           <button
             onClick={navigateBack}
             style={{
-              background: "transparent", border: "none", cursor: "pointer",
-              display: "flex", alignItems: "center", gap: "5px",
-              color: "#FF8040", fontWeight: "600", fontSize: "14px",
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "5px",
+              color: "#FF8040",
+              fontWeight: "600",
+              fontSize: "14px",
             }}
           >
-            <MdArrowBack size={20} /> Back
+            <MdArrowBack size={20} /> {t("pages.agentTicket.back")}
           </button>
         ) : (
           <SearchBar />
@@ -486,39 +616,119 @@ export default function AgentTicketPage() {
       </div>
 
       <div style={{ padding: "30px", flex: 1, overflowY: "auto" }}>
-
         {/* ── DETAIL VIEW ─────────────────────────────────────────────────── */}
         {currentPage === "detail" && selectedTicket && (
-          <div style={{ display: "flex", gap: "25px", alignItems: "flex-start" }}>
+          <div
+            style={{ display: "flex", gap: "25px", alignItems: "flex-start" }}
+          >
             <div style={{ flex: 2 }}>
               {/* Ticket Info Card */}
-              <div style={{
-                background: "white", borderRadius: "12px", padding: "30px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.05)", marginBottom: "20px",
-              }}>
-                <h2 style={{ fontSize: "24px", fontWeight: "700", marginBottom: "10px", color: "#333" }}>
+              <div
+                style={{
+                  background: "white",
+                  borderRadius: "12px",
+                  padding: "30px",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                  marginBottom: "20px",
+                }}
+              >
+                <h2
+                  style={{
+                    fontSize: "24px",
+                    fontWeight: "700",
+                    marginBottom: "10px",
+                    color: "#333",
+                  }}
+                >
                   {selectedTicket.subject}
                 </h2>
-                <div style={{ color: "#FF8040", fontWeight: "600", fontSize: "14px", marginBottom: "5px" }}>
-                  Description
+                <div
+                  style={{
+                    color: "#FF8040",
+                    fontWeight: "600",
+                    fontSize: "14px",
+                    marginBottom: "5px",
+                  }}
+                >
+                  {t("pages.agentTicket.description")}
                 </div>
-                <p style={{ color: "#555", lineHeight: "1.6", marginBottom: "25px" }}>
-                  {selectedTicket.description || "No description provided."}
+                <p
+                  style={{
+                    color: "#555",
+                    lineHeight: "1.6",
+                    marginBottom: "25px",
+                  }}
+                >
+                  {selectedTicket.description ||
+                    t("pages.agentTicket.noDescription")}
                 </p>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "20px",
+                  }}
+                >
                   {[
-                    { label: "Created at", value: formatTicketDate(selectedTicket.createdAt), color: "#333" },
-                    { label: "Priority",   value: selectedTicket.priority, color: getPriorityColor(selectedTicket.priority) },
-                    { label: "Status",     value: selectedTicket.status,   color: getStatusColor(selectedTicket.status) },
+                    {
+                      label: t("pages.agentTicket.createdAt"),
+                      value: formatTicketDate(selectedTicket.createdAt),
+                      color: "#333",
+                    },
+                    {
+                      label: t("pages.agentTicket.priority"),
+                      value: selectedTicket.priority,
+                      color: getPriorityColor(selectedTicket.priority),
+                    },
+                    {
+                      label: t("pages.agentTicket.status"),
+                      value: selectedTicket.status,
+                      color: getStatusColor(selectedTicket.status),
+                    },
                   ].map((item) => (
                     <div key={item.label}>
-                      <div style={{ color: "#FF8040", fontWeight: "600", fontSize: "14px", marginBottom: "4px" }}>{item.label}</div>
-                      <div style={{ color: item.color, fontWeight: item.label === "Status" ? "600" : "normal" }}>{item.value}</div>
+                      <div
+                        style={{
+                          color: "#FF8040",
+                          fontWeight: "600",
+                          fontSize: "14px",
+                          marginBottom: "4px",
+                        }}
+                      >
+                        {item.label}
+                      </div>
+                      <div
+                        style={{
+                          color: item.color,
+                          fontWeight:
+                            item.label === t("pages.agentTicket.status")
+                              ? "600"
+                              : "normal",
+                        }}
+                      >
+                        {item.value}
+                      </div>
                     </div>
                   ))}
                   <div>
-                    <div style={{ color: "#FF8040", fontWeight: "600", fontSize: "14px", marginBottom: "4px" }}>Customer</div>
-                    <div style={{ color: "#333", display: "flex", alignItems: "center", gap: "6px" }}>
+                    <div
+                      style={{
+                        color: "#FF8040",
+                        fontWeight: "600",
+                        fontSize: "14px",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      {t("pages.agentTicket.customer")}
+                    </div>
+                    <div
+                      style={{
+                        color: "#333",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                      }}
+                    >
                       <MdAccountCircle size={18} color="#FF8040" />
                       {selectedTicket.customer ?? "-"}
                     </div>
@@ -527,37 +737,79 @@ export default function AgentTicketPage() {
               </div>
 
               {/* Add Response Card */}
-              <div style={{
-                background: "white", borderRadius: "12px", padding: "30px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-              }}>
-                <h3 style={{ fontSize: "20px", fontWeight: "700", marginBottom: "15px", color: "#333" }}>
-                  Add Response
+              <div
+                style={{
+                  background: "white",
+                  borderRadius: "12px",
+                  padding: "30px",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                }}
+              >
+                <h3
+                  style={{
+                    fontSize: "20px",
+                    fontWeight: "700",
+                    marginBottom: "15px",
+                    color: "#333",
+                  }}
+                >
+                  {t("pages.agentTicket.addResponse")}
                 </h3>
                 <form onSubmit={handleSubmitResponse}>
                   <textarea
                     rows="4"
-                    placeholder="Write your response..."
+                    placeholder={t("pages.agentTicket.responsePlaceholder")}
                     value={responseText}
                     onChange={(e) => setResponseText(e.target.value)}
                     style={{
-                      width: "100%", padding: "12px", borderRadius: "8px",
-                      border: "1px solid #ddd", resize: "none", fontSize: "14px",
-                      outline: "none", marginBottom: "10px", boxSizing: "border-box",
+                      width: "100%",
+                      padding: "12px",
+                      borderRadius: "8px",
+                      border: "1px solid #ddd",
+                      resize: "none",
+                      fontSize: "14px",
+                      outline: "none",
+                      marginBottom: "10px",
+                      boxSizing: "border-box",
                     }}
                   />
-                  <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", marginBottom: "15px" }}>
-                    <label style={{
-                      color: "#FF8040", fontWeight: "600", cursor: "pointer",
-                      display: "flex", alignItems: "center", gap: "5px", fontSize: "14px",
-                    }}>
-                      Attachment <MdAttachFile size={18} />
-                      <input type="file" style={{ display: "none" }} onChange={(e) => setAttachment(e.target.files[0])} />
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      alignItems: "center",
+                      marginBottom: "15px",
+                    }}
+                  >
+                    <label
+                      style={{
+                        color: "#FF8040",
+                        fontWeight: "600",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "5px",
+                        fontSize: "14px",
+                      }}
+                    >
+                      {t("pages.agentTicket.attachment")}{" "}
+                      <MdAttachFile size={18} />
+                      <input
+                        type="file"
+                        style={{ display: "none" }}
+                        onChange={(e) => setAttachment(e.target.files[0])}
+                      />
                     </label>
                   </div>
                   {attachment && (
-                    <div style={{ marginBottom: "10px", fontSize: "13px", color: "#888" }}>
-                      Selected: {attachment.name}
+                    <div
+                      style={{
+                        marginBottom: "10px",
+                        fontSize: "13px",
+                        color: "#888",
+                      }}
+                    >
+                      {t("pages.agentTicket.selected")}: {attachment.name}
                     </div>
                   )}
                   <div style={{ display: "flex", gap: "15px" }}>
@@ -565,24 +817,36 @@ export default function AgentTicketPage() {
                       type="button"
                       onClick={() => handleDispatch(selectedTicket)}
                       style={{
-                        padding: "10px 25px", borderRadius: "8px",
-                        border: "2px solid #FF8040", background: "white",
-                        color: "#FF8040", fontWeight: "600", cursor: "pointer", fontSize: "14px",
+                        padding: "10px 25px",
+                        borderRadius: "8px",
+                        border: "2px solid #FF8040",
+                        background: "white",
+                        color: "#FF8040",
+                        fontWeight: "600",
+                        cursor: "pointer",
+                        fontSize: "14px",
                       }}
                     >
-                      Dispatch
+                      {t("pages.agentTicket.dispatch")}
                     </button>
                     <button
                       type="submit"
                       disabled={submitting}
                       style={{
-                        padding: "10px 30px", borderRadius: "8px", border: "none",
-                        background: "#FF8040", color: "white", fontWeight: "600",
+                        padding: "10px 30px",
+                        borderRadius: "8px",
+                        border: "none",
+                        background: "#FF8040",
+                        color: "white",
+                        fontWeight: "600",
                         cursor: submitting ? "not-allowed" : "pointer",
-                        opacity: submitting ? 0.7 : 1, fontSize: "14px",
+                        opacity: submitting ? 0.7 : 1,
+                        fontSize: "14px",
                       }}
                     >
-                      {submitting ? "Submitting..." : "Submit"}
+                      {submitting
+                        ? t("pages.agentTicket.submitting")
+                        : t("pages.agentTicket.submit")}
                     </button>
                   </div>
                 </form>
@@ -590,48 +854,120 @@ export default function AgentTicketPage() {
             </div>
 
             {/* Timeline */}
-            <div style={{
-              flex: 1, background: "white", borderRadius: "12px",
-              padding: "30px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", minHeight: "400px",
-            }}>
-              <h3 style={{ fontSize: "22px", fontWeight: "700", marginBottom: "25px", color: "#333" }}>Timeline</h3>
+            <div
+              style={{
+                flex: 1,
+                background: "white",
+                borderRadius: "12px",
+                padding: "30px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                minHeight: "400px",
+              }}
+            >
+              <h3
+                style={{
+                  fontSize: "22px",
+                  fontWeight: "700",
+                  marginBottom: "25px",
+                  color: "#333",
+                }}
+              >
+                {t("pages.agentTicket.timeline")}
+              </h3>
+
               {timeline.length === 0 ? (
-                <div style={{ color: "#999", fontSize: "14px" }}>No timeline events yet.</div>
+                <div style={{ color: "#999", fontSize: "14px" }}>
+                  {t("pages.agentTicket.noTimeline")}
+                </div>
               ) : (
                 <div style={{ position: "relative", paddingLeft: "35px" }}>
-                  <div style={{
-                    position: "absolute", left: "14px", top: "10px",
-                    bottom: "10px", width: "2px", background: "#FF8040",
-                  }} />
+                  <div
+                    style={{
+                      position: "absolute",
+                      left: "14px",
+                      top: "10px",
+                      bottom: "10px",
+                      width: "2px",
+                      background: "#FF8040",
+                    }}
+                  />
                   {timeline.map((event, idx) => {
                     const eventDate = new Date(event.created_at);
-                    const dateStr = eventDate.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
-                    const timeStr = eventDate.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
-                    const isAgent = event.actor === "CS Agent" || event.actor === "System";
+                    const dateStr = eventDate.toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "long",
+                      year: "numeric",
+                    });
+                    const timeStr = eventDate.toLocaleTimeString("en-GB", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    });
+                    const isAgent =
+                      event.actor === "CS Agent" || event.actor === "System";
                     return (
-                      <div key={event.id ?? idx} style={{ position: "relative", marginBottom: "30px" }}>
-                        <div style={{
-                          position: "absolute", left: "-35px", top: "0",
-                          width: "30px", height: "30px", borderRadius: "50%",
-                          background: "white", border: "2px solid #FF8040",
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                        }}>
-                          {isAgent
-                            ? <MdSupportAgent size={16} color="#FF8040" />
-                            : <MdAccountCircle size={16} color="#FF8040" />}
+                      <div
+                        key={event.id ?? idx}
+                        style={{ position: "relative", marginBottom: "30px" }}
+                      >
+                        <div
+                          style={{
+                            position: "absolute",
+                            left: "-35px",
+                            top: "0",
+                            width: "30px",
+                            height: "30px",
+                            borderRadius: "50%",
+                            background: "white",
+                            border: "2px solid #FF8040",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          {isAgent ? (
+                            <MdSupportAgent size={16} color="#FF8040" />
+                          ) : (
+                            <MdAccountCircle size={16} color="#FF8040" />
+                          )}
                         </div>
-                        <div style={{ border: "1.5px solid #FF8040", borderRadius: "10px", padding: "12px 15px" }}>
-                          <div style={{
-                            display: "flex", gap: "12px", fontSize: "12px",
-                            color: "#FF8040", fontWeight: "600", marginBottom: "6px",
-                          }}>
-                            <span>{dateStr}</span><span>{timeStr}</span>
+                        <div
+                          style={{
+                            border: "1.5px solid #FF8040",
+                            borderRadius: "10px",
+                            padding: "12px 15px",
+                          }}
+                        >
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "12px",
+                              fontSize: "12px",
+                              color: "#FF8040",
+                              fontWeight: "600",
+                              marginBottom: "6px",
+                            }}
+                          >
+                            <span>{dateStr}</span>
+                            <span>{timeStr}</span>
                           </div>
-                          <div style={{ fontWeight: "600", color: "#333", fontSize: "14px", marginBottom: event.description ? "4px" : 0 }}>
+                          <div
+                            style={{
+                              fontWeight: "600",
+                              color: "#333",
+                              fontSize: "14px",
+                              marginBottom: event.description ? "4px" : 0,
+                            }}
+                          >
                             {event.action}
                           </div>
                           {event.description && (
-                            <div style={{ fontSize: "13px", color: "#666", lineHeight: "1.5" }}>
+                            <div
+                              style={{
+                                fontSize: "13px",
+                                color: "#666",
+                                lineHeight: "1.5",
+                              }}
+                            >
                               • {event.description}
                             </div>
                           )}
@@ -649,27 +985,58 @@ export default function AgentTicketPage() {
         {currentPage === "duplicates" && duplicateSource && (
           <>
             {/* Source banner */}
-            <div style={{
-              background: "#FFF5EF", border: "1.5px solid #FF8040",
-              borderRadius: "10px", padding: "14px 20px", marginBottom: "20px",
-              display: "flex", alignItems: "center", gap: "12px",
-            }}>
+            <div
+              style={{
+                background: "#FFF5EF",
+                border: "1.5px solid #FF8040",
+                borderRadius: "10px",
+                padding: "14px 20px",
+                marginBottom: "20px",
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+              }}
+            >
               <MdOutlineFilterNone size={18} color="#FF8040" />
               <div>
-                <span style={{ fontWeight: "700", color: "#FF8040", fontSize: "13px" }}>Duplicate tickets for:</span>{" "}
-                <span style={{ color: "#333", fontWeight: "600", fontSize: "14px" }}>{duplicateSource.subject}</span>{" "}
-                <span style={{ color: "#999", fontSize: "13px" }}>(Ticket #{duplicateSource.id})</span>
+                <span
+                  style={{
+                    fontWeight: "700",
+                    color: "#FF8040",
+                    fontSize: "13px",
+                  }}
+                >
+                  {t("pages.agentTicket.duplicateTicketsFor")}
+                </span>{" "}
+                <span
+                  style={{ color: "#333", fontWeight: "600", fontSize: "14px" }}
+                >
+                  {duplicateSource.subject}
+                </span>{" "}
+                <span style={{ color: "#999", fontSize: "13px" }}>
+                  {t("pages.agentTicket.ticketNumber", {
+                    id: duplicateSource.id,
+                  })}
+                </span>
               </div>
             </div>
 
             {/* Title row + Delete buttons */}
-            <div style={{
-              display: "flex", alignItems: "center",
-              justifyContent: "space-between", marginBottom: "25px",
-            }}>
-              <div style={{ fontSize: "28px", fontWeight: "700", color: "#333" }}>
-                Duplicate Tickets{" "}
-                <span style={{ color: "#FF8040" }}>• {sortedDuplicates.length}</span>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: "25px",
+              }}
+            >
+              <div
+                style={{ fontSize: "28px", fontWeight: "700", color: "#333" }}
+              >
+                {t("pages.agentTicket.duplicateTickets")}{" "}
+                <span style={{ color: "#FF8040" }}>
+                  • {sortedDuplicates.length}
+                </span>
               </div>
 
               <div style={{ display: "flex", gap: "10px" }}>
@@ -679,14 +1046,23 @@ export default function AgentTicketPage() {
                   disabled={selectedIds.size === 0 || deleting}
                   title={
                     selectedIds.size === 0
-                      ? "Select at least one ticket to delete"
-                      : `Delete ${selectedIds.size} selected`
+                      ? t("pages.agentTicket.selectAtLeastOne")
+                      : t("pages.agentTicket.deleteSelectedN", {
+                          count: selectedIds.size,
+                        })
                   }
                   style={{
-                    display: "flex", alignItems: "center", gap: "6px",
-                    padding: "8px 18px", borderRadius: "8px",
-                    fontWeight: "600", fontSize: "14px",
-                    cursor: selectedIds.size === 0 || deleting ? "not-allowed" : "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    padding: "8px 18px",
+                    borderRadius: "8px",
+                    fontWeight: "600",
+                    fontSize: "14px",
+                    cursor:
+                      selectedIds.size === 0 || deleting
+                        ? "not-allowed"
+                        : "pointer",
                     border: `2px solid ${selectedIds.size === 0 ? "#ddd" : "#FF8040"}`,
                     background: "white",
                     color: selectedIds.size === 0 ? "#bbb" : "#FF8040",
@@ -695,7 +1071,8 @@ export default function AgentTicketPage() {
                   }}
                 >
                   <MdDelete size={17} />
-                  Delete{selectedIds.size > 0 ? ` (${selectedIds.size})` : ""}
+                  {t("pages.agentTicket.delete")}
+                  {selectedIds.size > 0 ? ` (${selectedIds.size})` : ""}
                 </button>
 
                 {/* Delete All */}
@@ -703,40 +1080,67 @@ export default function AgentTicketPage() {
                   onClick={handleDeleteAll}
                   disabled={sortedDuplicates.length === 0 || deleting}
                   style={{
-                    display: "flex", alignItems: "center", gap: "6px",
-                    padding: "8px 18px", borderRadius: "8px",
-                    fontWeight: "600", fontSize: "14px",
-                    cursor: sortedDuplicates.length === 0 || deleting ? "not-allowed" : "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    padding: "8px 18px",
+                    borderRadius: "8px",
+                    fontWeight: "600",
+                    fontSize: "14px",
+                    cursor:
+                      sortedDuplicates.length === 0 || deleting
+                        ? "not-allowed"
+                        : "pointer",
                     border: "none",
-                    background: sortedDuplicates.length === 0 ? "#ddd" : "#FF8040",
+                    background:
+                      sortedDuplicates.length === 0 ? "#ddd" : "#FF8040",
                     color: "white",
                     opacity: deleting ? 0.7 : 1,
                     transition: "all 0.2s",
                   }}
                 >
                   <MdDeleteSweep size={18} />
-                  {deleting ? "Deleting..." : "Delete All"}
+                  {deleting
+                    ? t("pages.agentTicket.deleting")
+                    : t("pages.agentTicket.deleteAll")}
                 </button>
               </div>
             </div>
 
             {/* Duplicate table */}
-            <div style={{ background: "white", borderRadius: "12px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
+            <div
+              style={{
+                background: "white",
+                borderRadius: "12px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+              }}
+            >
               {loading ? (
-                <div style={{ textAlign: "center", padding: "20px" }}><LoadingSpinner /></div>
+                <div style={{ textAlign: "center", padding: "20px" }}>
+                  <LoadingSpinner />
+                </div>
               ) : (
-                <Paper elevation={0} sx={{ borderRadius: "12px", overflow: "hidden" }}>
+                <Paper
+                  elevation={0}
+                  sx={{ borderRadius: "12px", overflow: "hidden" }}
+                >
                   <TableContainer>
                     <Table>
                       {renderTableHead(true)}
                       <TableBody>
                         {paginatedDuplicates.map((ticket) =>
-                          renderTicketRow(ticket, { showDuplicate: false, isDupPage: true })
+                          renderTicketRow(ticket, {
+                            showDuplicate: false,
+                            isDupPage: true,
+                          }),
                         )}
                         {sortedDuplicates.length === 0 && (
                           <TableRow>
-                            <TableCell colSpan={8} sx={{ textAlign: "center", py: 4, color: "#999" }}>
-                              No duplicate tickets found for this subject.
+                            <TableCell
+                              colSpan={8}
+                              sx={{ textAlign: "center", py: 4, color: "#999" }}
+                            >
+                              {t("pages.agentTicket.noDuplicatesForSubject")}
                             </TableCell>
                           </TableRow>
                         )}
@@ -764,24 +1168,47 @@ export default function AgentTicketPage() {
         {/* ── MAIN LIST VIEW ───────────────────────────────────────────────── */}
         {currentPage === "list" && (
           <>
-            <div style={{ fontSize: "28px", fontWeight: "700", marginBottom: "25px", color: "#333" }}>
-              List of Tickets{" "}
+            <div
+              style={{
+                fontSize: "28px",
+                fontWeight: "700",
+                marginBottom: "25px",
+                color: "#333",
+              }}
+            >
+              {t("pages.agentTicket.listOfTickets")}{" "}
               <span style={{ color: "#FF8040" }}>• {tickets.length}</span>
             </div>
-            <div style={{ background: "white", borderRadius: "12px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
+            <div
+              style={{
+                background: "white",
+                borderRadius: "12px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+              }}
+            >
               {loading ? (
-                <div style={{ textAlign: "center", padding: "20px" }}><LoadingSpinner /></div>
+                <div style={{ textAlign: "center", padding: "20px" }}>
+                  <LoadingSpinner />
+                </div>
               ) : (
-                <Paper elevation={0} sx={{ borderRadius: "12px", overflow: "hidden" }}>
+                <Paper
+                  elevation={0}
+                  sx={{ borderRadius: "12px", overflow: "hidden" }}
+                >
                   <TableContainer>
                     <Table>
                       {renderTableHead(false)}
                       <TableBody>
-                        {paginatedTickets.map((ticket) => renderTicketRow(ticket))}
+                        {paginatedTickets.map((ticket) =>
+                          renderTicketRow(ticket),
+                        )}
                         {sortedTickets.length === 0 && (
                           <TableRow>
-                            <TableCell colSpan={7} sx={{ textAlign: "center", py: 4, color: "#999" }}>
-                              No tickets found.
+                            <TableCell
+                              colSpan={7}
+                              sx={{ textAlign: "center", py: 4, color: "#999" }}
+                            >
+                              {t("pages.agentTicket.empty")}
                             </TableCell>
                           </TableRow>
                         )}
@@ -811,11 +1238,20 @@ export default function AgentTicketPage() {
       <button
         onClick={() => setChatOpen(!chatOpen)}
         style={{
-          position: "fixed", bottom: "30px", right: "30px",
-          width: "60px", height: "60px", borderRadius: "50%",
-          background: "#FF8040", border: "none", color: "white",
-          cursor: "pointer", boxShadow: "0 4px 12px rgba(255, 128, 64, 0.4)",
-          display: "flex", alignItems: "center", justifyContent: "center",
+          position: "fixed",
+          bottom: "30px",
+          right: "30px",
+          width: "60px",
+          height: "60px",
+          borderRadius: "50%",
+          background: "#FF8040",
+          border: "none",
+          color: "white",
+          cursor: "pointer",
+          boxShadow: "0 4px 12px rgba(255, 128, 64, 0.4)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
         <MdChat size={28} />

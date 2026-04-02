@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MdChat } from "react-icons/md";
+import { useTranslation } from "react-i18next";
 import {
   Paper,
   Table,
@@ -21,6 +22,7 @@ import { formatTicketDate } from "../ticket/ticket.schema";
 import { ROUTE } from "../../app/routes";
 
 export default function CustomerHistoryPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const [chatOpen, setChatOpen] = useState(false);
@@ -133,7 +135,7 @@ export default function CustomerHistoryPage() {
             color: "#333",
           }}
         >
-          History Ticket{" "}
+          {t("pages.customerHistory.title")}{" "}
           <span style={{ color: "#FF8040" }}>• {historyTickets.length}</span>
         </div>
         <div
@@ -162,7 +164,7 @@ export default function CustomerHistoryPage() {
                           direction={orderBy === "id" ? order : "asc"}
                           onClick={() => handleRequestSort("id")}
                         >
-                          Ticket ID
+                          {t("pages.customerHistory.columns.ticketId")}
                         </TableSortLabel>
                       </TableCell>
                       <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
@@ -171,11 +173,11 @@ export default function CustomerHistoryPage() {
                           direction={orderBy === "subject" ? order : "asc"}
                           onClick={() => handleRequestSort("subject")}
                         >
-                          Subject
+                          {t("pages.customerHistory.columns.subject")}
                         </TableSortLabel>
                       </TableCell>
                       <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
-                        Status
+                        {t("pages.customerHistory.columns.status")}
                       </TableCell>
                       <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
                         <TableSortLabel
@@ -183,7 +185,7 @@ export default function CustomerHistoryPage() {
                           direction={orderBy === "handler" ? order : "asc"}
                           onClick={() => handleRequestSort("handler")}
                         >
-                          Solved By
+                          {t("pages.customerHistory.columns.solvedBy")}
                         </TableSortLabel>
                       </TableCell>
                       <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
@@ -192,11 +194,11 @@ export default function CustomerHistoryPage() {
                           direction={orderBy === "resolvedAt" ? order : "asc"}
                           onClick={() => handleRequestSort("resolvedAt")}
                         >
-                          Solved At
+                          {t("pages.customerHistory.columns.solvedAt")}
                         </TableSortLabel>
                       </TableCell>
                       <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
-                        Action
+                        {t("pages.customerHistory.columns.action")}
                       </TableCell>
                       {/* <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
                         Satisfaction
@@ -232,7 +234,7 @@ export default function CustomerHistoryPage() {
                               cursor: "pointer",
                             }}
                           >
-                            Details
+                            {t("pages.customerHistory.details")}
                           </button>
                         </TableCell>
                         {/* <TableCell sx={{ color: "#666" }}>
@@ -247,7 +249,7 @@ export default function CustomerHistoryPage() {
                           colSpan={6}
                           sx={{ textAlign: "center", py: 4, color: "#999" }}
                         >
-                          None
+                          {t("pages.customerHistory.empty")}
                         </TableCell>
                       </TableRow>
                     )}

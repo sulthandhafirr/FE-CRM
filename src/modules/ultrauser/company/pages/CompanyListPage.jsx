@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import CompanyTable from "../components/CompanyTable";
 import {
   getCompanies,
@@ -10,6 +11,7 @@ import {
 import { ROUTE } from "../../../../app/routes";
 
 function CompanyModal({ initial, onSubmit, onCancel, loading }) {
+  const { t } = useTranslation();
   const [form, setForm] = useState({
     name: initial?.name ?? "",
     domain: initial?.domain ?? "",
@@ -43,21 +45,23 @@ function CompanyModal({ initial, onSubmit, onCancel, loading }) {
     <form onSubmit={handleSubmit}>
       <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
         <div>
-          <label style={labelStyle}>Company Name</label>
+          <label style={labelStyle}>
+            {t("pages.companyList.form.companyName")}
+          </label>
           <input
             required
             value={form.name}
             onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
-            placeholder="Enter company name"
+            placeholder={t("pages.companyList.form.companyNamePlaceholder")}
             style={inputStyle}
           />
         </div>
         <div>
-          <label style={labelStyle}>Domain (optional)</label>
+          <label style={labelStyle}>{t("pages.companyList.form.domain")}</label>
           <input
             value={form.domain}
             onChange={(e) => setForm((p) => ({ ...p, domain: e.target.value }))}
-            placeholder="e.g. acme.com"
+            placeholder={t("pages.companyList.form.domainPlaceholder")}
             style={inputStyle}
           />
         </div>
@@ -85,7 +89,7 @@ function CompanyModal({ initial, onSubmit, onCancel, loading }) {
             fontSize: "14px",
           }}
         >
-          Cancel
+          {t("pages.companyList.form.cancel")}
         </button>
         <button
           type="submit"
@@ -102,7 +106,11 @@ function CompanyModal({ initial, onSubmit, onCancel, loading }) {
             opacity: loading ? 0.7 : 1,
           }}
         >
-          {loading ? "Saving..." : initial ? "Save Changes" : "Create Company"}
+          {loading
+            ? t("pages.companyList.form.saving")
+            : initial
+              ? t("pages.companyList.form.saveChanges")
+              : t("pages.companyList.form.createCompany")}
         </button>
       </div>
     </form>
@@ -110,6 +118,7 @@ function CompanyModal({ initial, onSubmit, onCancel, loading }) {
 }
 
 export default function CompanyListPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -125,7 +134,9 @@ export default function CompanyListPage() {
       const data = await getCompanies();
       setCompanies(data);
     } catch (err) {
-      setError(err?.response?.data?.message ?? "Failed to load companies.");
+      setError(
+        err?.response?.data?.message ?? t("pages.companyList.errors.load"),
+      );
     } finally {
       setLoading(false);
     }
@@ -147,19 +158,24 @@ export default function CompanyListPage() {
       setEditingCompany(null);
       await fetchCompanies();
     } catch (err) {
-      alert(err?.response?.data?.message ?? "Operation failed. Please try again.");
+      alert(
+        err?.response?.data?.message ?? t("pages.companyList.errors.operation"),
+      );
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDelete = async (company) => {
-    if (!confirm(`Delete company "${company.name}"? This cannot be undone.`)) return;
+    if (!confirm(t("pages.companyList.confirmDelete", { name: company.name })))
+      return;
     try {
       await deleteCompany(company.id);
       await fetchCompanies();
     } catch (err) {
-      alert(err?.response?.data?.message ?? "Delete failed.");
+      alert(
+        err?.response?.data?.message ?? t("pages.companyList.errors.delete"),
+      );
     }
   };
 
@@ -207,10 +223,10 @@ export default function CompanyListPage() {
               margin: "0 0 2px 0",
             }}
           >
-            Company Management
+            {t("pages.companyList.title")}
           </h1>
           <p style={{ color: "#718096", fontSize: "13px", margin: 0 }}>
-            View and manage companies registered in the CRM system.
+            {t("pages.companyList.description")}
           </p>
         </div>
         <button
@@ -230,7 +246,7 @@ export default function CompanyListPage() {
             fontSize: "14px",
           }}
         >
-          + Add Company
+          {t("pages.companyList.addCompany")}
         </button>
       </div>
 
@@ -264,7 +280,7 @@ export default function CompanyListPage() {
             <div
               style={{ textAlign: "center", padding: "60px", color: "#9ca3af" }}
             >
-              Loading companies...
+              {t("pages.companyList.loading")}
             </div>
           ) : (
             <CompanyTable
@@ -311,7 +327,9 @@ export default function CompanyListPage() {
                 margin: "0 0 20px 0",
               }}
             >
-              {editingCompany ? "Edit Company" : "Create New Company"}
+              {editingCompany
+                ? t("pages.companyList.editCompany")
+                : t("pages.companyList.createCompany")}
             </h2>
             <CompanyModal
               initial={editingCompany}
