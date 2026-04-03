@@ -55,8 +55,14 @@ export const getAttachmentDownloadUrl = async (ticketId, attachmentId) => {
 };
 
 export const getTicketComments = async (ticketId) => {
-  const response = await api.get(`/api/tickets/${ticketId}/comments`);
-  return response.data;
+  try {
+    const response = await api.get(`/api/tickets/${ticketId}/comments`);
+    return response.data;
+  } catch (error) {
+    if (error?.response?.status === 403) return [];
+    if (error?.response?.status === 404) return [];
+    throw error;
+  }
 };
 
 export const createTicketComment = async (ticketId, message) => {
@@ -100,4 +106,62 @@ export const getTicketTimeline = async (ticketId) => {
 export const addTimelineEntry = async (entry) => {
   const { error } = await supabase.from("ticket_timeline").insert([entry]);
   if (error) throw error;
+};
+
+// ─── Agent: Upload attachment (get signed URL → storage → save record) ────────
+
+export const uploadTicketAttachment = async (ticketId, file, commentId = null) => {
+  // 1. Minta signed upload URL dari backend
+  const { data: urlData } = await api.post("/api/tickets/upload-url", {
+    ticketId,
+    files: [{ name: file.name, type: file.type, size: file.size }],
+  });
+
+  const { filePath, token, attachmentId } = urlData[0];
+
+  // 2. Upload file langsung ke Supabase Storage via signed URL
+  const { error } = await supabase.storage
+    .from("ticket-attachment")
+    .uploadToSignedUrl(filePath, token, file, { contentType: file.type });
+
+  if (error) throw error;
+
+  // 3. Simpan record attachment ke database
+  //    Kirim commentId agar bisa ditampilkan di timeline comment yang sesuai
+  await api.post(`/api/tickets/${ticketId}/attachments`, [
+    {
+      attachmentId,
+      filePath,
+      fileName: file.name,
+      fileSize: file.size,
+      mimeType: file.type,
+      ...(commentId ? { commentId } : {}),
+    },
+  ]);
+
+  return { attachmentId, filePath, fileName: file.name };
+};
+
+// ─── Agent: Resolve ticket ────────────────────────────────────────────────────
+
+export const resolveTicket = async (ticketId) => {
+  const resolvedAt = new Date().toISOString();
+  const { data } = await api.put(`/api/tickets/${ticketId}`, {
+    status: "Solved",
+    resolvedAt: resolvedAt,   // ← camelCase, bukan resolved_at
+  });
+  return {
+    ...data,
+    resolvedAt: data?.resolvedAt ?? data?.resolved_at ?? resolvedAt,
+  };
+};
+
+export const getAgentSolvedTickets = async () => {
+  const response = await api.get("/api/tickets/my-solved");
+  return response.data;
+};
+
+export const takeAction = async (ticketId) => {
+  const { data } = await api.post(`/api/tickets/${ticketId}/take-action`);
+  return data;
 };

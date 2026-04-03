@@ -181,7 +181,6 @@ export default function Sidebar({
           // cursor: "pointer",
           textAlign: sidebarOpen ? "center" : "center",
         }}
-        // onClick={() => navigate(menuItems[0]?.route || ROUTE.login)}
       >
         {sidebarOpen ? "crm." : "c."}
       </div>
