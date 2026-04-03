@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { MdClose, MdSend } from 'react-icons/md';
 import { FaRobot, FaUser } from 'react-icons/fa';
 
-const API_URL = 'http://localhost:5000/api/chat';
+const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:5260'}/api/chat`;
 
 export default function ChatBot({ isOpen, onClose }) {
   const [messages, setMessages] = useState([
@@ -51,7 +51,18 @@ export default function ChatBot({ isOpen, onClose }) {
         })
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const errorMessage = {
+          id: messages.length + 2,
+          type: 'bot',
+          text: `Error: ${data.error || `HTTP ${response.status}`}`,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, errorMessage]);
+        return;
+      }
 
       if (data.success) {
         const botMessage = {
