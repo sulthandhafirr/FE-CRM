@@ -13,6 +13,7 @@ import CustomerHistoryPage from "../modules/history/CustomerHistoryPage";
 import AgentTicketPage from "../modules/ticket/pages/AgentTicketPage";
 import UltrauserMenuPage from "../modules/ultrauser/menu/UltrauserMenuPage";
 import UltrauserTicketPage from "../modules/ultrauser/ticket/UltrauserTicketPage";
+import UltrauserHistoryPage from "../modules/ultrauser/history/UltrauserHistoryPage";
 import ManageUsersPage from "../modules/ultrauser/users/pages/ManageUsersPage";
 import CompanyListPage from "../modules/ultrauser/company/pages/CompanyListPage";
 import ComingSoonPage from "../components/ui/ComingSoonPage";
@@ -116,9 +117,22 @@ export default function Router() {
               <ComingSoonPage title={t("pages.comingSoon.adminTicketView")} />
             }
           />
+          <Route path={ROUTE.ultrauserHistory} element={<UltrauserHistoryPage />} />
           <Route
-            path={ROUTE.ultrauserHistory}
+            path={ROUTE.ultrauserHistoryCustomer}
             element={<CustomerHistoryPage />}
+          />
+          <Route
+            path={ROUTE.ultrauserHistoryAgent}
+            element={<ComingSoonPage title="CS Agent History View" />}
+          />
+          <Route
+            path={ROUTE.ultrauserHistoryTechnician}
+            element={<ComingSoonPage title="Technician History View" />}
+          />
+          <Route
+            path={ROUTE.ultrauserHistoryAdmin}
+            element={<ComingSoonPage title="Admin History View" />}
           />
           <Route path={ROUTE.ultrauserMenu} element={<UltrauserMenuPage />} />
           <Route path={ROUTE.ultrauserUsers} element={<ManageUsersPage />} />
