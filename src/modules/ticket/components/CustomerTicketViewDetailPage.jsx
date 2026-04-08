@@ -295,11 +295,10 @@ export default function CustomerTicketViewDetailPage() {
                       <form onSubmit={handleSubmitResponse}>
                         <textarea
                           rows={4}
-                          placeholder={t(
-                            "pages.ticketDetail.responsePlaceholder",
-                          )}
+                          placeholder={t("pages.ticketDetail.responsePlaceholder")}
                           value={responseText}
                           onChange={(e) => setResponseText(e.target.value)}
+                          disabled={ticket.status === "Solved"}   // ← tambah ini
                           style={{
                             width: "100%",
                             padding: "12px",
@@ -310,6 +309,9 @@ export default function CustomerTicketViewDetailPage() {
                             outline: "none",
                             marginBottom: "12px",
                             boxSizing: "border-box",
+                            background: ticket.status === "Solved" ? "#f5f5f5" : "white",  // ← tambah ini
+                            color: ticket.status === "Solved" ? "#aaa" : "inherit",         // ← tambah ini
+                            cursor: ticket.status === "Solved" ? "not-allowed" : "auto",    // ← tambah ini
                           }}
                         />
                         <div
@@ -320,9 +322,7 @@ export default function CustomerTicketViewDetailPage() {
                         >
                           <button
                             type="submit"
-                            disabled={
-                              isSubmittingComment || !responseText.trim()
-                            }
+                            disabled={isSubmittingComment || !responseText.trim() || ticket.status === "Solved"}
                             style={{
                               padding: "10px 30px",
                               borderRadius: "8px",
@@ -330,14 +330,8 @@ export default function CustomerTicketViewDetailPage() {
                               background: "#FF8040",
                               color: "white",
                               fontWeight: "600",
-                              cursor:
-                                isSubmittingComment || !responseText.trim()
-                                  ? "not-allowed"
-                                  : "pointer",
-                              opacity:
-                                isSubmittingComment || !responseText.trim()
-                                  ? 0.7
-                                  : 1,
+                              cursor: isSubmittingComment || !responseText.trim() || ticket.status === "Solved" ? "not-allowed" : "pointer",
+                              opacity: isSubmittingComment || !responseText.trim() || ticket.status === "Solved" ? 0.7 : 1,
                               fontSize: "14px",
                             }}
                           >
