@@ -77,6 +77,18 @@ export default function Sidebar({
         icon: MdDashboard,
         route: ROUTE.technicianDashboard,
       },
+      {
+        key: "ticket",
+        label: t("nav.ticket"),
+        icon: MdConfirmationNumber,
+        route: ROUTE.technicianTicket,
+      },
+      {
+        key: "Performance",
+        label: t("nav.performance"),
+        icon: MdWorkHistory,
+        route: ROUTE.technicianPerformance,
+      },
     ],
     admin: [
       // tambah buat page admin disini
