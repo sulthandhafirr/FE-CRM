@@ -240,8 +240,18 @@ export default function AgentTicketPage() {
 
   const handleTakeAction = async (ticket) => {
     try {
-      await takeAction(ticket.id);
+      const result = await takeAction(ticket.id);
       queryClient.invalidateQueries(["all-tickets"]);
+
+      // Jika ticket yang sedang dibuka di detail view adalah ticket ini, update state-nya
+      if (selectedTicket?.id === ticket.id) {
+        setSelectedTicket((prev) => ({
+          ...prev,
+          status: result.status ?? prev.status,
+          solver: result.solver ?? prev.solver,
+          firstResponseAt: result.firstResponseAt ?? prev.firstResponseAt,
+        }));
+      }
     } catch (err) {
       console.error("Error taking action:", err.message);
       alert("Failed to take action.");
