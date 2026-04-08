@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { MdChat } from "react-icons/md";
+import { useTranslation } from "react-i18next";
 import {
   Paper,
   Table,
@@ -39,6 +40,7 @@ function sortTicketsFn(list, ob, o) {
 }
 
 export default function AgentPerformancePage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [chatOpen, setChatOpen] = useState(false);
   const [orderBy, setOrderBy] = useState("resolvedAt");
@@ -76,12 +78,12 @@ export default function AgentPerformancePage() {
   }, [rowsPerPage, safePage, sortedTickets]);
 
   const columns = [
-    { id: "id",         label: "Ticket ID"   },
-    { id: "subject",    label: "Subject"      },
-    { id: "priority",   label: "Priority"     },
-    { id: "customer",   label: "Customer"     },
-    { id: "createdAt",  label: "Created At"   },
-    { id: "resolvedAt", label: "Resolved At"  },
+    { id: "id", label: t("pages.agentPerformance.columns.ticketId") },
+    { id: "subject", label: t("pages.agentPerformance.columns.subject") },
+    { id: "priority", label: t("pages.agentPerformance.columns.priority") },
+    { id: "customer", label: t("pages.agentPerformance.columns.customer") },
+    { id: "createdAt", label: t("pages.agentPerformance.columns.createdAt") },
+    { id: "resolvedAt", label: t("pages.agentPerformance.columns.resolvedAt") },
   ];
 
   return (
@@ -99,7 +101,7 @@ export default function AgentPerformancePage() {
         {/* Title + summary */}
         <div style={{ marginBottom: "25px" }}>
           <div style={{ fontSize: "28px", fontWeight: "700", color: "#333", marginBottom: "6px" }}>
-            My Performance{" "}
+            {t("pages.agentPerformance.title")}{" "}
             <span style={{ color: "#FF8040" }}>• {solvedTickets.length}</span>
           </div>
         </div>
@@ -114,14 +116,14 @@ export default function AgentPerformancePage() {
           }}>
             {[
               {
-                label: "Total Resolved",
+                label: t("pages.agentPerformance.totalResolved"),
                 value: solvedTickets.length,
                 color: "#FF8040",
                 bg: "#ffffff",
                 border: "#FF8040",
               },
               {
-                label: "This Month",
+                label: t("pages.agentPerformance.thisMonth"),
                 value: solvedTickets.filter((t) => {
                   if (!t.resolvedAt) return false;
                   const d = new Date(t.resolvedAt);
@@ -133,7 +135,7 @@ export default function AgentPerformancePage() {
                 border: "#FF8040",
               },
               {
-                label: "This Year",
+                label: t("pages.agentPerformance.thisYear"),
                 value: solvedTickets.filter((t) => {
                   if (!t.resolvedAt) return false;
                   return new Date(t.resolvedAt).getFullYear() === new Date().getFullYear();
@@ -208,7 +210,7 @@ export default function AgentPerformancePage() {
                         </TableCell>
                         <TableCell>
                           <button
-                            onClick={() => navigate(`/agent/tickets/${ticket.id}`)}
+                            onClick={() => navigate(`/dashboard/csAgent/tickets/${ticket.id}`)}
                             style={{
                               background: "#FF8040", color: "white",
                               border: "none", padding: "6px 15px",
@@ -216,7 +218,7 @@ export default function AgentPerformancePage() {
                               fontWeight: "600", fontSize: "13px",
                             }}
                           >
-                            Detail
+                            {t("pages.agentPerformance.detail")}
                           </button>
                         </TableCell>
                       </TableRow>
@@ -224,7 +226,7 @@ export default function AgentPerformancePage() {
                     {sortedTickets.length === 0 && (
                       <TableRow>
                         <TableCell colSpan={7} sx={{ textAlign: "center", py: 4, color: "#999" }}>
-                          No resolved tickets yet.
+                          {t("pages.agentPerformance.empty")}
                         </TableCell>
                       </TableRow>
                     )}

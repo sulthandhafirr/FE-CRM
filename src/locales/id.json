@@ -276,6 +276,23 @@
         "created": "Tiket berhasil dibuat!",
         "failed": "Terjadi kesalahan. Silakan coba lagi."
       }
+    },
+    "agentPerformance": {
+      "title": "Performa Saya",
+      "totalResolved": "Total Diselesaikan",
+      "thisMonth": "Bulan Ini",
+      "thisYear": "Tahun Ini",
+      "noData": "Belum ada tiket yang diselesaikan.",
+      "detail": "Detail",
+      "columns": {
+        "ticketId": "ID Tiket",
+        "subject": "Subjek",
+        "priority": "Prioritas",
+        "customer": "Pelanggan",
+        "createdAt": "Dibuat Pada",
+        "resolvedAt": "Diselesaikan Pada",
+        "action": "Aksi"
+      }
     }
   }
 }

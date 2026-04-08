@@ -276,6 +276,23 @@
         "created": "Ticket created successfully!",
         "failed": "Something went wrong. Please try again."
       }
+    },
+    "agentPerformance": {
+      "title": "My Performance",
+      "totalResolved": "Total Resolved",
+      "thisMonth": "This Month",
+      "thisYear": "This Year",
+      "noData": "No resolved tickets yet.",
+      "detail": "Detail",
+      "columns": {
+        "ticketId": "Ticket ID",
+        "subject": "Subject",
+        "priority": "Priority",
+        "customer": "Customer",
+        "createdAt": "Created At",
+        "resolvedAt": "Resolved At",
+        "action": "Action"
+      }
     }
   }
 }
