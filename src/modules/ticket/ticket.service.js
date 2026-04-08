@@ -156,6 +156,7 @@ export const resolveTicket = async (ticketId) => {
   };
 };
 
+// GET /api/tickets/my-solved — agent gets their own solved tickets
 export const getAgentSolvedTickets = async () => {
   const response = await api.get("/api/tickets/my-solved");
   return response.data;

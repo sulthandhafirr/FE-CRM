@@ -7,6 +7,7 @@ export const ROUTE = {
   customerHistory: "/dashboard/customer/history",
   agentDashboard: "/dashboard/csAgent",
   agentTicket: "/dashboard/csAgent/ticket",
+  agentPerformance: "/dashboard/csAgent/performance",
   technicianDashboard: "/dashboard/technician",
   ultrauserDashboard: "/ultrauser/dashboard",
   ultrauserTicket: "/ultrauser/ticket",

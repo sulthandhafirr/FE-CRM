@@ -6,11 +6,12 @@ import MainLayout from "../components/layout/MainLayout";
 import LoginPage from "../modules/auth/login/LoginPage";
 import CustomerDashboardPage from "../modules/dashboard/customer/CustomerDashboardPage";
 import AgentDashboardPage from "../modules/dashboard/agent/AgentDashboardPage";
+import AgentTicketPage from "../modules/ticket/pages/AgentTicketPage";
+import AgentPerformancePage from "../modules/history/AgentPerformancePage";
 import TechnicianDashboardPage from "../modules/dashboard/technician/TechnicianDashboardPage";
 import CustomerTicketPage from "../modules/ticket/pages/CustomerTicketPage";
 import CustomerTicketViewDetailPage from "../modules/ticket/components/CustomerTicketViewDetailPage";
 import CustomerHistoryPage from "../modules/history/CustomerHistoryPage";
-import AgentTicketPage from "../modules/ticket/pages/AgentTicketPage";
 import UltrauserMenuPage from "../modules/ultrauser/menu/UltrauserMenuPage";
 import UltrauserTicketPage from "../modules/ultrauser/ticket/UltrauserTicketPage";
 import UltrauserHistoryPage from "../modules/ultrauser/history/UltrauserHistoryPage";
@@ -77,6 +78,7 @@ export default function Router() {
         <Route element={<MainLayout />}>
           <Route path={ROUTE.agentDashboard} element={<AgentDashboardPage />} />
           <Route path={ROUTE.agentTicket} element={<AgentTicketPage />} />
+          <Route path={ROUTE.agentPerformance} element={<AgentPerformancePage />} />
         </Route>
       </Route>
 
