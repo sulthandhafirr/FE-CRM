@@ -42,6 +42,28 @@ export const formatTicketDate = (dateString) => {
   });
 };
 
+export const formatTicketDateTime = (dateString) => {
+  if (!dateString) return "-";
+
+  const parsed = new Date(dateString);
+  if (Number.isNaN(parsed.getTime())) return "-";
+
+  const datePart = parsed.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+
+  const timePart = parsed.toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    // second: "2-digit",
+    hour12: false,
+  });
+
+  return `${datePart}, ${timePart}`;
+};
+
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 export const TICKET_STATUS = {

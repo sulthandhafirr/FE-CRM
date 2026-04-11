@@ -181,6 +181,7 @@
       "noDescription": "No description provided.",
       "status": "Status",
       "handler": "Handler",
+      "technician": "Technician",
       "createdAt": "Created At",
       "resolvedAt": "Resolved At",
       "addResponse": "Add Response",

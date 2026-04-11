@@ -181,6 +181,7 @@
       "noDescription": "Tidak ada deskripsi.",
       "status": "Status",
       "handler": "Penangan",
+      "technician": "Teknisi",
       "createdAt": "Dibuat Pada",
       "resolvedAt": "Diselesaikan Pada",
       "addResponse": "Tambah Respons",

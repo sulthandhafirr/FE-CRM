@@ -15,7 +15,7 @@ import {
   getTicketComments,
   createTicketComment,
 } from "../ticket.service";
-import { getStatusColor, formatTicketDate } from "../ticket.schema";
+import { getStatusColor, formatTicketDateTime } from "../ticket.schema";
 
 export default function CustomerTicketViewDetailPage() {
   const { t } = useTranslation();
@@ -252,10 +252,25 @@ export default function CustomerTicketViewDetailPage() {
                             marginBottom: "4px",
                           }}
                         >
+                          {t("pages.ticketDetail.technician")}
+                        </div>
+                        <div style={{ color: "#333" }}>
+                          {ticket.technician || "-"}
+                        </div>
+                      </div>
+                      <div>
+                        <div
+                          style={{
+                            color: "#FF8040",
+                            fontWeight: "600",
+                            fontSize: "13px",
+                            marginBottom: "4px",
+                          }}
+                        >
                           {t("pages.ticketDetail.createdAt")}
                         </div>
                         <div style={{ color: "#333" }}>
-                          {formatTicketDate(ticket.createdAt)}
+                          {formatTicketDateTime(ticket.createdAt)}
                         </div>
                       </div>
                       <div>
@@ -270,7 +285,7 @@ export default function CustomerTicketViewDetailPage() {
                           {t("pages.ticketDetail.resolvedAt")}
                         </div>
                         <div style={{ color: "#333" }}>
-                          {formatTicketDate(ticket.resolvedAt)}
+                          {formatTicketDateTime(ticket.resolvedAt)}
                         </div>
                       </div>
                     </div>
@@ -309,9 +324,14 @@ export default function CustomerTicketViewDetailPage() {
                             outline: "none",
                             marginBottom: "12px",
                             boxSizing: "border-box",
-                            background: ticket.status === "Solved" ? "#f5f5f5" : "white",  // ← tambah ini
-                            color: ticket.status === "Solved" ? "#aaa" : "inherit",         // ← tambah ini
-                            cursor: ticket.status === "Solved" ? "not-allowed" : "auto",    // ← tambah ini
+                            background:
+                              ticket.status === "Solved" ? "#f5f5f5" : "white", // ← tambah ini
+                            color:
+                              ticket.status === "Solved" ? "#aaa" : "inherit", // ← tambah ini
+                            cursor:
+                              ticket.status === "Solved"
+                                ? "not-allowed"
+                                : "auto", // ← tambah ini
                           }}
                         />
                         <div
@@ -322,7 +342,11 @@ export default function CustomerTicketViewDetailPage() {
                         >
                           <button
                             type="submit"
-                            disabled={isSubmittingComment || !responseText.trim() || ticket.status === "Solved"}
+                            disabled={
+                              isSubmittingComment ||
+                              !responseText.trim() ||
+                              ticket.status === "Solved"
+                            }
                             style={{
                               padding: "10px 30px",
                               borderRadius: "8px",
@@ -330,8 +354,18 @@ export default function CustomerTicketViewDetailPage() {
                               background: "#FF8040",
                               color: "white",
                               fontWeight: "600",
-                              cursor: isSubmittingComment || !responseText.trim() || ticket.status === "Solved" ? "not-allowed" : "pointer",
-                              opacity: isSubmittingComment || !responseText.trim() || ticket.status === "Solved" ? 0.7 : 1,
+                              cursor:
+                                isSubmittingComment ||
+                                !responseText.trim() ||
+                                ticket.status === "Solved"
+                                  ? "not-allowed"
+                                  : "pointer",
+                              opacity:
+                                isSubmittingComment ||
+                                !responseText.trim() ||
+                                ticket.status === "Solved"
+                                  ? 0.7
+                                  : 1,
                               fontSize: "14px",
                             }}
                           >
