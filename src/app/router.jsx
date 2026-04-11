@@ -9,6 +9,7 @@ import AgentDashboardPage from "../modules/dashboard/agent/AgentDashboardPage";
 import AgentTicketPage from "../modules/ticket/pages/AgentTicketPage";
 import AgentPerformancePage from "../modules/history/AgentPerformancePage";
 import TechnicianDashboardPage from "../modules/dashboard/technician/TechnicianDashboardPage";
+import TechnicianTicketPage from "../modules/ticket/pages/TechnicianTicketPage";
 import CustomerTicketPage from "../modules/ticket/pages/CustomerTicketPage";
 import CustomerTicketViewDetailPage from "../modules/ticket/components/CustomerTicketViewDetailPage";
 import CustomerHistoryPage from "../modules/history/CustomerHistoryPage";
@@ -78,7 +79,10 @@ export default function Router() {
         <Route element={<MainLayout />}>
           <Route path={ROUTE.agentDashboard} element={<AgentDashboardPage />} />
           <Route path={ROUTE.agentTicket} element={<AgentTicketPage />} />
-          <Route path={ROUTE.agentPerformance} element={<AgentPerformancePage />} />
+          <Route
+            path={ROUTE.agentPerformance}
+            element={<AgentPerformancePage />}
+          />
         </Route>
       </Route>
 
@@ -119,7 +123,10 @@ export default function Router() {
               <ComingSoonPage title={t("pages.comingSoon.adminTicketView")} />
             }
           />
-          <Route path={ROUTE.ultrauserHistory} element={<UltrauserHistoryPage />} />
+          <Route
+            path={ROUTE.ultrauserHistory}
+            element={<UltrauserHistoryPage />}
+          />
           <Route
             path={ROUTE.ultrauserHistoryCustomer}
             element={<CustomerHistoryPage />}
@@ -151,7 +158,14 @@ export default function Router() {
             path={ROUTE.technicianDashboard}
             element={<TechnicianDashboardPage />}
           />
-          {/* <Route path={ROUTE.technicianTicket} element={<technicianTicket />} /> */}
+          <Route
+            path={ROUTE.technicianTicket}
+            element={<TechnicianTicketPage />}
+          />
+          <Route
+            path={ROUTE.technicianTicketDetail}
+            element={<CustomerTicketViewDetailPage />}
+          />
         </Route>
       </Route>
 

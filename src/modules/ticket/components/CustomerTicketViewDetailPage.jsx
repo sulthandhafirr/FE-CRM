@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import {
   MdArrowBack,
   MdAttachFile,
+  MdBuild,
   MdSupportAgent,
   MdPerson,
 } from "react-icons/md";
@@ -310,10 +311,12 @@ export default function CustomerTicketViewDetailPage() {
                       <form onSubmit={handleSubmitResponse}>
                         <textarea
                           rows={4}
-                          placeholder={t("pages.ticketDetail.responsePlaceholder")}
+                          placeholder={t(
+                            "pages.ticketDetail.responsePlaceholder",
+                          )}
                           value={responseText}
                           onChange={(e) => setResponseText(e.target.value)}
-                          disabled={ticket.status === "Solved"}   // ← tambah ini
+                          disabled={ticket.status === "Solved"} // ← tambah ini
                           style={{
                             width: "100%",
                             padding: "12px",
@@ -502,6 +505,11 @@ export default function CustomerTicketViewDetailPage() {
                           {comments.map((comment, index) => {
                             const isLast = index === comments.length - 1;
                             const commentDate = new Date(comment.createdAt);
+                            const normalizeName = (value) =>
+                              (value || "").trim().toLowerCase();
+                            const senderName = normalizeName(
+                              comment.senderName,
+                            );
                             const dateStr = Number.isNaN(commentDate.getTime())
                               ? "-"
                               : commentDate.toLocaleDateString("en-GB", {
@@ -516,9 +524,45 @@ export default function CustomerTicketViewDetailPage() {
                                   minute: "2-digit",
                                 });
                             const isAgentReply =
-                              ticket?.handler &&
-                              comment.senderName &&
-                              comment.senderName === ticket.handler;
+                              normalizeName(ticket?.handler) &&
+                              senderName === normalizeName(ticket?.handler);
+                            const isTechnicianReply =
+                              !isAgentReply &&
+                              normalizeName(ticket?.technician) &&
+                              senderName === normalizeName(ticket?.technician);
+
+                            const markerBorder = isTechnicianReply
+                              ? "2px solid #7BA7E8"
+                              : "2px solid #FF8040";
+                            const markerBackground = isAgentReply
+                              ? "white"
+                              : isTechnicianReply
+                                ? "#EAF3FF"
+                                : "#FF8040";
+
+                            const bubbleBorder = isTechnicianReply
+                              ? "1px solid #D4E4FB"
+                              : "1px solid #fde4d4";
+                            const bubbleBackground = isAgentReply
+                              ? "#fffdfb"
+                              : isTechnicianReply
+                                ? "#F5F9FF"
+                                : "#FF8040";
+                            const nameColor = isAgentReply
+                              ? "#333"
+                              : isTechnicianReply
+                                ? "#1E4A86"
+                                : "white";
+                            const dateColor = isAgentReply
+                              ? "#9ca3af"
+                              : isTechnicianReply
+                                ? "#5C7EAC"
+                                : "rgba(255,255,255,0.75)";
+                            const messageColor = isAgentReply
+                              ? "#555"
+                              : isTechnicianReply
+                                ? "#28496E"
+                                : "white";
                             return (
                               <div
                                 key={comment.id ?? index}
@@ -547,10 +591,8 @@ export default function CustomerTicketViewDetailPage() {
                                     width: "22px",
                                     height: "22px",
                                     borderRadius: "50%",
-                                    background: isAgentReply
-                                      ? "white"
-                                      : "#FF8040",
-                                    border: "2px solid #FF8040",
+                                    background: markerBackground,
+                                    border: markerBorder,
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "center",
@@ -558,18 +600,18 @@ export default function CustomerTicketViewDetailPage() {
                                 >
                                   {isAgentReply ? (
                                     <MdSupportAgent size={12} color="#FF8040" />
+                                  ) : isTechnicianReply ? (
+                                    <MdBuild size={12} color="#2D6FBB" />
                                   ) : (
                                     <MdPerson size={12} color="white" />
                                   )}
                                 </div>
                                 <div
                                   style={{
-                                    border: "1px solid #fde4d4",
+                                    border: bubbleBorder,
                                     borderRadius: "10px",
                                     padding: "10px 12px",
-                                    background: isAgentReply
-                                      ? "#fffdfb"
-                                      : "#FF8040",
+                                    background: bubbleBackground,
                                   }}
                                 >
                                   <div
@@ -584,7 +626,7 @@ export default function CustomerTicketViewDetailPage() {
                                       style={{
                                         fontWeight: "600",
                                         fontSize: "13px",
-                                        color: isAgentReply ? "#333" : "white",
+                                        color: nameColor,
                                       }}
                                     >
                                       {comment.senderName ||
@@ -593,9 +635,7 @@ export default function CustomerTicketViewDetailPage() {
                                     <div
                                       style={{
                                         fontSize: "11px",
-                                        color: isAgentReply
-                                          ? "#9ca3af"
-                                          : "rgba(255,255,255,0.75)",
+                                        color: dateColor,
                                         whiteSpace: "nowrap",
                                       }}
                                     >
@@ -605,7 +645,7 @@ export default function CustomerTicketViewDetailPage() {
                                   <div
                                     style={{
                                       fontSize: "13px",
-                                      color: isAgentReply ? "#555" : "white",
+                                      color: messageColor,
                                       lineHeight: "1.5",
                                       wordBreak: "break-word",
                                     }}
