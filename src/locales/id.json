@@ -285,6 +285,7 @@
       "thisYear": "Tahun Ini",
       "noData": "Belum ada tiket yang diselesaikan.",
       "detail": "Detail",
+      "empty": "Tidak ada tiket ditemukan.",
       "columns": {
         "ticketId": "ID Tiket",
         "subject": "Subjek",

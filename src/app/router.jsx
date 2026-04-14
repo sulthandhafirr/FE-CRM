@@ -10,6 +10,7 @@ import AgentTicketPage from "../modules/ticket/pages/AgentTicketPage";
 import AgentPerformancePage from "../modules/history/AgentPerformancePage";
 import TechnicianDashboardPage from "../modules/dashboard/technician/TechnicianDashboardPage";
 import TechnicianTicketPage from "../modules/ticket/pages/TechnicianTicketPage";
+import TechnicianPerformancePage from "../modules/history/TechnicianPerformancePage";
 import CustomerTicketPage from "../modules/ticket/pages/CustomerTicketPage";
 import CustomerTicketViewDetailPage from "../modules/ticket/components/CustomerTicketViewDetailPage";
 import CustomerHistoryPage from "../modules/history/CustomerHistoryPage";
@@ -165,6 +166,10 @@ export default function Router() {
           <Route
             path={ROUTE.technicianTicketDetail}
             element={<CustomerTicketViewDetailPage />}
+          />
+          <Route
+            path={ROUTE.technicianPerformance}
+            element={<TechnicianPerformancePage />}
           />
         </Route>
       </Route>

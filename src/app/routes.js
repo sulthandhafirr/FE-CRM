@@ -8,9 +8,11 @@ export const ROUTE = {
   agentDashboard: "/dashboard/csAgent",
   agentTicket: "/dashboard/csAgent/ticket",
   agentPerformance: "/dashboard/csAgent/performance",
+  agentTicketDetail: "/dashboard/csAgent/ticket/:ticketId", // ticket details
   technicianDashboard: "/dashboard/technician",
   technicianTicket: "/dashboard/technician/ticket",
   technicianTicketDetail: "/dashboard/technician/ticket/:ticketId",
+  technicianPerformance: "/dashboard/technician/performance",
   ultrauserDashboard: "/ultrauser/dashboard",
   ultrauserTicket: "/ultrauser/ticket",
   ultrauserTicketCustomer: "/ultrauser/ticket/customer",

@@ -399,6 +399,7 @@ export default function AgentTicketPage() {
                       <div><div style={{ color: "#FF8040", fontWeight: "600", fontSize: "13px", marginBottom: "4px" }}>Status</div><div style={{ color: getStatusColor(selectedTicket.status), fontWeight: "600" }}>{selectedTicket.status || "-"}</div></div>
                       <div><div style={{ color: "#FF8040", fontWeight: "600", fontSize: "13px", marginBottom: "4px" }}>Customer</div><div style={{ color: "#333", display: "flex", alignItems: "center", gap: "6px" }}><MdAccountCircle size={16} color="#FF8040" />{selectedTicket.customer ?? "-"}</div></div>
                       <div><div style={{ color: "#FF8040", fontWeight: "600", fontSize: "13px", marginBottom: "4px" }}>Assigned To</div><div style={{ color: "#333" }}>{selectedTicket.solver ?? "Unassigned"}</div></div>
+                      <div><div style={{ color: "#FF8040", fontWeight: "600", fontSize: "13px", marginBottom: "4px" }}>Technician</div><div style={{ color: "#333" }}>{selectedTicket.technician ?? "Unassigned"}</div></div>
                       {selectedTicket.resolvedAt && (
                         <div><div style={{ color: "#FF8040", fontWeight: "600", fontSize: "13px", marginBottom: "4px" }}>Resolved at</div><div style={{ color: "#333" }}>{formatTicketDate(selectedTicket.resolvedAt)}</div></div>
                       )}

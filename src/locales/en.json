@@ -285,6 +285,7 @@
       "thisYear": "This Year",
       "noData": "No resolved tickets yet.",
       "detail": "Detail",
+      "empty": "No tickets found.",
       "columns": {
         "ticketId": "Ticket ID",
         "subject": "Subject",
