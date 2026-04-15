@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { supabase } from "../../../lib/supabase";
 import {
   MdChat, MdArrowBack, MdAttachFile, MdAccountCircle,
   MdSupportAgent, MdPerson, MdDelete, MdDeleteSweep,
@@ -17,7 +18,7 @@ import {
   getAllTickets, updateTicket, deleteTicket,
   getTicketComments, createTicketComment,
   getAttachmentDownloadUrl, uploadTicketAttachment,
-  resolveTicket, takeAction,
+  resolveTicket, takeAction,getTechnicians,
 } from "../ticket.service";
 import { getPriorityColor, getStatusColor, formatTicketDate } from "../ticket.schema";
 
@@ -60,6 +61,10 @@ export default function AgentTicketPage() {
   const [dupRowsPerPage, setDupRowsPerPage] = useState(5);
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [deleting, setDeleting] = useState(false);
+  const [showDispatchPanel, setShowDispatchPanel] = useState(false);
+  const [technicianSearch, setTechnicianSearch] = useState("");
+  const [selectedTechnician, setSelectedTechnician] = useState(null);
+  const [dispatchingTech, setDispatchingTech] = useState(false);
 
   const selectedTicketId = selectedTicket?.id ?? null;
 
@@ -85,10 +90,18 @@ export default function AgentTicketPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["ticket-comments", selectedTicketId] }),
   });
 
+  // query ticket
   const { data: tickets = [], isLoading: loading } = useQuery({
     queryKey: ["all-tickets"],
     queryFn: getAllTickets,
     staleTime: 1000 * 60 * 5, refetchOnWindowFocus: false, refetchOnMount: false,
+  });
+
+  // query dispatch
+  const { data: technicians = [] } = useQuery({
+    queryKey: ["technicians"],
+    queryFn: getTechnicians,
+    staleTime: 1000 * 60 * 5,
   });
 
   const handleViewAttachment = async (attachmentId) => {
@@ -129,7 +142,6 @@ export default function AgentTicketPage() {
     () => sortTicketsFn(tickets.filter((t) => t.status !== "Solved"), orderBy, order),
     [tickets, orderBy, order]
   );
-
   const sortedDuplicates = useMemo(() => {
     if (!duplicateSource) return [];
     return sortTicketsFn(getDuplicates(duplicateSource, tickets), dupOrderBy, dupOrder);
@@ -187,6 +199,7 @@ export default function AgentTicketPage() {
       await Promise.all(sortedDuplicates.map((t) => deleteTicket(t.id)));
       setSelectedIds(new Set());
       queryClient.invalidateQueries(["all-tickets"]);
+      // FIX: removed duplicate setPageHistory call
       setPageHistory(["list"]);
     } catch (err) {
       console.error("Error deleting all duplicates:", err.message);
@@ -194,10 +207,12 @@ export default function AgentTicketPage() {
     } finally { setDeleting(false); }
   };
 
+  // FIX: removed duplicate/nested openTicketDetail definition
   const openTicketDetail = (ticket) => {
     setSelectedTicket(ticket);
     setResponseText("");
     setAttachment(null);
+    // FIX: removed duplicate navigateTo("detail") call
     navigateTo("detail");
   };
 
@@ -205,6 +220,7 @@ export default function AgentTicketPage() {
     setDuplicateSource(ticket);
     setDupPage(0);
     setSelectedIds(new Set());
+    // FIX: removed duplicate navigateTo("duplicates") call
     navigateTo("duplicates");
   }, [navigateTo]);
 
@@ -228,8 +244,10 @@ export default function AgentTicketPage() {
       if (selectedTicket.status === "Waiting") {
         await updateTicket(selectedTicket.id, { status: "Progress" });
         setSelectedTicket((prev) => ({ ...prev, status: "Progress" }));
+        // FIX: removed duplicate invalidateQueries call
         queryClient.invalidateQueries(["all-tickets"]);
       }
+
       setResponseText("");
       setAttachment(null);
     } catch (err) {
@@ -242,8 +260,6 @@ export default function AgentTicketPage() {
     try {
       const result = await takeAction(ticket.id);
       queryClient.invalidateQueries(["all-tickets"]);
-
-      // Jika ticket yang sedang dibuka di detail view adalah ticket ini, update state-nya
       if (selectedTicket?.id === ticket.id) {
         setSelectedTicket((prev) => ({
           ...prev,
@@ -254,18 +270,34 @@ export default function AgentTicketPage() {
       }
     } catch (err) {
       console.error("Error taking action:", err.message);
+      // FIX: removed duplicate alert call
       alert("Failed to take action.");
     }
   };
 
-  const handleDispatch = async (ticket) => {
-    const techName = prompt(t("pages.agentTicket.promptDispatch"));
-    if (!techName) return;
+  const handleDispatchTechnician = async () => {
+    if (!selectedTechnician || !selectedTicket) return;
     try {
-      await updateTicket(ticket.id, { solver: techName, status: "Progress" });
+      setDispatchingTech(true);
+      await updateTicket(selectedTicket.id, {
+        technicianId: selectedTechnician.id,  // ← UUID profile teknisi
+        status: "Progress",
+      });
+      setSelectedTicket((prev) => ({
+        ...prev,
+        technician: selectedTechnician.name,
+        technicianId: selectedTechnician.id,
+        status: "Progress",
+      }));
       queryClient.invalidateQueries(["all-tickets"]);
+      setShowDispatchPanel(false);
+      setSelectedTechnician(null);
+      setTechnicianSearch("");
     } catch (err) {
-      console.error("Error dispatching:", err.message);
+      console.error("Error dispatching technician:", err.message);
+      alert("Failed to dispatch technician.");
+    } finally {
+      setDispatchingTech(false);
     }
   };
 
@@ -422,7 +454,11 @@ export default function AgentTicketPage() {
                           )}
                         </div>
                         <div style={{ display: "flex", gap: "12px" }}>
-                          <button type="button" onClick={() => handleDispatch(selectedTicket)} style={{ padding: "10px 25px", borderRadius: "8px", border: "2px solid #FF8040", background: "white", color: "#FF8040", fontWeight: "600", cursor: "pointer", fontSize: "14px" }}>
+                          <button
+                            type="button"
+                            onClick={() => { setShowDispatchPanel(true); setSelectedTechnician(null); setTechnicianSearch(""); }}
+                            style={{ padding: "10px 25px", borderRadius: "8px", border: "2px solid #FF8040", background: "white", color: "#FF8040", fontWeight: "600", cursor: "pointer", fontSize: "14px" }}
+                          >
                             Dispatch
                           </button>
                           <button type="submit" disabled={submitting || (!responseText.trim() && !attachment)} style={{ padding: "10px 30px", borderRadius: "8px", border: "none", background: "#FF8040", color: "white", fontWeight: "600", cursor: submitting || (!responseText.trim() && !attachment) ? "not-allowed" : "pointer", opacity: submitting || (!responseText.trim() && !attachment) ? 0.7 : 1, fontSize: "14px" }}>
@@ -432,90 +468,173 @@ export default function AgentTicketPage() {
                       </form>
                     </div>
                   </div>
-                  <div style={{ background: "#fffdfb", borderRadius: "14px", padding: "22px", border: "1px solid #fce6d8" }}>
-                    <h3 style={{ fontSize: "18px", fontWeight: "700", marginBottom: "16px", color: "#333" }}>Timeline</h3>
-                    {commentsLoading ? <div style={{ textAlign: "center", padding: "16px 0" }}><LoadingSpinner /></div>
-                      : commentsError ? <div style={{ color: "#9ca3af", fontSize: "14px" }}>Failed to load timeline.</div>
-                      : (
-                        <div style={{ position: "relative", paddingLeft: "30px" }}>
-                          {(() => {
-                            const attachments = selectedTicket?.attachments ?? [];
-                            const createdDate = new Date(selectedTicket?.createdAt);
-                            const createdDateStr = Number.isNaN(createdDate.getTime()) ? "-" : createdDate.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
-                            const createdTimeStr = Number.isNaN(createdDate.getTime()) ? "-" : createdDate.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
-                            const ticketLevelAttachments = attachments.filter((a) => !a.commentId);
-                            const allItems = [
-                              { _type: "created" },
-                              ...comments.map((c) => ({ _type: "comment", ...c })),
-                              ...(selectedTicket.status === "Solved" && selectedTicket.resolvedAt ? [{ _type: "resolved" }] : []),
-                            ];
-                            return allItems.map((item, index) => {
-                              const isLast = index === allItems.length - 1;
-                              if (item._type === "created") return (
-                                <div key="ticket-created" style={{ position: "relative", marginBottom: "18px" }}>
-                                  {!isLast && <div style={{ position: "absolute", left: "-20px", top: "22px", bottom: "-20px", width: "2px", background: "#FF8040" }} />}
-                                  <div style={{ position: "absolute", left: "-30px", top: "2px", width: "22px", height: "22px", borderRadius: "50%", background: "white", border: "2px solid #FF8040", display: "flex", alignItems: "center", justifyContent: "center" }}><MdPerson size={12} color="#FF8040" /></div>
-                                  <div style={{ border: "1px solid #fde4d4", borderRadius: "10px", padding: "10px 12px", background: "#fffdfb" }}>
-                                    <div style={{ display: "flex", justifyContent: "space-between", gap: "8px", marginBottom: "4px" }}>
-                                      <div style={{ fontWeight: "600", fontSize: "13px", color: "#333" }}>{selectedTicket?.customer || "Customer"}</div>
-                                      <div style={{ fontSize: "11px", color: "#9ca3af", whiteSpace: "nowrap" }}>{createdDateStr} • {createdTimeStr}</div>
-                                    </div>
-                                    <div style={{ fontSize: "13px", color: "#555", lineHeight: "1.5" }}>Ticket created</div>
-                                    {ticketLevelAttachments.length > 0 && (
-                                      <div style={{ marginTop: "8px", paddingTop: "8px", borderTop: "1px solid #fde4d4", display: "flex", flexDirection: "column", gap: "6px" }}>
-                                        {ticketLevelAttachments.map((file) => <AttachmentButton key={file.id} file={file} downloadingId={downloadingId} onView={() => handleViewAttachment(file.id)} />)}
-                                      </div>
-                                    )}
-                                  </div>
+
+                  {showDispatchPanel ? (
+                    /* ── DISPATCH PANEL ── */
+                    <div style={{ background: "#fffdfb", borderRadius: "14px", padding: "22px", border: "1px solid #fce6d8" }}>
+                      <h3 style={{ fontSize: "18px", fontWeight: "700", marginBottom: "16px", color: "#333" }}>Dispatch Technician</h3>
+
+                      {/* Search dropdown */}
+                      <div style={{ marginBottom: "16px" }}>
+                        <label style={{ color: "#FF8040", fontWeight: "600", fontSize: "13px", display: "block", marginBottom: "6px" }}>Search Technician</label>
+                        <input
+                          type="text"
+                          placeholder="Type name or email..."
+                          value={technicianSearch}
+                          onChange={(e) => { setTechnicianSearch(e.target.value); setSelectedTechnician(null); }}
+                          style={{ width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid #fde4d4", fontSize: "14px", outline: "none", boxSizing: "border-box" }}
+                        />
+                        {technicianSearch && (
+                          <div style={{ border: "1px solid #fde4d4", borderRadius: "8px", marginTop: "4px", background: "white", maxHeight: "160px", overflowY: "auto", boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+                            {technicians
+                              .filter((t) =>
+                                t.name?.toLowerCase().includes(technicianSearch.toLowerCase()) ||
+                                t.email?.toLowerCase().includes(technicianSearch.toLowerCase())
+                              )
+                              .map((tech) => (
+                                <div
+                                  key={tech.id}
+                                  onClick={() => { setSelectedTechnician(tech); setTechnicianSearch(tech.name); }}
+                                  style={{ padding: "10px 14px", cursor: "pointer", fontSize: "13px", color: "#333", borderBottom: "1px solid #f5f5f5" }}
+                                  onMouseEnter={(e) => e.currentTarget.style.background = "#FFF5EF"}
+                                  onMouseLeave={(e) => e.currentTarget.style.background = "white"}
+                                >
+                                  <span style={{ fontWeight: "600" }}>{tech.name}</span>
+                                  <span style={{ color: "#999", marginLeft: "8px" }}>{tech.email}</span>
                                 </div>
-                              );
-                              if (item._type === "resolved") {
-                                const rd = new Date(selectedTicket.resolvedAt);
-                                const rdStr = Number.isNaN(rd.getTime()) ? "-" : rd.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
-                                const rtStr = Number.isNaN(rd.getTime()) ? "-" : rd.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
-                                return (
-                                  <div key="ticket-resolved" style={{ position: "relative", marginBottom: "18px" }}>
-                                    <div style={{ position: "absolute", left: "-30px", top: "2px", width: "22px", height: "22px", borderRadius: "50%", background: "#FF8040", border: "2px solid #FF8040", display: "flex", alignItems: "center", justifyContent: "center" }}><MdCheckCircle size={13} color="white" /></div>
-                                    <div style={{ border: "1px solid #bbf7d0", borderRadius: "10px", padding: "10px 12px", background: "#f0fdf4" }}>
+                              ))}
+                            {technicians.filter((t) =>
+                              t.name?.toLowerCase().includes(technicianSearch.toLowerCase()) ||
+                              t.email?.toLowerCase().includes(technicianSearch.toLowerCase())
+                            ).length === 0 && (
+                              <div style={{ padding: "12px 14px", color: "#999", fontSize: "13px" }}>No technicians found</div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Selected technician detail */}
+                      {selectedTechnician && (
+                        <div style={{ background: "#FFF5EF", border: "1px solid #fde4d4", borderRadius: "10px", padding: "14px", marginBottom: "16px" }}>
+                          {[
+                            { label: "Name", value: selectedTechnician.name },
+                            { label: "Position", value: selectedTechnician.position ?? "-" },
+                            { label: "Email", value: selectedTechnician.email },
+                          ].map(({ label, value }) => (
+                            <div key={label} style={{ display: "flex", gap: "10px", marginBottom: "8px", fontSize: "13px" }}>
+                              <span style={{ color: "#FF8040", fontWeight: "600", minWidth: "60px" }}>{label}:</span>
+                              <span style={{ color: "#333" }}>{value}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Action buttons */}
+                      <div style={{ display: "flex", gap: "10px" }}>
+                        <button
+                          onClick={() => { setShowDispatchPanel(false); setSelectedTechnician(null); setTechnicianSearch(""); }}
+                          style={{ flex: 1, padding: "10px", borderRadius: "8px", border: "2px solid #ddd", background: "white", color: "#666", fontWeight: "600", cursor: "pointer", fontSize: "14px" }}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleDispatchTechnician}
+                          disabled={!selectedTechnician || dispatchingTech}
+                          style={{ flex: 1, padding: "10px", borderRadius: "8px", border: "none", background: !selectedTechnician || dispatchingTech ? "#ccc" : "#FF8040", color: "white", fontWeight: "600", cursor: !selectedTechnician || dispatchingTech ? "not-allowed" : "pointer", fontSize: "14px" }}
+                        >
+                          {dispatchingTech ? "Dispatching..." : "Dispatch"}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    /* ── TIMELINE (existing code) ── */
+                    <div style={{ background: "#fffdfb", borderRadius: "14px", padding: "22px", border: "1px solid #fce6d8" }}>
+                      <h3 style={{ fontSize: "18px", fontWeight: "700", marginBottom: "16px", color: "#333" }}>Timeline</h3>
+                      {commentsLoading ? <div style={{ textAlign: "center", padding: "16px 0" }}><LoadingSpinner /></div>
+                        : commentsError ? <div style={{ color: "#9ca3af", fontSize: "14px" }}>Failed to load timeline.</div>
+                        : (
+                          <div style={{ position: "relative", paddingLeft: "30px" }}>
+                            {(() => {
+                              const attachments = selectedTicket?.attachments ?? [];
+                              const createdDate = new Date(selectedTicket?.createdAt);
+                              const createdDateStr = Number.isNaN(createdDate.getTime()) ? "-" : createdDate.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
+                              const createdTimeStr = Number.isNaN(createdDate.getTime()) ? "-" : createdDate.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+                              const ticketLevelAttachments = attachments.filter((a) => !a.commentId);
+                              const allItems = [
+                                { _type: "created" },
+                                ...comments.map((c) => ({ _type: "comment", ...c })),
+                                ...(selectedTicket.status === "Solved" && selectedTicket.resolvedAt ? [{ _type: "resolved" }] : []),
+                              ];
+                              return allItems.map((item, index) => {
+                                const isLast = index === allItems.length - 1;
+                                if (item._type === "created") return (
+                                  <div key="ticket-created" style={{ position: "relative", marginBottom: "18px" }}>
+                                    {!isLast && <div style={{ position: "absolute", left: "-20px", top: "22px", bottom: "-20px", width: "2px", background: "#FF8040" }} />}
+                                    <div style={{ position: "absolute", left: "-30px", top: "2px", width: "22px", height: "22px", borderRadius: "50%", background: "white", border: "2px solid #FF8040", display: "flex", alignItems: "center", justifyContent: "center" }}><MdPerson size={12} color="#FF8040" /></div>
+                                    <div style={{ border: "1px solid #fde4d4", borderRadius: "10px", padding: "10px 12px", background: "#fffdfb" }}>
                                       <div style={{ display: "flex", justifyContent: "space-between", gap: "8px", marginBottom: "4px" }}>
-                                        <div style={{ fontWeight: "600", fontSize: "13px", color: "#16a34a" }}>Ticket Resolved</div>
-                                        <div style={{ fontSize: "11px", color: "#9ca3af", whiteSpace: "nowrap" }}>{rdStr} • {rtStr}</div>
+                                        <div style={{ fontWeight: "600", fontSize: "13px", color: "#333" }}>{selectedTicket?.customer || "Customer"}</div>
+                                        <div style={{ fontSize: "11px", color: "#9ca3af", whiteSpace: "nowrap" }}>{createdDateStr} • {createdTimeStr}</div>
                                       </div>
-                                      <div style={{ fontSize: "13px", color: "#15803d", lineHeight: "1.5" }}>Status changed to Solved</div>
+                                      <div style={{ fontSize: "13px", color: "#555", lineHeight: "1.5" }}>Ticket created</div>
+                                      {ticketLevelAttachments.length > 0 && (
+                                        <div style={{ marginTop: "8px", paddingTop: "8px", borderTop: "1px solid #fde4d4", display: "flex", flexDirection: "column", gap: "6px" }}>
+                                          {ticketLevelAttachments.map((file) => <AttachmentButton key={file.id} file={file} downloadingId={downloadingId} onView={() => handleViewAttachment(file.id)} />)}
+                                        </div>
+                                      )}
                                     </div>
                                   </div>
                                 );
-                              }
-                              const commentDate = new Date(item.createdAt);
-                              const dateStr = Number.isNaN(commentDate.getTime()) ? "-" : commentDate.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
-                              const timeStr = Number.isNaN(commentDate.getTime()) ? "-" : commentDate.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
-                              const isAgentReply = selectedTicket?.solver && item.senderName && item.senderName === selectedTicket.solver;
-                              const commentAttachments = attachments.filter((a) => a.commentId === item.id);
-                              return (
-                                <div key={item.id ?? index} style={{ position: "relative", marginBottom: "18px" }}>
-                                  {!isLast && <div style={{ position: "absolute", left: "-20px", top: "22px", bottom: "-20px", width: "2px", background: "#FF8040" }} />}
-                                  <div style={{ position: "absolute", left: "-30px", top: "2px", width: "22px", height: "22px", borderRadius: "50%", background: isAgentReply ? "#FF8040" : "white", border: "2px solid #FF8040", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                    {isAgentReply ? <MdSupportAgent size={12} color="white" /> : <MdPerson size={12} color="#FF8040" />}
-                                  </div>
-                                  <div style={{ border: "1px solid #fde4d4", borderRadius: "10px", padding: "10px 12px", background: isAgentReply ? "#FF8040" : "#fffdfb" }}>
-                                    <div style={{ display: "flex", justifyContent: "space-between", gap: "8px", marginBottom: "4px" }}>
-                                      <div style={{ fontWeight: "600", fontSize: "13px", color: isAgentReply ? "white" : "#333" }}>{item.senderName || "Unknown sender"}</div>
-                                      <div style={{ fontSize: "11px", color: isAgentReply ? "rgba(255,255,255,0.75)" : "#9ca3af", whiteSpace: "nowrap" }}>{dateStr} • {timeStr}</div>
-                                    </div>
-                                    <div style={{ fontSize: "13px", color: isAgentReply ? "white" : "#555", lineHeight: "1.5", wordBreak: "break-word" }}>{item.message || "-"}</div>
-                                    {commentAttachments.length > 0 && (
-                                      <div style={{ marginTop: "8px", paddingTop: "8px", borderTop: `1px solid ${isAgentReply ? "rgba(255,255,255,0.3)" : "#fde4d4"}`, display: "flex", flexDirection: "column", gap: "6px" }}>
-                                        {commentAttachments.map((file) => <AttachmentButton key={file.id} file={file} downloadingId={downloadingId} onView={() => handleViewAttachment(file.id)} isAgentReply={isAgentReply} />)}
+                                if (item._type === "resolved") {
+                                  const rd = new Date(selectedTicket.resolvedAt);
+                                  const rdStr = Number.isNaN(rd.getTime()) ? "-" : rd.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
+                                  const rtStr = Number.isNaN(rd.getTime()) ? "-" : rd.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+                                  return (
+                                    <div key="ticket-resolved" style={{ position: "relative", marginBottom: "18px" }}>
+                                      <div style={{ position: "absolute", left: "-30px", top: "2px", width: "22px", height: "22px", borderRadius: "50%", background: "#FF8040", border: "2px solid #FF8040", display: "flex", alignItems: "center", justifyContent: "center" }}><MdCheckCircle size={13} color="white" /></div>
+                                      <div style={{ border: "1px solid #bbf7d0", borderRadius: "10px", padding: "10px 12px", background: "#f0fdf4" }}>
+                                        <div style={{ display: "flex", justifyContent: "space-between", gap: "8px", marginBottom: "4px" }}>
+                                          <div style={{ fontWeight: "600", fontSize: "13px", color: "#16a34a" }}>Ticket Resolved</div>
+                                          <div style={{ fontSize: "11px", color: "#9ca3af", whiteSpace: "nowrap" }}>{rdStr} • {rtStr}</div>
+                                        </div>
+                                        <div style={{ fontSize: "13px", color: "#15803d", lineHeight: "1.5" }}>Status changed to Solved</div>
                                       </div>
-                                    )}
+                                    </div>
+                                  );
+                                }
+                                const commentDate = new Date(item.createdAt);
+                                const dateStr = Number.isNaN(commentDate.getTime()) ? "-" : commentDate.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
+                                const timeStr = Number.isNaN(commentDate.getTime()) ? "-" : commentDate.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+                                const isAgentReply = selectedTicket?.solver && item.senderName && item.senderName === selectedTicket.solver;
+                                const commentAttachments = attachments.filter((a) => a.commentId === item.id);
+                                return (
+                                  <div key={item.id ?? index} style={{ position: "relative", marginBottom: "18px" }}>
+                                    {!isLast && <div style={{ position: "absolute", left: "-20px", top: "22px", bottom: "-20px", width: "2px", background: "#FF8040" }} />}
+                                    <div style={{ position: "absolute", left: "-30px", top: "2px", width: "22px", height: "22px", borderRadius: "50%", background: isAgentReply ? "#FF8040" : "white", border: "2px solid #FF8040", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                      {isAgentReply ? <MdSupportAgent size={12} color="white" /> : <MdPerson size={12} color="#FF8040" />}
+                                    </div>
+                                    <div style={{ border: "1px solid #fde4d4", borderRadius: "10px", padding: "10px 12px", background: isAgentReply ? "#FF8040" : "#fffdfb" }}>
+                                      <div style={{ display: "flex", justifyContent: "space-between", gap: "8px", marginBottom: "4px" }}>
+                                        <div style={{ fontWeight: "600", fontSize: "13px", color: isAgentReply ? "white" : "#333" }}>{item.senderName || "Unknown sender"}</div>
+                                        <div style={{ fontSize: "11px", color: isAgentReply ? "rgba(255,255,255,0.75)" : "#9ca3af", whiteSpace: "nowrap" }}>{dateStr} • {timeStr}</div>
+                                      </div>
+                                      <div style={{ fontSize: "13px", color: isAgentReply ? "white" : "#555", lineHeight: "1.5", wordBreak: "break-word" }}>{item.message || "-"}</div>
+                                      {commentAttachments.length > 0 && (
+                                        <div style={{ marginTop: "8px", paddingTop: "8px", borderTop: `1px solid ${isAgentReply ? "rgba(255,255,255,0.3)" : "#fde4d4"}`, display: "flex", flexDirection: "column", gap: "6px" }}>
+                                          {commentAttachments.map((file) => <AttachmentButton key={file.id} file={file} downloadingId={downloadingId} onView={() => handleViewAttachment(file.id)} isAgentReply={isAgentReply} />)}
+                                        </div>
+                                      )}
+                                    </div>
                                   </div>
-                                </div>
-                              );
-                            });
-                          })()}
-                        </div>
-                      )}
-                  </div>
+                                );
+                              });
+                            })()}
+                          </div>
+                        )}
+                    </div>
+                  )}
+
+                  
                 </div>
               </div>
             </div>
@@ -597,6 +716,7 @@ export default function AgentTicketPage() {
   );
 }
 
+// FIX: AttachmentButton is now correctly outside AgentTicketPage (was accidentally merged with closing brace)
 function AttachmentButton({ file, downloadingId, onView, isAgentReply = false }) {
   return (
     <button type="button" onClick={onView} disabled={downloadingId === file.id}

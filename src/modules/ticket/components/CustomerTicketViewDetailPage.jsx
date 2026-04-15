@@ -563,6 +563,9 @@ export default function CustomerTicketViewDetailPage() {
                               : isTechnicianReply
                                 ? "#28496E"
                                 : "white";
+                              ticket?.handler &&
+                              comment.senderName &&
+                              comment.senderName === ticket.handler;
                             return (
                               <div
                                 key={comment.id ?? index}
@@ -614,6 +617,7 @@ export default function CustomerTicketViewDetailPage() {
                                     background: bubbleBackground,
                                   }}
                                 >
+                            
                                   <div
                                     style={{
                                       display: "flex",

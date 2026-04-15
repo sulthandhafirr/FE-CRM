@@ -166,3 +166,8 @@ export const takeAction = async (ticketId) => {
   const { data } = await api.post(`/api/tickets/${ticketId}/take-action`);
   return data;
 };
+
+export const getTechnicians = async () => {
+  const response = await api.get("/api/tickets/technicians");
+  return response.data;
+};
