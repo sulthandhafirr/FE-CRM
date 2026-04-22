@@ -4,6 +4,7 @@
     "ticket": "Tiket",
     "history": "Riwayat",
     "performance": "Performa",
+    "userperformance": "Pengguna",
     "menu": "Menu (ultrauser)",
     "changeRole": "Ubah Peran",
     "profile": "Profil"
@@ -21,6 +22,37 @@
     "ultrauser": "Ultrauser"
   },
   "pages": {
+    "adminUserPerformance": {
+      "title": "Performa Pengguna",
+      "tabs": {
+        "cs_agent": "Agen CS",
+        "technician": "Teknisi",
+        "customer": "Pelanggan"
+      },
+      "columns": {
+        "name": "Nama",
+        "email": "Email",
+        "position": "Posisi",
+        "skill": "Keahlian",
+        "ticketId": "ID Tiket",
+        "subject": "Subjek",
+        "priority": "Prioritas",
+        "status": "Status",
+        "customer": "Pelanggan",
+        "createdAt": "Dibuat Pada"
+      },
+      "stats": {
+        "total": "Total Tiket",
+        "active": "Aktif",
+        "solved": "Diselesaikan",
+        "highPriority": "Prioritas Tinggi"
+      },
+      "ticketsHandled": "Tiket Ditangani",
+      "ticketsCreated": "Tiket Dibuat",
+      "noTickets": "Tidak ada tiket untuk pengguna ini.",
+      "noUsers": "Tidak ada {{role}} ditemukan.",
+      "back": "Kembali"
+    },
     "notFound": {
       "title": "Ups!",
       "subtitle": "Sepertinya halaman ini tersesat.",
@@ -68,6 +100,8 @@
     },
     "dashboard": {
       "totalTechnician": "Total Teknisi",
+      "totalCustomer": "Total Pelanggan",
+      "totalTicket": "Total Tiket",
       "totalCsAgent": "Total Agen CS",
       "ticketSolvedByAi": "Tiket Diselesaikan oleh AI",
       "lineChartPlaceholder": "Grafik akan diimplementasikan di sini (Line Chart)",
@@ -253,6 +287,10 @@
         "deleteAll": "Gagal menghapus semua duplikat.",
         "submitResponse": "Gagal mengirim respons."
       }
+    },
+    "adminTicket": {
+      "active": "Tiket Aktif",
+      "solved": "Tiket Diselesaikan"
     },
     "ticketForm": {
       "title": "Buat Tiket Baru",

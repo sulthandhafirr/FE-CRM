@@ -22,6 +22,9 @@ import CompanyListPage from "../modules/ultrauser/company/pages/CompanyListPage"
 import ComingSoonPage from "../components/ui/ComingSoonPage";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
 import NotFoundPage from "../pages/NotFoundPage";
+import AdminDashboardPage from "../modules/dashboard/admin/AdminDashboardPage";
+import AdminTicketPage from "../modules/ticket/pages/AdminTicketPage";
+import AdminUserPerformancePage from "../modules/profile/AdminUserPerformancePage";
 
 function ProtectedRoute({ allowedRoles }) {
   const { user, role, trueRole, loading } = useAuth();
@@ -35,7 +38,7 @@ function ProtectedRoute({ allowedRoles }) {
 }
 
 const getRoleRoute = (role) => {
-  // if (role === 'admin') return ROUTE.adminDashboard;
+  if (role === "admin") return ROUTE.adminDashboard;
   if (role === "cs_agent") return ROUTE.agentDashboard;
   if (role === "ultrauser") return ROUTE.ultrauserDashboard;
   if (role === "technician") return ROUTE.technicianDashboard;
@@ -175,12 +178,13 @@ export default function Router() {
       </Route>
 
       {/* Admin Routes */}
-      {/* <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+      <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
         <Route element={<MainLayout />}>
-          <Route path={ROUTE.adminDashboard} element={<adminDashboard />} />
-          <Route path={ROUTE.adminTicket} element={<adminTicket />} />
+          <Route path={ROUTE.adminDashboard} element={<AdminDashboardPage />} />
+          <Route path={ROUTE.adminTicket} element={<AdminTicketPage />} />
+          <Route path={ROUTE.adminUserPerformance} element={<AdminUserPerformancePage />} />
         </Route>
-      </Route> */}
+      </Route>
 
       {/* Wildcard */}
       <Route path="*" element={<NotFoundPage />} />

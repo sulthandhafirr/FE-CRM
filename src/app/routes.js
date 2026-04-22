@@ -28,4 +28,7 @@ export const ROUTE = {
   ultrauserMenu: "/ultrauser/menu",
   ultrauserUsers: "/ultrauser/users",
   ultrauserCompany: "/ultrauser/company",
+  adminDashboard: "/dashboard/admin",
+  adminTicket: "/dashboard/admin/ticket",
+  adminUserPerformance: "/dashboard/admin/performance",
 };

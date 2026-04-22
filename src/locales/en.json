@@ -4,6 +4,7 @@
     "ticket": "Ticket",
     "history": "History",
     "performance": "Performance",
+    "userperformance": "Users",
     "menu": "Menu (ultrauser)",
     "changeRole": "Change Role",
     "profile": "Profile"
@@ -21,6 +22,37 @@
     "ultrauser": "Ultrauser"
   },
   "pages": {
+    "adminUserPerformance": {
+      "title": "User Performance",
+      "tabs": {
+        "cs_agent": "CS Agent",
+        "technician": "Technician",
+        "customer": "Customer"
+      },
+      "columns": {
+        "name": "Name",
+        "email": "Email",
+        "position": "Position",
+        "skill": "Skill",
+        "ticketId": "Ticket ID",
+        "subject": "Subject",
+        "priority": "Priority",
+        "status": "Status",
+        "customer": "Customer",
+        "createdAt": "Created At"
+      },
+      "stats": {
+        "total": "Total Tickets",
+        "active": "Active",
+        "solved": "Solved",
+        "highPriority": "High Priority"
+      },
+      "ticketsHandled": "Tickets Handled",
+      "ticketsCreated": "Tickets Created",
+      "noTickets": "No tickets found for this user.",
+      "noUsers": "No {{role}} found.",
+      "back": "Back"
+    },
     "notFound": {
       "title": "Oops!",
       "subtitle": "Looks like that page is lost.",
@@ -68,6 +100,8 @@
     },
     "dashboard": {
       "totalTechnician": "Total Technician",
+      "totalCustomer": "Total Customer",
+      "totalTicket": "Total Tickets",
       "totalCsAgent": "Total CS Agent",
       "ticketSolvedByAi": "Ticket Solved by AI",
       "lineChartPlaceholder": "Chart will be implemented here (Line Chart)",
@@ -253,6 +287,10 @@
         "deleteAll": "Failed to delete all duplicates.",
         "submitResponse": "Failed to submit response."
       }
+    },
+    "adminTicket": {
+      "active": "Active Tickets",
+      "solved": "Solved Tickets"
     },
     "ticketForm": {
       "title": "Create New Ticket",

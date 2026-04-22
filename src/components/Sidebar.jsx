@@ -12,6 +12,7 @@ import {
   MdAdminPanelSettings,
   MdSwitchAccount,
   MdWorkHistory,
+  MdGroup,
 } from "react-icons/md";
 import { supabase } from "../lib/supabase";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
@@ -91,7 +92,24 @@ export default function Sidebar({
       },
     ],
     admin: [
-      // tambah buat page admin disini
+      {
+        key: "dashboard",
+        label: t("nav.dashboard"),
+        icon: MdDashboard,
+        route: ROUTE.adminDashboard,
+      },
+      {
+        key: "ticket",
+        label: t("nav.ticket"),
+        icon: MdConfirmationNumber,
+        route: ROUTE.adminTicket,
+      },
+      {
+        key: "user performance",
+        label: t("nav.userperformance"),
+        icon: MdGroup,
+        route: ROUTE.adminUserPerformance,
+      },
     ],
     ultrauser: [
       {
