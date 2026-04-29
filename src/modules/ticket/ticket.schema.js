@@ -64,6 +64,21 @@ export const formatTicketDateTime = (dateString) => {
   return `${datePart}, ${timePart}`;
 };
 
+export const formatDuration = (seconds) => {
+    if (seconds == null) return "-";
+    
+    if (seconds < 60)
+        return `${seconds}s`;
+    
+    if (seconds < 3600)
+        return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
+    
+    if (seconds < 86400)
+        return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
+    
+    return `${Math.floor(seconds / 86400)}d ${Math.floor((seconds % 86400) / 3600)}h`;
+};
+
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 export const TICKET_STATUS = {

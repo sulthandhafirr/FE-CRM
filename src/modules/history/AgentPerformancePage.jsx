@@ -18,7 +18,7 @@ import ChatBot from "../../components/ui/ChatBot";
 import SearchBar from "../../components/ui/SearchBar";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import { getAgentSolvedTickets } from "../ticket/ticket.service";
-import { formatTicketDate, getPriorityColor } from "../ticket/ticket.schema";
+import { formatTicketDate, getPriorityColor, formatDuration } from "../ticket/ticket.schema";
 
 function sortTicketsFn(list, ob, o) {
   return [...list].sort((a, b) => {
@@ -84,6 +84,8 @@ export default function AgentPerformancePage() {
     { id: "customer", label: t("pages.agentPerformance.columns.customer") },
     { id: "createdAt", label: t("pages.agentPerformance.columns.createdAt") },
     { id: "resolvedAt", label: t("pages.agentPerformance.columns.resolvedAt") },
+    { id: "responseTimeSec", label: t("pages.agentPerformance.columns.responseTimeSec") },
+    { id: "resolutionTimeSec", label: t("pages.agentPerformance.columns.resolutionTimeSec") },
   ];
 
   return (
@@ -208,6 +210,8 @@ export default function AgentPerformancePage() {
                         <TableCell sx={{ color: "#22c55e", fontWeight: 600 }}>
                           {formatTicketDate(ticket.resolvedAt)}
                         </TableCell>
+                        <TableCell>{formatDuration(ticket.responseTimeSec)}</TableCell>
+                        <TableCell>{formatDuration(ticket.resolutionTimeSec)}</TableCell>
                         <TableCell>
                           <button
                             onClick={() => navigate(`/dashboard/csAgent/tickets/${ticket.id}`)}
