@@ -112,10 +112,18 @@
       "percentage": "Persentase",
       "loadingChart": "Memuat grafik...",
       "noTicketStatusData": "Data status tiket belum tersedia.",
+      "myAvgResponseTime": "Rata-Rata Waktu Respons Saya",
+      "myAvgResolutionTime": "Rata-Rata Waktu Resolusi Saya",
       "ticketStatusLabels": {
         "solved": "Selesai",
         "progress": "Proses",
         "waiting": "Menunggu"
+      },
+      "ticketPriorityLabels":{
+        "low": "Rendah",
+        "normal": "Normal",
+        "High": "Tinggi",
+        "Critical": "Kritis"
       }
     },
     "login": {

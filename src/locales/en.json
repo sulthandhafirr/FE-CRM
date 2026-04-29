@@ -112,10 +112,18 @@
       "percentage": "Percentage",
       "loadingChart": "Loading chart...",
       "noTicketStatusData": "No ticket status data available.",
+      "myAvgResponseTime": "My Avg Response Time",
+      "myAvgResolutionTime": "My Avg Resolution Time",
       "ticketStatusLabels": {
         "solved": "Solved",
         "progress": "Progress",
         "waiting": "Waiting"
+      },
+      "ticketPriorityLabels":{
+        "low": "Low",
+        "normal": "Normal",
+        "high": "High",
+        "critical": "Critical"
       }
     },
     "login": {

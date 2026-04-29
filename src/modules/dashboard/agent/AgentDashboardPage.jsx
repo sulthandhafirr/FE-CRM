@@ -1,9 +1,20 @@
 import { createElement, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { MdChat, MdPeople, MdSupportAgent } from "react-icons/md";
+import {
+  MdAvTimer,
+  MdChat,
+  MdOutlineAvTimer,
+  MdOutlineWatch,
+  MdOutlineWatchLater,
+  MdPeople,
+  MdSupportAgent,
+} from "react-icons/md";
 import { useTranslation } from "react-i18next";
 import ChatBot from "../../../components/ui/ChatBot";
 import { getDashboardStats } from "../dashboard.service";
+import { formatDuration } from "../../ticket/ticket.schema";
+import TicketStatusDonutChart from "../chart/TicketStatusDonutChart";
+import TicketPriorityDonutChart from "../chart/TicketPriorityDonutChart";
 
 const StatCard = ({ title, value, icon, loading }) => (
   <div
@@ -72,6 +83,38 @@ export default function AgentDashboardPage() {
             icon={MdSupportAgent}
             loading={statsLoading}
           />
+          <StatCard
+            title={t("pages.dashboard.totalTicket")}
+            value={stats?.totalTicket}
+            icon={MdChat}
+            loading={statsLoading}
+          />
+        </div>
+
+        {/* Avg Time Cards Row */}
+        <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
+          <StatCard
+            title={t("pages.dashboard.myAvgResponseTime")}
+            value={
+              stats?.myAvgResponseTime != null
+                ? formatDuration(Math.floor(stats.myAvgResponseTime))
+                : "-"
+            }
+            icon={MdOutlineWatchLater}
+            loading={statsLoading}
+          />
+          <StatCard
+            title={t("pages.dashboard.myAvgResolutionTime")}
+            value={
+              stats?.myAvgResolutionTime != null
+                ? formatDuration(Math.floor(stats.myAvgResolutionTime))
+                : "-"
+            }
+            icon={MdOutlineWatchLater}
+            loading={statsLoading}
+          />
+          {/* empty div to keep cards same width as row above */}
+          {/* <div style={{ flex: 1 }} /> */}
         </div>
 
         {/* Charts Row */}
@@ -95,19 +138,13 @@ export default function AgentDashboardPage() {
                 marginBottom: "20px",
               }}
             >
-              {t("pages.dashboard.ticketSolvedByAi")}
+              {t("pages.dashboard.ticketPriority")}
             </div>
-            <div
-              style={{
-                height: "300px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#999",
-                fontSize: "14px",
-              }}
-            >
-              {t("pages.dashboard.lineChartPlaceholder")}
+            <div>
+              <TicketPriorityDonutChart
+                ticketByPriority={stats?.ticketByPriority}
+                loading={statsLoading}
+              />
             </div>
           </div>
 
@@ -130,20 +167,12 @@ export default function AgentDashboardPage() {
                 marginBottom: "20px",
               }}
             >
-              {t("pages.dashboard.ticketPriority")}
+              {t("pages.dashboard.ticketByStatus")}
             </div>
-            <div
-              style={{
-                height: "300px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#999",
-                fontSize: "14px",
-              }}
-            >
-              {t("pages.dashboard.barChartPlaceholder")}
-            </div>
+            <TicketStatusDonutChart
+              ticketByStatus={stats?.ticketByStatus}
+              loading={statsLoading}
+            />
           </div>
         </div>
       </div>

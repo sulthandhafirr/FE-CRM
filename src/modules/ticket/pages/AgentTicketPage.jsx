@@ -1,8 +1,8 @@
 import { useCallback, useMemo, useState } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { supabase } from "../../../lib/supabase";
-import {
+// import { supabase } from "../../../lib/supabase";
+import {  
   MdChat, MdArrowBack, MdAttachFile, MdAccountCircle,
   MdSupportAgent, MdPerson, MdDelete, MdDeleteSweep,
   MdOutlineFilterNone, MdCheckCircle,
