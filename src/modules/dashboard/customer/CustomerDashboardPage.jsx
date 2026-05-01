@@ -5,40 +5,6 @@ import { useTranslation } from "react-i18next";
 import ChatBot from "../../../components/ui/ChatBot";
 import { getDashboardStats } from "../dashboard.service";
 
-const StatCard = ({ title, value, icon, loading }) => (
-  <div
-    style={{
-      flex: 1,
-      background: "white",
-      padding: "25px",
-      borderRadius: "12px",
-      border: "2px solid #FF8040",
-      boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-    }}
-  >
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        marginBottom: "10px",
-      }}
-    >
-      <div style={{ fontSize: "16px", color: "#333", fontWeight: "500" }}>
-        {title}
-      </div>
-      {icon ? createElement(icon, { size: 22, color: "#FF8040" }) : null}
-    </div>
-    <div style={{ fontSize: "36px", fontWeight: "700", color: "#FF8040" }}>
-      {loading ? (
-        <span style={{ fontSize: "20px", color: "#ddd" }}>—</span>
-      ) : (
-        (value ?? 0)
-      )}
-    </div>
-  </div>
-);
-
 export default function CustomerDashboardPage() {
   const { t } = useTranslation();
   const [chatOpen, setChatOpen] = useState(false);
@@ -59,34 +25,90 @@ export default function CustomerDashboardPage() {
           '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
     >
-      <div style={{ padding: "30px", flex: 1, overflowY: "auto" }}>
+      <style>{`
+        @media (max-width: 767px) {
+          .dashboard-container { padding: 14px !important; }
+          .stat-grid-responsive { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+          .chart-row-responsive { flex-direction: column !important; gap: 12px !important; }
+          .stat-card-mobile { padding: 14px !important; border-radius: 14px !important; }
+          .chart-card-mobile { border-radius: 14px !important; min-height: auto !important; }
+        }
+        @media (min-width: 768px) {
+          .dashboard-container { padding: 30px !important; }
+          .stat-grid-responsive { grid-template-columns: 1fr 1fr !important; gap: 20px !important; }
+          .chart-row-responsive { flex-direction: row !important; gap: 20px !important; }
+          .stat-card-mobile { padding: 25px !important; border-radius: 12px !important; }
+          .chart-card-mobile { border-radius: 12px !important; min-height: 400px !important; }
+        }
+      `}</style>
+      <div className="dashboard-container" style={{ flex: 1, overflowY: "auto" }}>
         {/* Top Cards Row */}
-        <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
-          <StatCard
-            title={t("pages.dashboard.totalTechnician")}
-            value={stats?.totalTechnician}
-            icon={MdPeople}
-            loading={statsLoading}
-          />
-          <StatCard
-            title={t("pages.dashboard.totalCsAgent")}
-            value={stats?.totalCsAgent}
-            icon={MdSupportAgent}
-            loading={statsLoading}
-          />
+        <div style={{ display: "grid", marginBottom: "20px" }} className="stat-grid-responsive">
+          <div className="stat-card-mobile" style={{
+            background: "white",
+            border: "2px solid #FF8040",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+          }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: "10px",
+              }}
+            >
+              <div style={{ fontSize: "16px", color: "#333", fontWeight: "500" }}>
+                {t("pages.dashboard.totalTechnician")}
+              </div>
+              {createElement(MdPeople, { size: 22, color: "#FF8040" })}
+            </div>
+            <div style={{ fontSize: "36px", fontWeight: "700", color: "#FF8040" }}>
+              {statsLoading ? (
+                <span style={{ fontSize: "20px", color: "#ddd" }}>—</span>
+              ) : (
+                (stats?.totalTechnician ?? 0)
+              )}
+            </div>
+          </div>
+
+          <div className="stat-card-mobile" style={{
+            background: "white",
+            border: "2px solid #FF8040",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+          }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: "10px",
+              }}
+            >
+              <div style={{ fontSize: "16px", color: "#333", fontWeight: "500" }}>
+                {t("pages.dashboard.totalCsAgent")}
+              </div>
+              {createElement(MdSupportAgent, { size: 22, color: "#FF8040" })}
+            </div>
+            <div style={{ fontSize: "36px", fontWeight: "700", color: "#FF8040" }}>
+              {statsLoading ? (
+                <span style={{ fontSize: "20px", color: "#ddd" }}>—</span>
+              ) : (
+                (stats?.totalCsAgent ?? 0)
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Charts Row */}
-        <div style={{ display: "flex", gap: "20px" }}>
+        <div style={{ display: "flex" }} className="chart-row-responsive">
           <div
+            className="chart-card-mobile"
             style={{
               flex: 2,
               background: "white",
               padding: "25px",
-              borderRadius: "12px",
               border: "2px solid #FF8040",
               boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-              minHeight: "400px",
             }}
           >
             <div
@@ -114,14 +136,13 @@ export default function CustomerDashboardPage() {
           </div>
 
           <div
+            className="chart-card-mobile"
             style={{
               flex: 1,
               background: "white",
               padding: "25px",
-              borderRadius: "12px",
               border: "2px solid #FF8040",
               boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-              minHeight: "400px",
             }}
           >
             <div
