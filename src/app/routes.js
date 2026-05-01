@@ -31,4 +31,8 @@ export const ROUTE = {
   adminDashboard: "/dashboard/admin",
   adminTicket: "/dashboard/admin/ticket",
   adminUserPerformance: "/dashboard/admin/performance",
+  customerProfile: "/profile/customer",
+  agentProfile: "/profile/csAgent",
+  technicianProfile: "/profile/technician",
+  adminProfile: "/profile/admin",
 };

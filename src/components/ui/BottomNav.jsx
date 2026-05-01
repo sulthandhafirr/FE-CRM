@@ -39,11 +39,19 @@ export default function BottomNav({ activeMenu, setActiveMenu }) {
     return ROUTE.customerHistory;
   };
 
+  // Map role to profile route
+  const getProfileRoute = () => {
+    if (role === "cs_agent") return ROUTE.agentProfile;
+    if (role === "technician") return ROUTE.technicianProfile;
+    if (role === "admin") return ROUTE.adminProfile;
+    return ROUTE.customerProfile;
+  };
+
   const navItems = [
     { key: "dashboard", label: "Dashboard", icon: MdDashboard, route: getDashboardRoute() },
     { key: "ticket", label: "Ticket", icon: MdConfirmationNumber, route: getTicketRoute() },
     { key: "history", label: "History", icon: MdHistory, route: getHistoryRoute() },
-    { key: "profile", label: "Profile", icon: MdPerson, route: "#" }, // Profile TODO
+    { key: "profile", label: "Profile", icon: MdPerson, route: getProfileRoute() },
   ];
 
   const handleNavClick = (item) => {

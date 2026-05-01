@@ -25,6 +25,10 @@ import NotFoundPage from "../pages/NotFoundPage";
 import AdminDashboardPage from "../modules/dashboard/admin/AdminDashboardPage";
 import AdminTicketPage from "../modules/ticket/pages/AdminTicketPage";
 import AdminUserPerformancePage from "../modules/profile/AdminUserPerformancePage";
+import CustomerProfilePage from "../modules/profile/customer/CustomerProfilePage";
+import AgentProfilePage from "../modules/profile/agent/AgentProfilePage";
+import TechnicianProfilePage from "../modules/profile/technician/TechnicianProfilePage";
+import AdminProfilePage from "../modules/profile/admin/AdminProfilePage";
 
 function ProtectedRoute({ allowedRoles }) {
   const { user, role, trueRole, loading } = useAuth();
@@ -75,6 +79,10 @@ export default function Router() {
             path={ROUTE.customerHistory}
             element={<CustomerHistoryPage />}
           />
+          <Route
+            path={ROUTE.customerProfile}
+            element={<CustomerProfilePage />}
+          />
         </Route>
       </Route>
 
@@ -86,6 +94,10 @@ export default function Router() {
           <Route
             path={ROUTE.agentPerformance}
             element={<AgentPerformancePage />}
+          />
+          <Route
+            path={ROUTE.agentProfile}
+            element={<AgentProfilePage />}
           />
         </Route>
       </Route>
@@ -174,6 +186,10 @@ export default function Router() {
             path={ROUTE.technicianPerformance}
             element={<TechnicianPerformancePage />}
           />
+          <Route
+            path={ROUTE.technicianProfile}
+            element={<TechnicianProfilePage />}
+          />
         </Route>
       </Route>
 
@@ -183,6 +199,10 @@ export default function Router() {
           <Route path={ROUTE.adminDashboard} element={<AdminDashboardPage />} />
           <Route path={ROUTE.adminTicket} element={<AdminTicketPage />} />
           <Route path={ROUTE.adminUserPerformance} element={<AdminUserPerformancePage />} />
+          <Route
+            path={ROUTE.adminProfile}
+            element={<AdminProfilePage />}
+          />
         </Route>
       </Route>
 

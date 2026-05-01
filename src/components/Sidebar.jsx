@@ -151,7 +151,15 @@ export default function Sidebar({
     if (r === "cs_agent") return ROUTE.agentDashboard;
     if (r === "ultrauser") return ROUTE.ultrauserDashboard;
     if (r === "technician") return ROUTE.technicianDashboard;
+    if (r === "admin") return ROUTE.adminDashboard;
     return ROUTE.customerDashboard;
+  };
+
+  const getProfileRoute = () => {
+    if (role === "cs_agent") return ROUTE.agentProfile;
+    if (role === "technician") return ROUTE.technicianProfile;
+    if (role === "admin") return ROUTE.adminProfile;
+    return ROUTE.customerProfile;
   };
 
   const menuItems = roleMenuItems[role] || [];
@@ -346,7 +354,10 @@ export default function Sidebar({
         )}
 
         <div
-          onClick={() => setActiveMenu("profile")}
+          onClick={() => {
+            setActiveMenu("profile");
+            navigate(getProfileRoute());
+          }}
           style={menuItemStyle("profile")}
           onMouseOver={(e) => handleMouseEnter(e, "profile")}
           onMouseOut={(e) => handleMouseLeave(e, "profile")}
