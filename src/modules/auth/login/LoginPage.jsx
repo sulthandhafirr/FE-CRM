@@ -182,7 +182,7 @@ function MobileBottomSheet() {
         style={{ touchAction: "pan-y" }}
       >
         <div className="flex h-full flex-col overflow-hidden px-5 pb-[calc(1.15rem+env(safe-area-inset-bottom))] pt-2">
-          <div className="relative mb-2 flex items-center justify-center">
+          <div className="relative mb-5 flex items-center justify-center min-h-[48px]">
             <button
               type="button"
               onPointerDown={startDrag}
