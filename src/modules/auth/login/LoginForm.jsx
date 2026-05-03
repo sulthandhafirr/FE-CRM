@@ -88,6 +88,8 @@ export default function LoginForm() {
               transition: "all 0.2s",
               fontFamily: "inherit",
               boxSizing: "border-box",
+              background: "#f9fafb",
+              color: "#111827",
             }}
             onFocus={(e) => (e.target.style.borderColor = "#FF6B6B")}
             onBlur={(e) => (e.target.style.borderColor = "#d1d5db")}
@@ -123,6 +125,8 @@ export default function LoginForm() {
               transition: "all 0.2s",
               fontFamily: "inherit",
               boxSizing: "border-box",
+              background: "#f9fafb",
+              color: "#111827",
             }}
             onFocus={(e) => (e.target.style.borderColor = "#FF6B6B")}
             onBlur={(e) => (e.target.style.borderColor = "#d1d5db")}
@@ -158,6 +162,8 @@ export default function LoginForm() {
               transition: "all 0.2s",
               fontFamily: "inherit",
               boxSizing: "border-box",
+              background: "#f9fafb",
+              color: "#111827",
             }}
             onFocus={(e) => (e.target.style.borderColor = "#FF6B6B")}
             onBlur={(e) => (e.target.style.borderColor = "#d1d5db")}
