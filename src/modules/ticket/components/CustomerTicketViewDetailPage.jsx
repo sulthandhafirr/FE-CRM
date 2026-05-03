@@ -99,6 +99,22 @@ export default function CustomerTicketViewDetailPage() {
           '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
     >
+      <style>{`
+        @media (max-width: 767px) {
+          .ticket-detail-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .ticket-info-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .ticket-detail-right-col {
+            border: none !important;
+            background: transparent !important;
+            padding: 0 !important;
+            margin-top: 20px !important;
+          }
+        }
+      `}</style>
       <div style={{ padding: "30px" }}>
         <div style={{ maxWidth: "1020px", margin: "0 auto" }}>
           <div
@@ -163,6 +179,7 @@ export default function CustomerTicketViewDetailPage() {
                 </div>
               ) : (
                 <div
+                  className="ticket-detail-grid"
                   style={{
                     display: "grid",
                     gridTemplateColumns: "2fr 1fr",
@@ -203,6 +220,7 @@ export default function CustomerTicketViewDetailPage() {
                         t("pages.ticketDetail.noDescription")}
                     </p>
                     <div
+                      className="ticket-info-grid"
                       style={{
                         display: "grid",
                         gridTemplateColumns: "1fr 1fr",
@@ -383,6 +401,7 @@ export default function CustomerTicketViewDetailPage() {
 
                   {/* ── Kolom kanan: Attachments + Timeline ── */}
                   <div
+                    className="ticket-detail-right-col"
                     style={{
                       background: "#fffdfb",
                       borderRadius: "14px",

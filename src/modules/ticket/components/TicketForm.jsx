@@ -114,11 +114,12 @@ export default function TicketForm({ open, onClose }) {
       <Box
         sx={{
           position: "absolute",
-          top: "50%",
+          top: { xs: 0, sm: "50%" },
           left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: { xs: "94%", sm: "86%", md: 760 },
-          maxHeight: "calc(100vh - 48px)",
+          transform: { xs: "translateX(-50%)", sm: "translate(-50%, -50%)" },
+          width: { xs: "100vw", sm: "94%", md: 760 },
+          height: { xs: "100vh", sm: "auto" },
+          maxHeight: { xs: "100vh", sm: "calc(100vh - 48px)" },
           outline: "none",
         }}
       >
@@ -175,7 +176,7 @@ export default function TicketForm({ open, onClose }) {
 
           <Divider />
 
-          <Box sx={{ px: { xs: 2.5, sm: 3.5 }, py: 3, overflowY: "auto" }}>
+          <Box sx={{ px: { xs: 2, sm: 3.5 }, py: 3, overflowY: "auto", flex: 1 }}>
             <form onSubmit={handleSubmit}>
               <Stack spacing={2.5}>
                 <TextField
@@ -326,7 +327,27 @@ export default function TicketForm({ open, onClose }) {
 
               <Divider sx={{ my: 3 }} />
 
-              <Stack direction="row" justifyContent="flex-end" spacing={1.5}>
+              <Stack direction={{ xs: "column", sm: "row" }} justifyContent="flex-end" spacing={1.5}>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  variant="contained"
+                  sx={{
+                    borderRadius: "10px",
+                    background: "#FF8040",
+                    px: 3,
+                    py: 1.5,
+                    fontWeight: 700,
+                    minHeight: "44px",
+                    "&:hover": { background: "#e6723a" },
+                    width: { xs: "100%", sm: "auto" },
+                    order: { xs: -1, sm: 0 },
+                  }}
+                >
+                  {isSubmitting
+                    ? t("pages.ticketForm.submitting")
+                    : t("pages.ticketForm.submitTicket")}
+                </Button>
                 <Button
                   type="button"
                   onClick={handleClose}
@@ -337,28 +358,13 @@ export default function TicketForm({ open, onClose }) {
                     borderColor: "#D0D5DD",
                     color: "#344054",
                     px: 3,
-                    py: 1,
+                    py: 1.5,
                     fontWeight: 700,
+                    minHeight: "44px",
+                    width: { xs: "100%", sm: "auto" },
                   }}
                 >
                   {t("pages.ticketForm.cancel")}
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  variant="contained"
-                  sx={{
-                    borderRadius: "10px",
-                    background: "#FF8040",
-                    px: 3,
-                    py: 1,
-                    fontWeight: 700,
-                    "&:hover": { background: "#e6723a" },
-                  }}
-                >
-                  {isSubmitting
-                    ? t("pages.ticketForm.submitting")
-                    : t("pages.ticketForm.submitTicket")}
                 </Button>
               </Stack>
             </form>
