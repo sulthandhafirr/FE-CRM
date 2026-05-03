@@ -105,20 +105,35 @@ export default function ChatBot({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div style={{
-      position: 'fixed',
-      bottom: '100px',
-      right: '30px',
-      width: '380px',
-      height: '550px',
-      background: 'white',
-      borderRadius: '16px',
-      boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-      display: 'flex',
-      flexDirection: 'column',
-      zIndex: 1000,
-      overflow: 'hidden'
-    }}>
+    <div
+      className="chatbot-container"
+      style={{
+        position: 'fixed',
+        bottom: '100px',
+        right: '30px',
+        width: '380px',
+        height: '550px',
+        background: 'white',
+        borderRadius: '16px',
+        boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+        display: 'flex',
+        flexDirection: 'column',
+        zIndex: 1000,
+        overflow: 'hidden'
+      }}
+    >
+      <style>{`
+        @media (max-width: 767px) {
+          .chatbot-container {
+            left: 14px !important;
+            right: 12px !important;
+            width: calc(100% - 32px) !important;
+            bottom: 90px !important;
+            height: calc(80vh - 144px) !important;
+            border-radius: 16px 16px 16px 16px !important;
+          }
+        }
+      `}</style>
       {/* Header */}
       <div style={{
         background: 'linear-gradient(135deg, #FF8040 0%, #FF6B35 100%)',

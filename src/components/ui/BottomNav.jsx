@@ -70,50 +70,83 @@ export default function BottomNav({ activeMenu, setActiveMenu }) {
           left: 0;
           right: 0;
           background: #ffffff;
-          border-top: 0.5px solid #e5e7eb;
+          border-top: 1px solid #e5e7eb;
           display: flex;
-          padding: 10px 0 14px;
+          padding: 8px 0 16px;
           z-index: 40;
+          gap: 0;
         }
         @media (max-width: 767px) {
-          .bottom-nav-mobile { display: flex !important; }
+          .bottom-nav-mobile { 
+            display: flex !important; 
+            padding: 8px 0 12px;
+          }
+          .bottom-nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            padding: 4px 0;
+            background: none;
+            border: none;
+            transition: all 0.15s ease;
+            font-size: 10px;
+            font-weight: 400;
+          }
+          .bottom-nav-item.active {
+            color: #FF8040;
+            font-weight: 600;
+          }
+          .bottom-nav-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+          }
         }
         @media (min-width: 768px) {
           .bottom-nav-mobile { display: none !important; }
         }
       `}</style>
       <div className="bottom-nav-mobile">
-      {navItems.map((item) => (
-        <button
-          key={item.key}
-          onClick={() => handleNavClick(item)}
-          style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "4px",
-            cursor: "pointer",
-            padding: "4px 0",
-            background: "none",
-            border: "none",
-          }}
-        >
-          <item.icon
-            size={20}
-            color={activeMenu === item.key ? "#FF8040" : "#9ca3af"}
-          />
-          <span
+        {navItems.map((item) => (
+          <button
+            key={item.key}
+            onClick={() => handleNavClick(item)}
+            className={`bottom-nav-item ${activeMenu === item.key ? 'active' : ''}`}
             style={{
-              fontSize: "10px",
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "4px",
+              cursor: "pointer",
+              padding: "4px 0",
+              background: "none",
+              border: "none",
               color: activeMenu === item.key ? "#FF8040" : "#9ca3af",
               fontWeight: activeMenu === item.key ? "600" : "400",
             }}
           >
-            {item.label}
-          </span>
-        </button>
-      ))}
+            <div className="bottom-nav-icon">
+              <item.icon
+                size={20}
+                color={activeMenu === item.key ? "#FF8040" : "#9ca3af"}
+              />
+            </div>
+            <span
+              style={{
+                fontSize: "10px",
+                color: activeMenu === item.key ? "#FF8040" : "#9ca3af",
+                fontWeight: activeMenu === item.key ? "600" : "400",
+              }}
+            >
+              {item.label}
+            </span>
+          </button>
+        ))}
       </div>
     </>
   );

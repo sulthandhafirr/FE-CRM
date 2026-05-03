@@ -102,8 +102,56 @@ export default function CustomerTicketPage() {
           '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
     >
+      <style>{`
+        @media (max-width: 767px) {
+          .customer-ticket-header {
+            padding: 12px 16px;
+            height: auto;
+          }
+          .customer-ticket-search-button-wrapper {
+            flex-direction: column;
+            gap: 12px;
+          }
+          .customer-ticket-search-wrapper {
+            max-width: 100%;
+            width: 100%;
+          }
+          .customer-ticket-create-btn {
+            width: 100%;
+          }
+          .customer-ticket-content {
+            padding: 16px;
+          }
+          .customer-ticket-title {
+            font-size: 24px;
+            margin-bottom: 16px;
+          }
+          .customer-ticket-table-wrapper {
+            display: none;
+          }
+          .customer-ticket-cards-wrapper {
+            display: block;
+          }
+          .customer-ticket-fab {
+            bottom: 100px !important;
+          }
+        }
+        @media (min-width: 768px) {
+          .customer-ticket-table-wrapper {
+            display: block;
+          }
+          .customer-ticket-cards-wrapper {
+            display: none;
+          }
+          .customer-ticket-fab {
+            bottom: 30px !important;
+          }
+        }
+      `}</style>
+      
       {/* Top Bar */}
       <div
+        className="customer-ticket-header"
         style={{
           background: "white",
           padding: "15px 30px",
@@ -114,27 +162,40 @@ export default function CustomerTicketPage() {
           height: "70px",
         }}
       >
-        <SearchBar />
+        <div className="customer-ticket-search-button-wrapper" style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          width: "100%",
+          gap: "15px",
+        }}>
+          <div className="customer-ticket-search-wrapper">
+            <SearchBar />
+          </div>
 
-        <button
-          onClick={() => setCreateModalOpen(true)}
-          style={{
-            background: "#FF8040",
-            color: "white",
-            border: "none",
-            padding: "10px 25px",
-            borderRadius: "8px",
-            fontWeight: "600",
-            cursor: "pointer",
-          }}
-        >
-          {t("pages.customerTicket.createTicket")}
-        </button>
+          <button
+            onClick={() => setCreateModalOpen(true)}
+            className="customer-ticket-create-btn"
+            style={{
+              background: "#FF8040",
+              color: "white",
+              border: "none",
+              padding: "10px 25px",
+              borderRadius: "8px",
+              fontWeight: "600",
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {t("pages.customerTicket.createTicket")}
+          </button>
+        </div>
       </div>
 
       {/* Dynamic Content */}
-      <div style={{ padding: "30px", flex: 1, overflowY: "auto" }}>
+      <div className="customer-ticket-content" style={{ padding: "30px", flex: 1, overflowY: "auto" }}>
         <div
+          className="customer-ticket-title"
           style={{
             fontSize: "28px",
             fontWeight: "700",
@@ -145,13 +206,13 @@ export default function CustomerTicketPage() {
           {t("pages.customerTicket.title")}{" "}
           <span style={{ color: "#FF8040" }}>• {tickets.length}</span>
         </div>
-        <div
-          style={{
-            background: "white",
-            borderRadius: "12px",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-          }}
-        >
+        
+        {/* Desktop Table View */}
+        <div className="customer-ticket-table-wrapper" style={{
+          background: "white",
+          borderRadius: "12px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+        }}>
           {loading ? (
             <div style={{ textAlign: "center", padding: "20px" }}>
               <LoadingSpinner />
@@ -277,6 +338,146 @@ export default function CustomerTicketPage() {
             </Paper>
           )}
         </div>
+
+        {/* Mobile Card View */}
+        <div className="customer-ticket-cards-wrapper">
+          {loading ? (
+            <div style={{ textAlign: "center", padding: "20px" }}>
+              <LoadingSpinner />
+            </div>
+          ) : (
+            <>
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                {paginatedTickets.map((ticket) => (
+                  <div
+                    key={ticket.id}
+                    style={{
+                      background: "white",
+                      borderRadius: "12px",
+                      padding: "16px",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                      border: "1px solid #e5e7eb",
+                    }}
+                  >
+                    {/* Top Row: Ticket ID and Status */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
+                      <div style={{ fontSize: "14px", fontWeight: "700", color: "#333" }}>
+                        #{ticket.id}
+                      </div>
+                      <span
+                        style={{
+                          color: getStatusColor(ticket.status),
+                          fontWeight: 600,
+                          fontSize: "12px",
+                          background: `${getStatusColor(ticket.status)}20`,
+                          padding: "4px 8px",
+                          borderRadius: "6px",
+                        }}
+                      >
+                        {ticket.status}
+                      </span>
+                    </div>
+
+                    {/* Subject */}
+                    <div style={{ fontSize: "15px", fontWeight: "600", color: "#333", marginBottom: "10px", wordBreak: "break-word" }}>
+                      {ticket.subject}
+                    </div>
+
+                    {/* Handler/Assigned */}
+                    <div style={{ fontSize: "13px", color: "#666", marginBottom: "12px" }}>
+                      {ticket.handler ? `Handler: ${ticket.handler}` : "Not assigned yet"}
+                    </div>
+
+                    {/* Bottom Row: Date and Button */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ fontSize: "12px", color: "#999" }}>
+                        {formatTicketDate(ticket.createdAt)}
+                      </span>
+                      <button
+                        onClick={() => navigate(`${ticket.id}`)}
+                        style={{
+                          background: "#FF8040",
+                          color: "white",
+                          border: "none",
+                          padding: "6px 14px",
+                          borderRadius: "6px",
+                          cursor: "pointer",
+                          fontSize: "13px",
+                          fontWeight: "600",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {t("pages.customerTicket.details")}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+
+                {sortedTickets.length === 0 && (
+                  <div style={{ textAlign: "center", py: 4, color: "#999", padding: "20px" }}>
+                    {t("pages.customerTicket.empty")}
+                  </div>
+                )}
+              </div>
+
+              {/* Mobile Pagination */}
+              <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "12px", marginTop: "20px", padding: "16px 0" }}>
+                <select
+                  value={rowsPerPage}
+                  onChange={handleChangeRowsPerPage}
+                  style={{
+                    padding: "6px 10px",
+                    borderRadius: "6px",
+                    border: "1px solid #d1d5db",
+                    fontSize: "13px",
+                    background: "white",
+                    cursor: "pointer",
+                  }}
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                </select>
+                <span style={{ fontSize: "12px", color: "#666" }}>
+                  {safePage * rowsPerPage + 1}–{Math.min((safePage + 1) * rowsPerPage, sortedTickets.length)} of {sortedTickets.length}
+                </span>
+                <button
+                  onClick={() => handleChangePage(null, safePage - 1)}
+                  disabled={safePage === 0}
+                  style={{
+                    padding: "6px 10px",
+                    borderRadius: "6px",
+                    border: "1px solid #d1d5db",
+                    background: safePage === 0 ? "#f3f4f6" : "white",
+                    cursor: safePage === 0 ? "default" : "pointer",
+                    color: safePage === 0 ? "#9ca3af" : "#333",
+                    fontSize: "12px",
+                    fontWeight: "600",
+                  }}
+                >
+                  ←
+                </button>
+                <button
+                  onClick={() => handleChangePage(null, safePage + 1)}
+                  disabled={safePage >= Math.ceil(sortedTickets.length / rowsPerPage) - 1}
+                  style={{
+                    padding: "6px 10px",
+                    borderRadius: "6px",
+                    border: "1px solid #d1d5db",
+                    background: safePage >= Math.ceil(sortedTickets.length / rowsPerPage) - 1 ? "#f3f4f6" : "white",
+                    cursor: safePage >= Math.ceil(sortedTickets.length / rowsPerPage) - 1 ? "default" : "pointer",
+                    color: safePage >= Math.ceil(sortedTickets.length / rowsPerPage) - 1 ? "#9ca3af" : "#333",
+                    fontSize: "12px",
+                    fontWeight: "600",
+                  }}
+                >
+                  →
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       <TicketForm
@@ -287,6 +488,7 @@ export default function CustomerTicketPage() {
       {/* Floating Chat */}
       <button
         onClick={() => setChatOpen(!chatOpen)}
+        className="customer-ticket-fab"
         style={{
           position: "fixed",
           bottom: "30px",
@@ -302,6 +504,7 @@ export default function CustomerTicketPage() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          zIndex: 35,
         }}
       >
         <MdChat size={28} />

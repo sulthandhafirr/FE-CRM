@@ -110,8 +110,44 @@ export default function CustomerHistoryPage() {
           '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
     >
+      <style>{`
+        @media (max-width: 767px) {
+          .customer-history-header {
+            padding: 12px 16px;
+            height: auto;
+          }
+          .customer-history-content {
+            padding: 16px;
+          }
+          .customer-history-title {
+            font-size: 24px;
+            margin-bottom: 16px;
+          }
+          .customer-history-table-wrapper {
+            display: none;
+          }
+          .customer-history-cards-wrapper {
+            display: block;
+          }
+          .customer-history-fab {
+            bottom: 100px !important;
+          }
+        }
+        @media (min-width: 768px) {
+          .customer-history-table-wrapper {
+            display: block;
+          }
+          .customer-history-cards-wrapper {
+            display: none;
+          }
+          .customer-history-fab {
+            bottom: 30px !important;
+          }
+        }
+      `}</style>
       {/* Top Bar */}
       <div
+        className="customer-history-header"
         style={{
           background: "white",
           padding: "15px 30px",
@@ -126,8 +162,9 @@ export default function CustomerHistoryPage() {
       </div>
 
       {/* Dynamic Content */}
-      <div style={{ padding: "30px", flex: 1, overflowY: "auto" }}>
+      <div className="customer-history-content" style={{ padding: "30px", flex: 1, overflowY: "auto" }}>
         <div
+          className="customer-history-title"
           style={{
             fontSize: "28px",
             fontWeight: "700",
@@ -138,13 +175,13 @@ export default function CustomerHistoryPage() {
           {t("pages.customerHistory.title")}{" "}
           <span style={{ color: "#FF8040" }}>• {historyTickets.length}</span>
         </div>
-        <div
-          style={{
-            background: "white",
-            borderRadius: "12px",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-          }}
-        >
+        
+        {/* Desktop Table View */}
+        <div className="customer-history-table-wrapper" style={{
+          background: "white",
+          borderRadius: "12px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+        }}>
           {loading ? (
             <div style={{ textAlign: "center", padding: "20px" }}>
               <LoadingSpinner />
@@ -200,9 +237,6 @@ export default function CustomerHistoryPage() {
                       <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
                         {t("pages.customerHistory.columns.action")}
                       </TableCell>
-                      {/* <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
-                        Satisfaction
-                      </TableCell> */}
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -237,9 +271,6 @@ export default function CustomerHistoryPage() {
                             {t("pages.customerHistory.details")}
                           </button>
                         </TableCell>
-                        {/* <TableCell sx={{ color: "#666" }}>
-                          {ticket.satisfaction || "-"}
-                        </TableCell> */}
                       </TableRow>
                     ))}
 
@@ -269,11 +300,152 @@ export default function CustomerHistoryPage() {
             </Paper>
           )}
         </div>
+
+        {/* Mobile Card View */}
+        <div className="customer-history-cards-wrapper">
+          {loading ? (
+            <div style={{ textAlign: "center", padding: "20px" }}>
+              <LoadingSpinner />
+            </div>
+          ) : (
+            <>
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                {paginatedTickets.map((ticket) => (
+                  <div
+                    key={ticket.id}
+                    style={{
+                      background: "white",
+                      borderRadius: "12px",
+                      padding: "16px",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                      border: "1px solid #e5e7eb",
+                    }}
+                  >
+                    {/* Top Row: Ticket ID and Status */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
+                      <div style={{ fontSize: "14px", fontWeight: "700", color: "#333" }}>
+                        #{ticket.id}
+                      </div>
+                      <span
+                        style={{
+                          color: "#16a34a",
+                          fontWeight: 600,
+                          fontSize: "12px",
+                          background: "#dcfce720",
+                          padding: "4px 8px",
+                          borderRadius: "6px",
+                        }}
+                      >
+                        {ticket.status || "-"}
+                      </span>
+                    </div>
+
+                    {/* Subject */}
+                    <div style={{ fontSize: "15px", fontWeight: "600", color: "#333", marginBottom: "10px", wordBreak: "break-word" }}>
+                      {ticket.subject || "-"}
+                    </div>
+
+                    {/* Solved By */}
+                    <div style={{ fontSize: "13px", color: "#666", marginBottom: "12px" }}>
+                      Solved by: {ticket.handler || "Unknown"}
+                    </div>
+
+                    {/* Bottom Row: Date and Button */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ fontSize: "12px", color: "#999" }}>
+                        {formatTicketDate(ticket.resolvedAt)}
+                      </span>
+                      <button
+                        onClick={() => handleViewDetail(ticket.id)}
+                        style={{
+                          background: "#FF8040",
+                          color: "white",
+                          border: "none",
+                          padding: "6px 14px",
+                          borderRadius: "6px",
+                          cursor: "pointer",
+                          fontSize: "13px",
+                          fontWeight: "600",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {t("pages.customerHistory.details")}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+
+                {sortedTickets.length === 0 && (
+                  <div style={{ textAlign: "center", py: 4, color: "#999", padding: "20px" }}>
+                    {t("pages.customerHistory.empty")}
+                  </div>
+                )}
+              </div>
+
+              {/* Mobile Pagination */}
+              <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "12px", marginTop: "20px", padding: "16px 0" }}>
+                <select
+                  value={rowsPerPage}
+                  onChange={handleChangeRowsPerPage}
+                  style={{
+                    padding: "6px 10px",
+                    borderRadius: "6px",
+                    border: "1px solid #d1d5db",
+                    fontSize: "13px",
+                    background: "white",
+                    cursor: "pointer",
+                  }}
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                </select>
+                <span style={{ fontSize: "12px", color: "#666" }}>
+                  {safePage * rowsPerPage + 1}–{Math.min((safePage + 1) * rowsPerPage, sortedTickets.length)} of {sortedTickets.length}
+                </span>
+                <button
+                  onClick={() => handleChangePage(null, safePage - 1)}
+                  disabled={safePage === 0}
+                  style={{
+                    padding: "6px 10px",
+                    borderRadius: "6px",
+                    border: "1px solid #d1d5db",
+                    background: safePage === 0 ? "#f3f4f6" : "white",
+                    cursor: safePage === 0 ? "default" : "pointer",
+                    color: safePage === 0 ? "#9ca3af" : "#333",
+                    fontSize: "12px",
+                    fontWeight: "600",
+                  }}
+                >
+                  ←
+                </button>
+                <button
+                  onClick={() => handleChangePage(null, safePage + 1)}
+                  disabled={safePage >= Math.ceil(sortedTickets.length / rowsPerPage) - 1}
+                  style={{
+                    padding: "6px 10px",
+                    borderRadius: "6px",
+                    border: "1px solid #d1d5db",
+                    background: safePage >= Math.ceil(sortedTickets.length / rowsPerPage) - 1 ? "#f3f4f6" : "white",
+                    cursor: safePage >= Math.ceil(sortedTickets.length / rowsPerPage) - 1 ? "default" : "pointer",
+                    color: safePage >= Math.ceil(sortedTickets.length / rowsPerPage) - 1 ? "#9ca3af" : "#333",
+                    fontSize: "12px",
+                    fontWeight: "600",
+                  }}
+                >
+                  →
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Floating Chat Button */}
       <button
         onClick={() => setChatOpen(!chatOpen)}
+        className="customer-history-fab"
         style={{
           position: "fixed",
           bottom: "30px",
@@ -290,6 +462,7 @@ export default function CustomerHistoryPage() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          zIndex: 35,
         }}
       >
         <MdChat size={28} />

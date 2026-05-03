@@ -39,6 +39,24 @@ export default function MainLayout() {
         @media (min-width: 768px) {
           .desktop-sidebar-wrapper { display: flex !important; }
         }
+        main {
+          flex: 1;
+          overflow-y: auto;
+          overflow-x: hidden;
+          padding-bottom: 0;
+        }
+        @media (max-width: 767px) {
+          main { 
+            padding-bottom: 80px;
+            position: relative;
+          }
+        }
+        /* Adjust FAB position on mobile to avoid bottom nav */
+        @media (max-width: 767px) {
+          main button[style*="position: fixed"][style*="bottom: 30px"] {
+            bottom: 100px !important;
+          }
+        }
       `}</style>
       {/* Desktop Sidebar - hidden on mobile */}
       <div className="desktop-sidebar-wrapper">
@@ -51,19 +69,7 @@ export default function MainLayout() {
       </div>
 
       {/* Main content - responsive padding for bottom nav on mobile */}
-      <main
-        style={{
-          flex: 1,
-          overflowY: "auto",
-          overflowX: "hidden",
-          paddingBottom: 0,
-        }}
-      >
-        <style>{`
-          @media (max-width: 767px) {
-            main { padding-bottom: 80px; }
-          }
-        `}</style>
+      <main>
         <LanguageToggle />
         <Outlet />
       </main>
