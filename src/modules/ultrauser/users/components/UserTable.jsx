@@ -9,7 +9,7 @@ const ROLE_COLOR = {
 const formatDate = (iso) =>
   iso ? new Date(iso).toLocaleDateString("en-ID", { day: "2-digit", month: "short", year: "numeric" }) : "—";
 
-export default function UserTable({ users, onEdit, onDelete }) {
+export default function UserTable({ users, onEdit, onDelete, onDetails }) {
   if (!users.length) {
     return (
       <div style={{ textAlign: "center", padding: "40px", color: "#9ca3af", fontSize: "14px" }}>
@@ -47,6 +47,7 @@ export default function UserTable({ users, onEdit, onDelete }) {
                 <td style={tdStyle}>
                   <div style={{ display: "flex", gap: "8px" }}>
                     <button onClick={() => onEdit(user)} style={{ padding: "5px 14px", borderRadius: "6px", border: "1.5px solid #FF8040", background: "white", color: "#FF8040", fontWeight: "600", cursor: "pointer", fontSize: "13px" }}>Edit</button>
+                    <button onClick={() => onDetails && onDetails(user)} style={{ padding: "5px 14px", borderRadius: "6px", border: "1.5px solid #6b7280", background: "white", color: "#374151", fontWeight: "600", cursor: "pointer", fontSize: "13px" }}>Details</button>
                     <button onClick={() => onDelete(user)} style={{ padding: "5px 14px", borderRadius: "6px", border: "none", background: "#fee2e2", color: "#dc2626", fontWeight: "600", cursor: "pointer", fontSize: "13px" }}>Delete</button>
                   </div>
                 </td>

@@ -50,3 +50,9 @@ export const createUser = async (userData) => {
   const response = await api.post("/api/users", userData);
   return response.data;
 };
+
+// Request backend to reset user's password and return temporary password (backend must implement this endpoint)
+export const resetUserPassword = async (userId) => {
+  const response = await api.post("/api/users/reset-password", { id: userId });
+  return response.data;
+};

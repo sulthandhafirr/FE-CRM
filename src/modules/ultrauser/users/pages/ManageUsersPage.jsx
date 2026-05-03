@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import UserTable from "../components/UserTable";
+import UserDetailsModal from "../components/UserDetailsModal";
 import UserForm from "../components/UserForm";
 import {
   getUsers,
@@ -20,6 +21,8 @@ export default function ManageUsersPage() {
   const [loading, setLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -51,6 +54,11 @@ export default function ManageUsersPage() {
     setFormOpen(true);
   };
 
+  const handleOpenDetails = (user) => {
+    setSelectedUser(user);
+    setDetailsOpen(true);
+  };
+
   const handleSubmit = async (data) => {
     try {
       setSubmitting(true);
@@ -80,6 +88,21 @@ export default function ManageUsersPage() {
       await fetchUsers();
     } catch (err) {
       alert(err?.message ?? t("pages.manageUsers.errors.delete"));
+    }
+  };
+
+  // Reset password via backend API (must be implemented server-side)
+  const handleResetPassword = async (user) => {
+    try {
+      setSubmitting(true);
+      const { resetUserPassword } = await import("../user.service");
+      const res = await resetUserPassword(user.id);
+      // return data to modal
+      return res;
+    } catch (err) {
+      throw err;
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -188,6 +211,7 @@ export default function ManageUsersPage() {
               users={users}
               onEdit={handleOpenEdit}
               onDelete={handleDelete}
+              onDetails={handleOpenDetails}
             />
           )}
         </div>
@@ -241,6 +265,17 @@ export default function ManageUsersPage() {
             />
           </div>
         </div>
+      )}
+
+      {detailsOpen && (
+        <UserDetailsModal
+          user={selectedUser}
+          onClose={() => {
+            setDetailsOpen(false);
+            setSelectedUser(null);
+          }}
+          onResetPassword={handleResetPassword}
+        />
       )}
     </div>
   );
