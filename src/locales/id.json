@@ -119,7 +119,7 @@
         "progress": "Proses",
         "waiting": "Menunggu"
       },
-      "ticketPriorityLabels":{
+      "ticketPriorityLabels": {
         "low": "Rendah",
         "normal": "Normal",
         "High": "Tinggi",
@@ -352,6 +352,34 @@
         "responseTimeSec": "Waktu Respons",
         "resolutionTimeSec": "Waktu Penyelesaian",
         "action": "Aksi"
+      }
+    },
+    "profile": {
+      "userInformation": "Informasi Pengguna",
+      "editProfile": "Ubah Profil",
+      "changePassword": "Ubah Password",
+      "logout": "Keluar",
+      "fullName": "Nama Lengkap",
+      "email": "Email",
+      "phone": "Telepon",
+      "position": "Posisi",
+      "oldPassword": "Password Saat Ini",
+      "newPassword": "Password Baru",
+      "confirmPassword": "Konfirmasi Password",
+      "save": "Simpan",
+      "cancel": "Batal",
+      "updatePassword": "Perbarui Password",
+      "saving": "Menyimpan...",
+      "updating": "Memperbarui...",
+      "profileUpdatedSuccess": "Profil berhasil diperbarui",
+      "passwordChangedSuccess": "Password berhasil diubah",
+      "nameRequired": "Nama harus diisi",
+      "passwordRequired": "Silakan isi semua kolom password",
+      "passwordMismatch": "Password tidak cocok",
+      "passwordTooShort": "Password baru harus minimal 6 karakter",
+      "errors": {
+        "updateProfile": "Gagal memperbarui profil",
+        "changePassword": "Gagal mengubah password"
       }
     }
   }

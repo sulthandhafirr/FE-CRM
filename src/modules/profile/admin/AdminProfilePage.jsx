@@ -97,7 +97,7 @@ export default function AdminProfilePage() {
   // Handle update profile
   const handleUpdateProfile = async () => {
     if (!editValues.name.trim()) {
-      setMessage({ type: "error", text: "Name is required" });
+      setMessage({ type: "error", text: t("pages.profile.nameRequired") });
       return;
     }
 
@@ -109,7 +109,10 @@ export default function AdminProfilePage() {
       });
 
       if (response.status === 200 || response.status === 204) {
-        setMessage({ type: "success", text: "Profile updated successfully" });
+        setMessage({
+          type: "success",
+          text: t("pages.profile.profileUpdatedSuccess"),
+        });
         queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
         setEditMode(false);
         setTimeout(() => setMessage({ type: "", text: "" }), 3000);
@@ -117,7 +120,9 @@ export default function AdminProfilePage() {
     } catch (error) {
       setMessage({
         type: "error",
-        text: error.response?.data?.message || "Failed to update profile",
+        text:
+          error.response?.data?.message ||
+          t("pages.profile.errors.updateProfile"),
       });
     } finally {
       setLoading(false);
@@ -127,19 +132,19 @@ export default function AdminProfilePage() {
   // Handle change password
   const handleChangePassword = async () => {
     if (!passwordValues.oldPassword || !passwordValues.newPassword) {
-      setMessage({ type: "error", text: "Please fill in all password fields" });
+      setMessage({ type: "error", text: t("pages.profile.passwordRequired") });
       return;
     }
 
     if (passwordValues.newPassword !== passwordValues.confirmPassword) {
-      setMessage({ type: "error", text: "Passwords do not match" });
+      setMessage({ type: "error", text: t("pages.profile.passwordMismatch") });
       return;
     }
 
     if (passwordValues.newPassword.length < 6) {
       setMessage({
         type: "error",
-        text: "New password must be at least 6 characters",
+        text: t("pages.profile.passwordTooShort"),
       });
       return;
     }
@@ -150,7 +155,10 @@ export default function AdminProfilePage() {
         password: passwordValues.newPassword,
       });
 
-      setMessage({ type: "success", text: "Password changed successfully" });
+      setMessage({
+        type: "success",
+        text: t("pages.profile.passwordChangedSuccess"),
+      });
       setPasswordValues({
         oldPassword: "",
         newPassword: "",
@@ -161,7 +169,7 @@ export default function AdminProfilePage() {
     } catch (error) {
       setMessage({
         type: "error",
-        text: error.message || "Failed to change password",
+        text: error.message || t("pages.profile.errors.changePassword"),
       });
     } finally {
       setLoading(false);
@@ -220,8 +228,7 @@ export default function AdminProfilePage() {
               padding: "12px 16px",
               marginBottom: "16px",
               borderRadius: "8px",
-              background:
-                message.type === "success" ? "#f0fdf4" : "#fef2f2",
+              background: message.type === "success" ? "#f0fdf4" : "#fef2f2",
               color: message.type === "success" ? "#16a34a" : "#dc2626",
               fontSize: "14px",
               border:
@@ -275,7 +282,9 @@ export default function AdminProfilePage() {
             >
               {displayName}
             </div>
-            <div style={{ fontSize: "13px", color: "#666", marginBottom: "4px" }}>
+            <div
+              style={{ fontSize: "13px", color: "#666", marginBottom: "4px" }}
+            >
               {user?.email}
             </div>
             <div
@@ -312,7 +321,7 @@ export default function AdminProfilePage() {
                 marginBottom: "16px",
               }}
             >
-              User Information
+              {t("pages.profile.userInformation")}
             </div>
 
             {/* Full Name */}
@@ -325,7 +334,7 @@ export default function AdminProfilePage() {
                   fontWeight: "500",
                 }}
               >
-                Full Name
+                {t("pages.profile.fullName")}
               </div>
               <div style={{ fontSize: "14px", color: "#333" }}>
                 {displayName}
@@ -342,7 +351,7 @@ export default function AdminProfilePage() {
                   fontWeight: "500",
                 }}
               >
-                Email
+                {t("pages.profile.email")}
               </div>
               <div style={{ fontSize: "14px", color: "#333" }}>
                 {user?.email}
@@ -359,11 +368,9 @@ export default function AdminProfilePage() {
                   fontWeight: "500",
                 }}
               >
-                Phone
+                {t("pages.profile.phone")}
               </div>
-              <div style={{ fontSize: "14px", color: "#333" }}>
-                {phone}
-              </div>
+              <div style={{ fontSize: "14px", color: "#333" }}>{phone}</div>
             </div>
 
             {/* Position */}
@@ -377,7 +384,7 @@ export default function AdminProfilePage() {
                     fontWeight: "500",
                   }}
                 >
-                  Position
+                  {t("pages.profile.position")}
                 </div>
                 <div style={{ fontSize: "14px", color: "#333" }}>
                   {position}
@@ -407,7 +414,7 @@ export default function AdminProfilePage() {
               }}
             >
               <MdEdit size={16} />
-              Edit Profile
+              {t("pages.profile.editProfile")}
             </button>
           </div>
         )}
@@ -430,7 +437,7 @@ export default function AdminProfilePage() {
                 marginBottom: "16px",
               }}
             >
-              Edit Profile
+              {t("pages.profile.editProfile")}
             </div>
 
             {/* Name Input */}
@@ -444,7 +451,7 @@ export default function AdminProfilePage() {
                   fontWeight: "500",
                 }}
               >
-                Full Name
+                {t("pages.profile.fullName")}
               </label>
               <input
                 type="text"
@@ -475,7 +482,7 @@ export default function AdminProfilePage() {
                   fontWeight: "500",
                 }}
               >
-                Phone
+                {t("pages.profile.phone")}
               </label>
               <input
                 type="tel"
@@ -514,7 +521,7 @@ export default function AdminProfilePage() {
                   opacity: loading ? 0.6 : 1,
                 }}
               >
-                {loading ? "Saving..." : "Save"}
+                {loading ? t("pages.profile.saving") : t("pages.profile.save")}
               </button>
               <button
                 onClick={() => setEditMode(false)}
@@ -532,7 +539,7 @@ export default function AdminProfilePage() {
                   cursor: loading ? "not-allowed" : "pointer",
                 }}
               >
-                Cancel
+                {t("pages.profile.cancel")}
               </button>
             </div>
           </div>
@@ -559,13 +566,11 @@ export default function AdminProfilePage() {
               color: "#333",
               transition: "background 0.2s",
             }}
-            onMouseOver={(e) =>
-              (e.currentTarget.style.background = "#f9fafb")
-            }
+            onMouseOver={(e) => (e.currentTarget.style.background = "#f9fafb")}
             onMouseOut={(e) => (e.currentTarget.style.background = "white")}
           >
             <MdPassword size={20} color="#FF8040" />
-            Change Password
+            {t("pages.profile.changePassword")}
           </button>
         )}
 
@@ -587,7 +592,7 @@ export default function AdminProfilePage() {
                 marginBottom: "16px",
               }}
             >
-              Change Password
+              {t("pages.profile.changePassword")}
             </div>
 
             {/* Current Password */}
@@ -599,7 +604,7 @@ export default function AdminProfilePage() {
                   fontWeight: "500",
                 }}
               >
-                Current Password
+                {t("pages.profile.oldPassword")}
               </label>
               <input
                 type="password"
@@ -633,7 +638,7 @@ export default function AdminProfilePage() {
                   fontWeight: "500",
                 }}
               >
-                New Password
+                {t("pages.profile.newPassword")}
               </label>
               <input
                 type="password"
@@ -667,7 +672,7 @@ export default function AdminProfilePage() {
                   fontWeight: "500",
                 }}
               >
-                Confirm Password
+                {t("pages.profile.confirmPassword")}
               </label>
               <input
                 type="password"
@@ -709,7 +714,9 @@ export default function AdminProfilePage() {
                   opacity: loading ? 0.6 : 1,
                 }}
               >
-                {loading ? "Updating..." : "Update Password"}
+                {loading
+                  ? t("pages.profile.updating")
+                  : t("pages.profile.updatePassword")}
               </button>
               <button
                 onClick={() => setPasswordMode(false)}
@@ -754,7 +761,7 @@ export default function AdminProfilePage() {
             }}
           >
             <MdLogout size={16} />
-            Logout
+            {t("pages.profile.logout")}
           </button>
         </div>
       </div>

@@ -119,7 +119,7 @@
         "progress": "Progress",
         "waiting": "Waiting"
       },
-      "ticketPriorityLabels":{
+      "ticketPriorityLabels": {
         "low": "Low",
         "normal": "Normal",
         "high": "High",
@@ -352,6 +352,34 @@
         "responseTimeSec": "Response Time",
         "resolutionTimeSec": "Resolution Time",
         "action": "Action"
+      }
+    },
+    "profile": {
+      "userInformation": "User Information",
+      "editProfile": "Edit Profile",
+      "changePassword": "Change Password",
+      "logout": "Logout",
+      "fullName": "Full Name",
+      "email": "Email",
+      "phone": "Phone",
+      "position": "Position",
+      "oldPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password",
+      "save": "Save",
+      "cancel": "Cancel",
+      "updatePassword": "Update Password",
+      "saving": "Saving...",
+      "updating": "Updating...",
+      "profileUpdatedSuccess": "Profile updated successfully",
+      "passwordChangedSuccess": "Password changed successfully",
+      "nameRequired": "Name is required",
+      "passwordRequired": "Please fill in all password fields",
+      "passwordMismatch": "Passwords do not match",
+      "passwordTooShort": "New password must be at least 6 characters",
+      "errors": {
+        "updateProfile": "Failed to update profile",
+        "changePassword": "Failed to change password"
       }
     }
   }

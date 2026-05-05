@@ -6,6 +6,8 @@ import { MdEdit, MdPassword, MdLogout } from "react-icons/md";
 import { supabase } from "../../../lib/supabase";
 import { api } from "../../../lib/api/apiClient";
 import { ROUTE } from "../../../app/routes";
+import { useTranslation } from "react-i18next";
+
 
 // Helper: Generate initials from name
 const getInitials = (name) => {
@@ -50,6 +52,7 @@ export default function TechnicianProfilePage() {
   const { user, role, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   // State for edit modes
   const [editMode, setEditMode] = useState(false);

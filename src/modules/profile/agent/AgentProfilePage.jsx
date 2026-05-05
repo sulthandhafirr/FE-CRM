@@ -3,6 +3,7 @@ import { useAuth } from "../../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { MdEdit, MdPassword, MdLogout } from "react-icons/md";
+import { useTranslation } from "react-i18next";
 import { supabase } from "../../../lib/supabase";
 import { api } from "../../../lib/api/apiClient";
 import { ROUTE } from "../../../app/routes";
@@ -47,6 +48,7 @@ const fetchProfileData = async (userId) => {
 };
 
 export default function AgentProfilePage() {
+  const { t } = useTranslation();
   const { user, role, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -95,7 +97,7 @@ export default function AgentProfilePage() {
   // Handle update profile
   const handleUpdateProfile = async () => {
     if (!editValues.name.trim()) {
-      setMessage({ type: "error", text: "Name is required" });
+      setMessage({ type: "error", text: t("pages.profile.nameRequired") });
       return;
     }
 
@@ -107,7 +109,7 @@ export default function AgentProfilePage() {
       });
 
       if (response.status === 200 || response.status === 204) {
-        setMessage({ type: "success", text: "Profile updated successfully" });
+        setMessage({ type: "success", text: t("pages.profile.profileUpdatedSuccess") });
         queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
         setEditMode(false);
         setTimeout(() => setMessage({ type: "", text: "" }), 3000);
@@ -115,7 +117,7 @@ export default function AgentProfilePage() {
     } catch (error) {
       setMessage({
         type: "error",
-        text: error.response?.data?.message || "Failed to update profile",
+        text: error.response?.data?.message || t("pages.profile.errors.updateProfile"),
       });
     } finally {
       setLoading(false);
@@ -125,19 +127,19 @@ export default function AgentProfilePage() {
   // Handle change password
   const handleChangePassword = async () => {
     if (!passwordValues.oldPassword || !passwordValues.newPassword) {
-      setMessage({ type: "error", text: "Please fill in all password fields" });
+      setMessage({ type: "error", text: t("pages.profile.passwordRequired") });
       return;
     }
 
     if (passwordValues.newPassword !== passwordValues.confirmPassword) {
-      setMessage({ type: "error", text: "Passwords do not match" });
+      setMessage({ type: "error", text: t("pages.profile.passwordMismatch") });
       return;
     }
 
     if (passwordValues.newPassword.length < 6) {
       setMessage({
         type: "error",
-        text: "New password must be at least 6 characters",
+        text: t("pages.profile.passwordTooShort"),
       });
       return;
     }
@@ -148,7 +150,7 @@ export default function AgentProfilePage() {
         password: passwordValues.newPassword,
       });
 
-      setMessage({ type: "success", text: "Password changed successfully" });
+      setMessage({ type: "success", text: t("pages.profile.passwordChangedSuccess") });
       setPasswordValues({
         oldPassword: "",
         newPassword: "",
@@ -159,7 +161,7 @@ export default function AgentProfilePage() {
     } catch (error) {
       setMessage({
         type: "error",
-        text: error.message || "Failed to change password",
+        text: error.message || t("pages.profile.errors.changePassword"),
       });
     } finally {
       setLoading(false);
@@ -310,7 +312,7 @@ export default function AgentProfilePage() {
                 marginBottom: "16px",
               }}
             >
-              User Information
+              {t("pages.profile.userInformation")}
             </div>
 
             {/* Full Name */}
@@ -323,7 +325,7 @@ export default function AgentProfilePage() {
                   fontWeight: "500",
                 }}
               >
-                Full Name
+                {t("pages.profile.fullName")}
               </div>
               <div style={{ fontSize: "14px", color: "#333" }}>
                 {displayName}
@@ -340,7 +342,7 @@ export default function AgentProfilePage() {
                   fontWeight: "500",
                 }}
               >
-                Email
+                {t("pages.profile.email")}
               </div>
               <div style={{ fontSize: "14px", color: "#333" }}>
                 {user?.email}
@@ -357,7 +359,7 @@ export default function AgentProfilePage() {
                   fontWeight: "500",
                 }}
               >
-                Phone
+                {t("pages.profile.phone")}
               </div>
               <div style={{ fontSize: "14px", color: "#333" }}>
                 {phone}
@@ -405,7 +407,7 @@ export default function AgentProfilePage() {
               }}
             >
               <MdEdit size={16} />
-              Edit Profile
+              {t("pages.profile.editProfile")}
             </button>
           </div>
         )}
@@ -428,7 +430,7 @@ export default function AgentProfilePage() {
                 marginBottom: "16px",
               }}
             >
-              Edit Profile
+              {t("pages.profile.editProfile")}
             </div>
 
             {/* Name Input */}
@@ -442,7 +444,7 @@ export default function AgentProfilePage() {
                   fontWeight: "500",
                 }}
               >
-                Full Name
+                {t("pages.profile.fullName")}
               </label>
               <input
                 type="text"
@@ -473,7 +475,7 @@ export default function AgentProfilePage() {
                   fontWeight: "500",
                 }}
               >
-                Phone
+                {t("pages.profile.phone")}
               </label>
               <input
                 type="tel"
@@ -512,7 +514,7 @@ export default function AgentProfilePage() {
                   opacity: loading ? 0.6 : 1,
                 }}
               >
-                {loading ? "Saving..." : "Save"}
+                {loading ? t("pages.profile.saving") : t("pages.profile.save")}
               </button>
               <button
                 onClick={() => setEditMode(false)}
@@ -530,7 +532,7 @@ export default function AgentProfilePage() {
                   cursor: loading ? "not-allowed" : "pointer",
                 }}
               >
-                Cancel
+                {t("pages.profile.cancel")}
               </button>
             </div>
           </div>
@@ -563,7 +565,7 @@ export default function AgentProfilePage() {
             onMouseOut={(e) => (e.currentTarget.style.background = "white")}
           >
             <MdPassword size={20} color="#FF8040" />
-            Change Password
+            {t("pages.profile.changePassword")}
           </button>
         )}
 
@@ -585,7 +587,7 @@ export default function AgentProfilePage() {
                 marginBottom: "16px",
               }}
             >
-              Change Password
+              {t("pages.profile.changePassword")}
             </div>
 
             {/* Old Password */}
@@ -599,7 +601,7 @@ export default function AgentProfilePage() {
                   fontWeight: "500",
                 }}
               >
-                Current Password
+                {t("pages.profile.oldPassword")}
               </label>
               <input
                 type="password"
@@ -633,7 +635,7 @@ export default function AgentProfilePage() {
                   fontWeight: "500",
                 }}
               >
-                New Password
+                {t("pages.profile.newPassword")}
               </label>
               <input
                 type="password"
@@ -667,7 +669,7 @@ export default function AgentProfilePage() {
                   fontWeight: "500",
                 }}
               >
-                Confirm Password
+                {t("pages.profile.confirmPassword")}
               </label>
               <input
                 type="password"
@@ -709,7 +711,7 @@ export default function AgentProfilePage() {
                   opacity: loading ? 0.6 : 1,
                 }}
               >
-                {loading ? "Updating..." : "Update Password"}
+                {loading ? t("pages.profile.updating") : t("pages.profile.updatePassword")}
               </button>
               <button
                 onClick={() => setPasswordMode(false)}
@@ -754,7 +756,7 @@ export default function AgentProfilePage() {
             }}
           >
             <MdLogout size={16} />
-            Logout
+            {t("pages.profile.logout")}
           </button>
         </div>
       </div>
