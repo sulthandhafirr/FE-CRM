@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { signInWithEmail } from "./login.service";
+import { useAuth } from "../../../hooks/useAuth";
 
 export default function LoginForm() {
   const { t } = useTranslation();
@@ -10,6 +11,7 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const { setVerified } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,7 +24,7 @@ export default function LoginForm() {
       return;
     }
 
-    const { error: authError } = await signInWithEmail(email, password);
+    const { error: authError } = await signInWithEmail(email, password, companyId, setVerified);
 
     if (authError) {
       setError(authError.message);

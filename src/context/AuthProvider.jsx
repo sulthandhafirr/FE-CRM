@@ -7,6 +7,7 @@ export function AuthProvider({ children }) {
   const [role, setRole] = useState(null);
   const [overrideRole, setOverrideRole] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [verified, setVerified] = useState(false);
 
   const fetchRole = useCallback(async (userId) => {
     const { data, error } = await supabase
@@ -26,10 +27,13 @@ export function AuthProvider({ children }) {
     // Check initial session
     const checkUser = async () => {
       const {
-        data: { user },
+        data: { user }
       } = await supabase.auth.getUser();
       setUser(user);
-      if (user) await fetchRole(user.id);
+      if (user) {
+        await fetchRole(user.id);
+        setVerified(true)
+      }
       setLoading(false);
     };
 
@@ -44,6 +48,7 @@ export function AuthProvider({ children }) {
       } else {
         setRole(null);
         setOverrideRole(null);
+        setVerified(false)
       }
     });
 
@@ -53,7 +58,7 @@ export function AuthProvider({ children }) {
   const changeRole = (newRole) => setOverrideRole(newRole);
 
   return (
-    <AuthContext.Provider value={{ user, role: overrideRole ?? role, trueRole: role, changeRole, loading }}>
+    <AuthContext.Provider value={{ user, role: overrideRole ?? role, trueRole: role, changeRole, loading, verified, setVerified }}>
       {children}
     </AuthContext.Provider>
   );

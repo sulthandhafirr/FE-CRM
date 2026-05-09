@@ -31,10 +31,10 @@ import TechnicianProfilePage from "../modules/profile/technician/TechnicianProfi
 import AdminProfilePage from "../modules/profile/admin/AdminProfilePage";
 
 function ProtectedRoute({ allowedRoles }) {
-  const { user, role, trueRole, loading } = useAuth();
+  const { user, role, trueRole, loading, verified } = useAuth();
 
   if (loading || (user && role === null)) return <LoadingSpinner />;
-  if (!user) return <Navigate to={ROUTE.login} />;
+  if (!user || !verified) return <Navigate to={ROUTE.login} />;
   if (allowedRoles && !allowedRoles.includes(role) && trueRole !== "ultrauser")
     return <Navigate to={ROUTE.login} />;
 
@@ -51,7 +51,7 @@ const getRoleRoute = (role) => {
 
 export default function Router() {
   const { t } = useTranslation();
-  const { user, role, loading } = useAuth();
+  const { user, role, loading, verified } = useAuth();
 
   if (loading) return <LoadingSpinner />;
 
@@ -60,7 +60,7 @@ export default function Router() {
       {/* Public Route */}
       <Route
         path={ROUTE.login}
-        element={user ? <Navigate to={getRoleRoute(role)} /> : <LoginPage />}
+        element={user && verified ? <Navigate to={getRoleRoute(role)} /> : <LoginPage />}
       />
 
       {/* Customer Routes */}
