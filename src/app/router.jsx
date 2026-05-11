@@ -24,7 +24,7 @@ import LoadingSpinner from "../components/ui/LoadingSpinner";
 import NotFoundPage from "../pages/NotFoundPage";
 import AdminDashboardPage from "../modules/dashboard/admin/AdminDashboardPage";
 import AdminTicketPage from "../modules/ticket/pages/AdminTicketPage";
-import AdminUserPerformancePage from "../modules/profile/AdminUserPerformancePage";
+import AdminUserPerformancePage from "../modules/history/AdminUserPerformancePage";
 import CustomerProfilePage from "../modules/profile/customer/CustomerProfilePage";
 import AgentProfilePage from "../modules/profile/agent/AgentProfilePage";
 import TechnicianProfilePage from "../modules/profile/technician/TechnicianProfilePage";
