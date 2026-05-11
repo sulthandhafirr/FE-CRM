@@ -114,7 +114,7 @@ export const uploadTicketAttachment = async (ticketId, file, commentId = null) =
   // 1. Minta signed upload URL dari backend
   const { data: urlData } = await api.post("/api/tickets/upload-url", {
     ticketId,
-    files: [{ name: file.name, type: file.type, size: file.size }],
+    files: [{ fileName: file.name }],
   });
 
   const { filePath, token, attachmentId } = urlData[0];

@@ -15,6 +15,7 @@ import {
   getAttachmentDownloadUrl,
   getTicketComments,
   createTicketComment,
+  uploadTicketAttachment,
 } from "../ticket.service";
 import { getStatusColor, formatTicketDateTime } from "../ticket.schema";
 
@@ -25,6 +26,8 @@ export default function CustomerTicketViewDetailPage() {
   const { ticketId } = useParams();
   const [downloadingId, setDownloadingId] = useState(null);
   const [responseText, setResponseText] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [isUploadingFile, setIsUploadingFile] = useState(false);
 
   const {
     data: ticket,
@@ -80,13 +83,24 @@ export default function CustomerTicketViewDetailPage() {
   const handleSubmitResponse = async (event) => {
     event.preventDefault();
     const message = responseText.trim();
-    if (!message) return;
+    if (!message && !selectedFile) return;
+
     try {
-      await submitComment(message);
-      setResponseText("");
+      if (selectedFile) {
+        setIsUploadingFile(true);
+        await uploadTicketAttachment(ticketId, selectedFile);
+        queryClient.invalidateQueries({ queryKey: ["ticket-detail", ticketId] });
+        setSelectedFile(null);
+      }
+      if (message) {
+        await submitComment(message);
+        setResponseText("");
+      }
     } catch (error) {
-      console.error("Failed to submit comment:", error);
+      console.error("Failed:", error);
       alert(t("pages.ticketDetail.errors.submit"));
+    } finally {
+      setIsUploadingFile(false);
     }
   };
 
@@ -355,6 +369,54 @@ export default function CustomerTicketViewDetailPage() {
                                 : "auto", // ← tambah ini
                           }}
                         />
+                        <div style={{ marginBottom: "12px" }}>
+                          <label
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "6px",
+                              cursor: ticket.status === "Solved" ? "not-allowed" : "pointer",
+                              color: "#FF8040",
+                              fontWeight: "600",
+                              fontSize: "13px",
+                            }}
+                          >
+                            <MdAttachFile size={16} />
+                            {t("pages.ticketDetail.attachFile")}
+                            <input
+                              type="file"
+                              style={{ display: "none" }}
+                              disabled={ticket.status === "Solved"}
+                              onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                            />
+                          </label>
+                          {selectedFile && (
+                            <div style={{
+                              marginTop: "6px",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "8px",
+                              background: "#fff7f2",
+                              border: "1px solid #fde4d4",
+                              borderRadius: "8px",
+                              padding: "6px 10px",
+                              fontSize: "13px",
+                              color: "#374151",
+                            }}>
+                              <MdAttachFile size={14} color="#FF8040" />
+                              <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                {selectedFile.name}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => setSelectedFile(null)}
+                                style={{ background: "none", border: "none", cursor: "pointer", color: "#9ca3af", fontSize: "16px", lineHeight: 1 }}
+                              >
+                                ×
+                              </button>
+                            </div>
+                          )}
+                        </div>
                         <div
                           style={{
                             display: "flex",
@@ -365,7 +427,8 @@ export default function CustomerTicketViewDetailPage() {
                             type="submit"
                             disabled={
                               isSubmittingComment ||
-                              !responseText.trim() ||
+                              isUploadingFile ||
+                              (!responseText.trim() && !selectedFile) ||
                               ticket.status === "Solved"
                             }
                             style={{
@@ -377,13 +440,13 @@ export default function CustomerTicketViewDetailPage() {
                               fontWeight: "600",
                               cursor:
                                 isSubmittingComment ||
-                                !responseText.trim() ||
+                                (!responseText.trim() && !selectedFile) ||
                                 ticket.status === "Solved"
                                   ? "not-allowed"
                                   : "pointer",
                               opacity:
                                 isSubmittingComment ||
-                                !responseText.trim() ||
+                                (!responseText.trim() && !selectedFile) ||
                                 ticket.status === "Solved"
                                   ? 0.7
                                   : 1,
