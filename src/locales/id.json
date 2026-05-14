@@ -319,7 +319,8 @@
         "subjectPlaceholder": "Masukkan subjek",
         "descriptionLabel": "Jelaskan masalah Anda",
         "descriptionPlaceholder": "Jelaskan detailnya di sini...",
-        "attachmentsLabel": "Lampiran (opsional)"
+        "attachmentsLabel": "Lampiran (opsional)",
+        "priorityLabel": "Pilih Prioritas"
       },
       "upload": {
         "clickToUpload": "Klik untuk mengunggah file",

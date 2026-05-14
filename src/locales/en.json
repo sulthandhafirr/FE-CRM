@@ -318,8 +318,9 @@
         "subjectLabel": "Subject",
         "subjectPlaceholder": "Enter subject",
         "descriptionLabel": "Describe your problem",
-        "descriptionPlaceholder": "Describe detail here...",
-        "attachmentsLabel": "Attachments (optional)"
+        "descriptionPlaceholder": "Describe the details here...",
+        "attachmentsLabel": "Attachments (optional)",
+        "priorityLabel": "Choose Priority"
       },
       "upload": {
         "clickToUpload": "Click to upload files",

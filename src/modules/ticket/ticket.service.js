@@ -8,8 +8,8 @@ export const getMyTickets = async () => {
   return response.data;
 };
 
-export const createTicket = async ({ subject, description }) => {
-  const { data } = await api.post("/api/tickets", { subject, description });
+export const createTicket = async ({ subject, description, userPriorityId }) => {
+  const { data } = await api.post("/api/tickets", { subject, description, userPriorityId });
   return data;
 };
 

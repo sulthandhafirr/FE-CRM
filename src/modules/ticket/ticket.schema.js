@@ -79,6 +79,12 @@ export const formatDuration = (seconds) => {
     return `${Math.floor(seconds / 86400)}d ${Math.floor((seconds % 86400) / 3600)}h`;
 };
 
+export const formatFileSize = (sizeInBytes) => {
+  const sizeInKb = sizeInBytes / 1024;
+  if (sizeInKb < 1024) return `${sizeInKb.toFixed(1)} KB`;
+  return `${(sizeInKb / 1024).toFixed(1)} MB`;
+};
+
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 export const TICKET_STATUS = {
