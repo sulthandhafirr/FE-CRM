@@ -254,6 +254,33 @@
         "loadTimeline": "Failed to load timeline."
       }
     },
+    "agentTicketDetail": {
+      "confirmResolve": "Mark this ticket as Solved?",
+      "resolving": "Resolving...",
+      "markResolved": "Mark as Resolved",
+      "resolved": "Resolved",
+      "priority": "Priority",
+      "customer": "Customer",
+      "assignedTo": "Assigned To",
+      "unassigned": "Unassigned",
+      "dispatch": "Dispatch",
+      "dispatchTechnician": "Dispatch Technician",
+      "searchTechnician": "Search Technician",
+      "searchPlaceholder": "Type name or email...",
+      "noTechnicians": "No technicians found",
+      "techName": "Name",
+      "techPosition": "Position",
+      "techEmail": "Email",
+      "cancel": "Cancel",
+      "dispatching": "Dispatching...",
+      "ticketCreated": "Ticket created",
+      "ticketResolved": "Ticket Resolved",
+      "statusSolved": "Status changed to Solved",
+      "errors": {
+        "resolve": "Failed to resolve ticket.",
+        "dispatch": "Failed to dispatch technician."
+      }
+    },
     "agentTicket": {
       "back": "Back",
       "confirmDeleteSelected": "Delete {{count}} selected ticket(s)?",

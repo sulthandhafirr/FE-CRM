@@ -214,7 +214,7 @@ export default function AgentPerformancePage() {
                         <TableCell>{formatDuration(ticket.resolutionTimeSec)}</TableCell>
                         <TableCell>
                           <button
-                            onClick={() => navigate(`/dashboard/csAgent/tickets/${ticket.id}`)}
+                            onClick={() => navigate(`/dashboard/csAgent/ticket/${ticket.id}`)}
                             style={{
                               background: "#FF8040", color: "white",
                               border: "none", padding: "6px 15px",

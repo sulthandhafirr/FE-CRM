@@ -254,6 +254,33 @@
         "loadTimeline": "Gagal memuat linimasa."
       }
     },
+    "agentTicketDetail": {
+      "confirmResolve": "Tandai tiket ini sebagai 'Selesai'?",
+      "resolving": "Menandai sebagai Selesai...",
+      "markResolved": "Tandai sebagai Selesai",
+      "resolved": "Selesai",
+      "priority": "Prioritas",
+      "customer": "Pelanggan",
+      "assignedTo": "Ditugaskan ke",
+      "unassigned": "Belum ditugaskan",
+      "dispatch": "Tugaskan",
+      "dispatchTechnician": "Tugaskan Teknisi",
+      "searchTechnician": "Cari Teknisi",
+      "searchPlaceholder": "Ketik nama atau email...",
+      "noTechnicians": "Teknisi tidak ditemukan",
+      "techName": "Nama",
+      "techPosition": "Posisi",
+      "techEmail": "Email",
+      "cancel": "Batal",
+      "dispatching": "Menugaskan...",
+      "ticketCreated": "Tiket dibuat",
+      "ticketResolved": "Tiket diselesaikan",
+      "statusSolved": "Status diubah menjadi Selesai",
+      "errors": {
+        "resolve": "Gagal menyelesaikan tiket.",
+        "dispatch": "Gagal menugaskan teknisi."
+      }
+    },
     "agentTicket": {
       "back": "Kembali",
       "confirmDeleteSelected": "Hapus {{count}} tiket terpilih?",
