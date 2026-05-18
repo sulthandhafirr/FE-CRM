@@ -4,9 +4,11 @@ import { MdChat, MdPeople, MdSupportAgent } from "react-icons/md";
 import { useTranslation } from "react-i18next";
 import ChatBot from "../../../components/ui/ChatBot";
 import { getDashboardStats } from "../dashboard.service";
+import { useAuth } from "../../../hooks/useAuth";
 
 export default function CustomerDashboardPage() {
   const { t } = useTranslation();
+  const { name } = useAuth();
   const [chatOpen, setChatOpen] = useState(false);
 
   const { data: stats, isLoading: statsLoading } = useQuery({
@@ -34,14 +36,27 @@ export default function CustomerDashboardPage() {
           .chart-card-mobile { border-radius: 14px !important; min-height: auto !important; }
         }
         @media (min-width: 768px) {
-          .dashboard-container { padding: 30px !important; }
+          .dashboard-container { padding: 15px 30px 30px 30px !important; }
           .stat-grid-responsive { grid-template-columns: 1fr 1fr !important; gap: 20px !important; }
           .chart-row-responsive { flex-direction: row !important; gap: 20px !important; }
           .stat-card-mobile { padding: 25px !important; border-radius: 12px !important; }
           .chart-card-mobile { border-radius: 12px !important; min-height: 400px !important; }
         }
       `}</style>
-      <div className="dashboard-container" style={{ flex: 1, overflowY: "auto" }}>
+      <div
+        className="dashboard-container"
+        style={{ flex: 1, overflowY: "auto" }}
+      >
+        {/* Welcome Message */}
+        <div style={{ marginBottom: "20px" }}>
+          <div style={{ fontSize: "24px", fontWeight: "700", color: "#333" }}>
+            {t("pages.dashboard.welcome")}, {name ?? "#"}
+          </div>
+          {/* <div style={{ fontSize: "14px", color: "#999", marginTop: "4px" }}>
+            {t("pages.dashboard.welcomeSubtitle")}
+          </div> */}
+        </div>
+
         {/* Top Cards Row */}
         <div style={{ display: "grid", marginBottom: "20px" }} className="stat-grid-responsive">
           <div className="stat-card-mobile" style={{

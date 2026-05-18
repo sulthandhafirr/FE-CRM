@@ -99,6 +99,7 @@
       "openView": "Open view ->"
     },
     "dashboard": {
+      "welcome": "Welcome",
       "totalTechnician": "Total Technician",
       "totalCustomer": "Total Customer",
       "totalTicket": "Total Tickets",

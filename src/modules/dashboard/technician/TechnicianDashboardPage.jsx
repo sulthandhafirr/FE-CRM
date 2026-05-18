@@ -4,6 +4,7 @@ import { MdChat, MdPeople, MdSupportAgent } from "react-icons/md";
 import { useTranslation } from "react-i18next";
 import ChatBot from "../../../components/ui/ChatBot";
 import { getDashboardStats } from "../dashboard.service";
+import { useAuth } from "../../../hooks/useAuth";
 
 const StatCard = ({ title, value, icon, loading }) => (
   <div
@@ -41,6 +42,7 @@ const StatCard = ({ title, value, icon, loading }) => (
 
 export default function TechnicianDashboardPage() {
   const { t } = useTranslation();
+  const { name } = useAuth();
   const [chatOpen, setChatOpen] = useState(false);
 
   const { data: stats, isLoading: statsLoading } = useQuery({
@@ -59,7 +61,17 @@ export default function TechnicianDashboardPage() {
           '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
     >
-      <div style={{ padding: "30px", flex: 1, overflowY: "auto" }}>
+      <div style={{ padding: "30px", paddingTop: "15px", flex: 1, overflowY: "auto" }}>
+        {/* Welcome Message */}
+        <div style={{ marginBottom: "20px" }}>
+          <div style={{ fontSize: "24px", fontWeight: "700", color: "#333" }}>
+            {t("pages.dashboard.welcome")}, {name ?? "#"}
+          </div>
+          {/* <div style={{ fontSize: "14px", color: "#999", marginTop: "4px" }}>
+            {t("pages.dashboard.welcomeSubtitle")}
+          </div> */}
+        </div>
+
         {/* Top Cards Row */}
         <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
           <StatCard

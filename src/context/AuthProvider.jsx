@@ -5,6 +5,7 @@ import { AuthContext } from "./AuthContext";
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [role, setRole] = useState(null);
+  const [name, setName] = useState(null);
   const [overrideRole, setOverrideRole] = useState(null);
   const [loading, setLoading] = useState(true);
   const [verified, setVerified] = useState(false);
@@ -12,14 +13,16 @@ export function AuthProvider({ children }) {
   const fetchRole = useCallback(async (userId) => {
     const { data, error } = await supabase
       .from("profile")
-      .select("roles(role)")
+      .select("name, roles(role)")
       .eq("id", userId)
       .single();
 
     if (!error && data) {
       setRole(data.roles.role);
+      setName(data.name);
     } else {
       setRole(null);
+      setName(null);
     }
   }, []);
 
@@ -47,6 +50,7 @@ export function AuthProvider({ children }) {
         fetchRole(session.user.id);
       } else {
         setRole(null);
+        setName(null);
         setOverrideRole(null);
         setVerified(false)
       }
@@ -58,7 +62,7 @@ export function AuthProvider({ children }) {
   const changeRole = (newRole) => setOverrideRole(newRole);
 
   return (
-    <AuthContext.Provider value={{ user, role: overrideRole ?? role, trueRole: role, changeRole, loading, verified, setVerified }}>
+    <AuthContext.Provider value={{ user, name, role: overrideRole ?? role, trueRole: role, changeRole, loading, verified, setVerified }}>
       {children}
     </AuthContext.Provider>
   );

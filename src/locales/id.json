@@ -99,6 +99,7 @@
       "openView": "Buka tampilan ->"
     },
     "dashboard": {
+      "welcome": "Selamat datang",
       "totalTechnician": "Total Teknisi",
       "totalCustomer": "Total Pelanggan",
       "totalTicket": "Total Tiket",
