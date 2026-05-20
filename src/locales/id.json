@@ -23,7 +23,9 @@
   },
   "pages": {
     "adminUserPerformance": {
-      "title": "Performa Pengguna",
+      "title_cs_agent":   "Daftar Agen CS",
+      "title_technician": "Daftar Teknisi",
+      "title_customer":   "Daftar Pelanggan",
       "tabs": {
         "cs_agent": "Agen CS",
         "technician": "Teknisi",

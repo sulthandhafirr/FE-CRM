@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { MdOutlinePerson, MdArrowBack, MdChat } from "react-icons/md";
+import { MdOutlinePerson, MdArrowBack, MdChat, MdPersonAdd } from "react-icons/md";
 import {
   Paper, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, TableSortLabel, TablePagination,
@@ -12,6 +12,7 @@ import SearchBar from "../../components/ui/SearchBar";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import { getAllTickets } from "../ticket/ticket.service";
 import { getPriorityColor, getStatusColor, formatTicketDate } from "../ticket/ticket.schema";
+import AddUserForm from "./components/AddUserForm";
 
 function sortList(list, ob, o) {
   return [...list].sort((a, b) => {
@@ -55,8 +56,9 @@ const StatCard = ({ label, value, color = "#FF8040" }) => (
 );
 
 export default function AdminUserPerformancePage() {
-  const [chatOpen, setChatOpen]       = useState(false);
+  const [chatOpen, setChatOpen]         = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [addUserOpen, setAddUserOpen] = useState(false);
   const { t } = useTranslation();
 
   const TABS = [
@@ -73,10 +75,10 @@ export default function AdminUserPerformancePage() {
   const [listRows, setListRows]       = useState(10);
 
   // Detail state
-  const [detOrderBy, setDetOrderBy]   = useState("createdAt");
-  const [detOrder, setDetOrder]       = useState("desc");
-  const [detPage, setDetPage]         = useState(0);
-  const [detRows, setDetRows]         = useState(10);
+  const [detOrderBy, setDetOrderBy] = useState("createdAt");
+  const [detOrder, setDetOrder]     = useState("desc");
+  const [detPage, setDetPage]       = useState(0);
+  const [detRows, setDetRows]       = useState(10);
 
   const currentTab = TABS.find((t) => t.key === activeTab);
   const isCustomer = activeTab === "customer";
@@ -84,7 +86,7 @@ export default function AdminUserPerformancePage() {
   // ── Queries ──
   const { data: users = [], isLoading: usersLoading } = useQuery({
     queryKey: ["users-by-role", activeTab],
-    queryFn: () => getUsersByRole(currentTab.roleId), // ← ganti ini
+    queryFn: () => getUsersByRole(currentTab.roleId),
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
   });
@@ -251,17 +253,17 @@ export default function AdminUserPerformancePage() {
 
             {/* Stats */}
             <div style={{ display: "flex", gap: "16px", marginBottom: "24px" }}>
-              <StatCard label={t("pages.adminUserPerformance.stats.total")}       value={totalTickets}  />
-              <StatCard label={t("pages.adminUserPerformance.stats.active")}      value={activeTickets} color="#f59e0b" />
-              <StatCard label={t("pages.adminUserPerformance.stats.solved")}      value={solvedTickets} color="#22c55e" />
-              <StatCard label={t("pages.adminUserPerformance.stats.highPriority")} value={highPriority} color="#ef4444" />
+              <StatCard label={t("pages.adminUserPerformance.stats.total")}        value={totalTickets}  />
+              <StatCard label={t("pages.adminUserPerformance.stats.active")}       value={activeTickets} color="#f59e0b" />
+              <StatCard label={t("pages.adminUserPerformance.stats.solved")}       value={solvedTickets} color="#22c55e" />
+              <StatCard label={t("pages.adminUserPerformance.stats.highPriority")} value={highPriority}  color="#ef4444" />
             </div>
 
             {/* Tickets table */}
             <div style={{ fontSize: "20px", fontWeight: "700", color: "#333", marginBottom: "16px" }}>
               {selectedUser.tab === "customer"
-              ? t("pages.adminUserPerformance.ticketsCreated")
-              : t("pages.adminUserPerformance.ticketsHandled")}
+                ? t("pages.adminUserPerformance.ticketsCreated")
+                : t("pages.adminUserPerformance.ticketsHandled")}
               <span style={{ color: "#FF8040" }}>• {sortedTickets.length}</span>
             </div>
 
@@ -311,31 +313,56 @@ export default function AdminUserPerformancePage() {
         {/* ══ LIST VIEW ══ */}
         {!selectedUser && (
           <>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "25px" }}>
-              <div style={{ fontSize: "28px", fontWeight: "700", color: "#333" }}>
-                {t("pages.adminUserPerformance.title")} <span style={{ color: "#FF8040" }}>• {sortedUsers.length}</span>
+            {/* Header */}
+            <div style={{
+              display: "flex", alignItems: "center",
+              justifyContent: "space-between", marginBottom: "25px", gap: "16px",
+            }}>
+              {/* Title */}
+              <div style={{ fontSize: "28px", fontWeight: "700", color: "#333", flexShrink: 0 }}>
+                {t(`pages.adminUserPerformance.title_${activeTab}`)}{" "}
+                <span style={{ color: "#FF8040" }}>• {sortedUsers.length}</span>
               </div>
 
-              {/* Tab toggle */}
-              <div style={{ display: "flex", borderRadius: "10px", overflow: "hidden", border: "2px solid #FF8040" }}>
-                {TABS.map((tab, idx) => (
-                  <button
-                    key={tab.key}
-                    onClick={() => handleTabChange(tab.key)}
-                    style={{
-                      padding: "9px 24px", fontWeight: "700", fontSize: "14px", cursor: "pointer",
-                      border: "none", borderLeft: idx > 0 ? "2px solid #FF8040" : "none",
-                      background: activeTab === tab.key ? "#FF8040" : "white",
-                      color: activeTab === tab.key ? "white" : "#FF8040",
-                      transition: "all 0.2s",
-                    }}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
+              {/* Tabs + Add button */}
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <div style={{ display: "flex", borderRadius: "10px", overflow: "hidden", border: "2px solid #FF8040" }}>
+                  {TABS.map((tab, idx) => (
+                    <button
+                      key={tab.key}
+                      onClick={() => handleTabChange(tab.key)}
+                      style={{
+                        padding: "9px 20px", fontWeight: "700", fontSize: "14px", cursor: "pointer",
+                        border: "none", borderLeft: idx > 0 ? "2px solid #FF8040" : "none",
+                        background: activeTab === tab.key ? "#FF8040" : "white",
+                        color: activeTab === tab.key ? "white" : "#FF8040",
+                        transition: "all 0.2s",
+                      }}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => setAddUserOpen(true)}
+                  style={{
+                    display: "flex", alignItems: "center", gap: "6px",
+                    padding: "9px 18px", borderRadius: "10px", border: "none",
+                    background: "#FF8040", color: "white",
+                    fontWeight: "700", fontSize: "14px", cursor: "pointer",
+                    boxShadow: "0 2px 8px rgba(255,128,64,0.3)", flexShrink: 0,
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = "#e6703a"}
+                  onMouseLeave={(e) => e.currentTarget.style.background = "#FF8040"}
+                >
+                  <MdPersonAdd size={18} />
+                  Add {currentTab?.label}
+                </button>
               </div>
             </div>
 
+            {/* Tabel user */}
             <div style={{ background: "white", borderRadius: "12px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
               {usersLoading ? (
                 <div style={{ textAlign: "center", padding: "40px" }}><LoadingSpinner /></div>
@@ -360,9 +387,7 @@ export default function AdminUserPerformancePage() {
                               "&:hover": { background: "#FFF5EF" }, transition: "background 0.15s",
                             }}
                           >
-                            <TableCell>
-                              <AvatarIcon size={38} />
-                            </TableCell>
+                            <TableCell><AvatarIcon size={38} /></TableCell>
                             <TableCell sx={{ fontWeight: 600, color: "#333" }}>{user.name ?? "-"}</TableCell>
                             <TableCell sx={{ color: "#666", fontSize: "13px" }}>{user.email ?? "-"}</TableCell>
                             {!isCustomer && (
@@ -392,6 +417,13 @@ export default function AdminUserPerformancePage() {
                 </Paper>
               )}
             </div>
+
+            {/* Modal add user */}
+            <AddUserForm
+              isOpen={addUserOpen}
+              onClose={() => setAddUserOpen(false)}
+              defaultRoleId={currentTab?.roleId ?? 2}
+            />
           </>
         )}
       </div>

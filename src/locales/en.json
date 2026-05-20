@@ -23,7 +23,9 @@
   },
   "pages": {
     "adminUserPerformance": {
-      "title": "User Performance",
+      "title_cs_agent":   "List of CS Agent",
+      "title_technician": "List of Technician",
+      "title_customer":   "List of Customer",
       "tabs": {
         "cs_agent": "CS Agent",
         "technician": "Technician",
