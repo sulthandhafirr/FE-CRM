@@ -24,7 +24,9 @@ import ComingSoonPage from "../components/ui/ComingSoonPage";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
 import NotFoundPage from "../pages/NotFoundPage";
 import AdminDashboardPage from "../modules/dashboard/admin/AdminDashboardPage";
-import AdminTicketPage from "../modules/ticket/pages/AdminTicketPage";
+import AdminTicketSelectorPage from "../modules/ticket/pages/AdminTicketSelectorPage";
+import ActiveTicketPage from "../modules/ticket/pages/admin/ActiveTicketPage";
+import SolvedTicketPage from "../modules/ticket/pages/admin/SolvedTicketPage";
 import AdminUserPerformancePage from "../modules/history/AdminUserPerformancePage";
 import CustomerProfilePage from "../modules/profile/customer/CustomerProfilePage";
 import AgentProfilePage from "../modules/profile/agent/AgentProfilePage";
@@ -193,7 +195,9 @@ export default function Router() {
       <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
         <Route element={<MainLayout />}>
           <Route path={ROUTE.adminDashboard} element={<AdminDashboardPage />} />
-          <Route path={ROUTE.adminTicket} element={<AdminTicketPage />} />
+          <Route path={ROUTE.adminTicket} element={<AdminTicketSelectorPage />} />
+          <Route path={ROUTE.adminTicketActive} element={<ActiveTicketPage />} />
+          <Route path={ROUTE.adminTicketSolved} element={<SolvedTicketPage />} />
           <Route path={ROUTE.adminUserPerformance} element={<AdminUserPerformancePage />} />
           <Route
             path={ROUTE.adminProfile}
