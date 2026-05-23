@@ -23,9 +23,9 @@
   },
   "pages": {
     "adminUserPerformance": {
-      "title_cs_agent":   "Daftar Agen CS",
+      "title_cs_agent": "Daftar Agen CS",
       "title_technician": "Daftar Teknisi",
-      "title_customer":   "Daftar Pelanggan",
+      "title_customer": "Daftar Pelanggan",
       "tabs": {
         "cs_agent": "Agen CS",
         "technician": "Teknisi",
@@ -66,6 +66,13 @@
       "message": "Halaman ini sedang dikembangkan.",
       "technicianTicketView": "Tampilan Tiket Teknisi",
       "adminTicketView": "Tampilan Tiket Admin"
+    },
+    "notificationBell": {
+      "title": "Notifikasi",
+      "unread": "{{count}} belum dibaca",
+      "readAll": "Baca semua",
+      "loading": "Memuat notifikasi...",
+      "empty": "Belum ada notifikasi"
     },
     "ultrauserMenu": {
       "userManagement": {
@@ -110,6 +117,8 @@
       "lineChartPlaceholder": "Grafik akan diimplementasikan di sini (Line Chart)",
       "ticketByStatus": "Tiket Status",
       "ticketPriority": "Prioritas Tiket",
+      "solvedTicket": "Tiket Diselesaikan",
+      "activeTicket": "Tiket Aktif",
       "barChartPlaceholder": "Grafik akan diimplementasikan di sini (Bar Chart)",
       "count": "Jumlah",
       "percentage": "Persentase",

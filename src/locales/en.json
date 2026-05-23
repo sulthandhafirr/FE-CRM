@@ -23,9 +23,9 @@
   },
   "pages": {
     "adminUserPerformance": {
-      "title_cs_agent":   "List of CS Agent",
+      "title_cs_agent": "List of CS Agent",
       "title_technician": "List of Technician",
-      "title_customer":   "List of Customer",
+      "title_customer": "List of Customer",
       "tabs": {
         "cs_agent": "CS Agent",
         "technician": "Technician",
@@ -66,6 +66,13 @@
       "message": "This view is under construction.",
       "technicianTicketView": "Technician Ticket View",
       "adminTicketView": "Admin Ticket View"
+    },
+    "notificationBell": {
+      "title": "Notifications",
+      "unread": "{{count}} unread",
+      "readAll": "Read all",
+      "loading": "Loading notifications...",
+      "empty": "No notifications yet"
     },
     "ultrauserMenu": {
       "userManagement": {
@@ -110,6 +117,8 @@
       "lineChartPlaceholder": "Chart will be implemented here (Line Chart)",
       "ticketByStatus": "Ticket Status",
       "ticketPriority": "Ticket Priority",
+      "solvedTicket": "Solved Tickets",
+      "activeTicket": "Active Tickets",
       "barChartPlaceholder": "Chart will be implemented here (Bar Chart)",
       "count": "Count",
       "percentage": "Percentage",

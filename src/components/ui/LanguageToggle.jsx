@@ -19,42 +19,27 @@ export default function LanguageToggle() {
   return (
     <>
       <style>{`
-        .language-toggle-header {
-          display: flex;
-          justify-content: flex-end;
-          align-items: center;
-          gap: 8px;
-          padding: 12px 20px;
-          border-bottom: 1px solid #e5e7eb;
-          background: #ffffff;
-          position: sticky;
-          top: 0;
-          z-index: 50;
+      .language-toggle-label {
+        font-size: 13px;
+        color: #6b7280;
+        font-weight: 600;
+      }
+      @media (max-width: 767px) {
+        .language-toggle-label {
+          display: none;
         }
-        @media (max-width: 767px) {
-          .language-toggle-header {
-            padding: 10px 16px;
-            gap: 6px;
-          }
-          .language-toggle-label {
-            display: none;
-          }
-        }
-      `}</style>
+      }
+    `}</style>
       <div
-        className="language-toggle-header"
+        style={{
+          position: "relative",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "8px",
+        }}
       >
-        <span 
-          className="language-toggle-label"
-          style={{ fontSize: "13px", color: "#6b7280", fontWeight: 600 }}>
-          {t("common.language")}
-        </span>
-        <div
-          style={{
-            position: "relative",
-            display: "inline-flex",
-          }}
-        >
+        <span className="language-toggle-label">{t("common.language")}</span>
+        <div style={{ position: "relative", display: "inline-flex" }}>
           <select
             aria-label={t("common.language")}
             value={selectedLanguage}

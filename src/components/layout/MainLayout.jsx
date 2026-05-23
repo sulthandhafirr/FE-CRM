@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "../Sidebar";
 import LanguageToggle from "../ui/LanguageToggle";
+import NotificationBell from "../../modules/notification/NotificationBell";
 import BottomNav from "../ui/BottomNav";
 import { ROUTE } from "../../app/routes";
 
@@ -70,7 +71,24 @@ export default function MainLayout() {
 
       {/* Main content - responsive padding for bottom nav on mobile */}
       <main>
-        <LanguageToggle />
+        {/* TopBar */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            gap: "8px",
+            padding: "12px 20px",
+            borderBottom: "1px solid #e5e7eb",
+            background: "#ffffff",
+            position: "sticky",
+            top: 0,
+            zIndex: 50,
+          }}
+        >
+          <NotificationBell />
+          <LanguageToggle />
+        </div>
         <Outlet />
       </main>
 
