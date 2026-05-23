@@ -1,4 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useAuth } from "../../../hooks/useAuth";
+import { supabase } from "../../../lib/supabase";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -28,6 +30,7 @@ export default function CustomerTicketViewDetailPage() {
   const [responseText, setResponseText] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
+  const { user } = useAuth();
 
   const {
     data: ticket,
@@ -89,7 +92,9 @@ export default function CustomerTicketViewDetailPage() {
       if (selectedFile) {
         setIsUploadingFile(true);
         await uploadTicketAttachment(ticketId, selectedFile);
-        queryClient.invalidateQueries({ queryKey: ["ticket-detail", ticketId] });
+        queryClient.invalidateQueries({
+          queryKey: ["ticket-detail", ticketId],
+        });
         setSelectedFile(null);
       }
       if (message) {
@@ -103,6 +108,54 @@ export default function CustomerTicketViewDetailPage() {
       setIsUploadingFile(false);
     }
   };
+
+  useEffect(() => {
+    if (!ticketId) return;
+
+    const channel = supabase
+      .channel(`comments-${ticketId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "ticket_comment",
+          // filter: `ticket_id=eq.${ticketId}`,
+        },
+        (payload) => {
+          console.log("Realtime comment received:", payload);
+          // skip if sent by current user — mutation already handles it
+          if (payload.new.sender_id === user?.id) return;
+
+          queryClient.invalidateQueries({
+            queryKey: ["ticket-comments", ticketId],
+          });
+
+          // The code below is for Optimization if needed, we can directly update the cache instead of invalidating
+          // Add another column in ticket_comment table "sender_name" to avoid extra user query
+
+          // queryClient.setQueryData(
+          //   ["ticket-comments", ticketId],
+          //   (old = []) => [
+          //     ...old,
+          //     {
+          //       id: payload.new.id,
+          //       ticketId: payload.new.ticket_id,
+          //       senderId: payload.new.sender_id,
+          //       senderName: payload.new.sender_name ?? null,
+          //       message: payload.new.message,
+          //       createdAt: payload.new.created_at,
+          //     },
+          //   ],
+          // );
+        },
+      )
+      .subscribe((status) => {
+        console.log("Realtime subscription status:", status);
+      });
+
+    return () => supabase.removeChannel(channel);
+  }, [ticketId, user?.id, queryClient]);
 
   return (
     <div
