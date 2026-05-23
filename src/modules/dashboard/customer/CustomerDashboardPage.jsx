@@ -1,6 +1,6 @@
 import { createElement, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { MdChat, MdPeople, MdSupportAgent } from "react-icons/md";
+import { MdChat, MdCheckCircle, MdConfirmationNumber, MdHourglassBottom, MdHourglassDisabled, MdHourglassEmpty, MdListAlt, MdPending, MdPeople, MdSupportAgent, MdTaskAlt } from "react-icons/md";
 import { useTranslation } from "react-i18next";
 import ChatBot from "../../../components/ui/ChatBot";
 import { getDashboardStats } from "../dashboard.service";
@@ -37,7 +37,7 @@ export default function CustomerDashboardPage() {
         }
         @media (min-width: 768px) {
           .dashboard-container { padding: 15px 30px 30px 30px !important; }
-          .stat-grid-responsive { grid-template-columns: 1fr 1fr !important; gap: 20px !important; }
+          .stat-grid-responsive { grid-template-columns: 1fr 1fr 1fr !important; gap: 20px !important; }
           .chart-row-responsive { flex-direction: row !important; gap: 20px !important; }
           .stat-card-mobile { padding: 25px !important; border-radius: 12px !important; }
           .chart-card-mobile { border-radius: 12px !important; min-height: 400px !important; }
@@ -109,6 +109,87 @@ export default function CustomerDashboardPage() {
                 <span style={{ fontSize: "20px", color: "#ddd" }}>—</span>
               ) : (
                 (stats?.totalCsAgent ?? 0)
+              )}
+            </div>
+          </div>
+
+          <div className="stat-card-mobile" style={{
+            background: "white",
+            border: "2px solid #FF8040",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+          }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: "10px",
+              }}
+            >
+              <div style={{ fontSize: "16px", color: "#333", fontWeight: "500" }}>
+                {t("pages.dashboard.solvedTicket")}
+              </div>
+              {createElement(MdTaskAlt, { size: 22, color: "#FF8040" })}
+            </div>
+            <div style={{ fontSize: "36px", fontWeight: "700", color: "#FF8040" }}>
+              {statsLoading ? (
+                <span style={{ fontSize: "20px", color: "#ddd" }}>—</span>
+              ) : (
+                (stats?.solvedTicket ?? 0)
+              )}
+            </div>
+          </div>
+
+          <div className="stat-card-mobile" style={{
+            background: "white",
+            border: "2px solid #FF8040",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+          }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: "10px",
+              }}
+            >
+              <div style={{ fontSize: "16px", color: "#333", fontWeight: "500" }}>
+                {t("pages.dashboard.activeTicket")}
+              </div>
+              {createElement(MdHourglassEmpty, { size: 22, color: "#FF8040" })}
+            </div>
+            <div style={{ fontSize: "36px", fontWeight: "700", color: "#FF8040" }}>
+              {statsLoading ? (
+                <span style={{ fontSize: "20px", color: "#ddd" }}>—</span>
+              ) : (
+                (stats?.activeTicket ?? 0)
+              )}
+            </div>
+          </div>
+
+          <div className="stat-card-mobile" style={{
+            background: "white",
+            border: "2px solid #FF8040",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+          }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: "10px",
+              }}
+            >
+              <div style={{ fontSize: "16px", color: "#333", fontWeight: "500" }}>
+                {t("pages.dashboard.totalTicket")}
+              </div>
+              {createElement(MdListAlt, { size: 22, color: "#FF8040" })}
+            </div>
+            <div style={{ fontSize: "36px", fontWeight: "700", color: "#FF8040" }}>
+              {statsLoading ? (
+                <span style={{ fontSize: "20px", color: "#ddd" }}>—</span>
+              ) : (
+                (stats?.totalMyTicket ?? 0)
               )}
             </div>
           </div>

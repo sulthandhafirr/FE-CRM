@@ -75,14 +75,20 @@ export default function TechnicianDashboardPage() {
         {/* Top Cards Row */}
         <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
           <StatCard
-            title={t("pages.dashboard.totalTechnician")}
-            value={stats?.totalTechnician}
+            title={t("pages.dashboard.activeTicket")}
+            value={stats?.activeTicket}
             icon={MdPeople}
             loading={statsLoading}
           />
           <StatCard
-            title={t("pages.dashboard.totalCsAgent")}
-            value={stats?.totalCsAgent}
+            title={t("pages.dashboard.solvedTicket")}
+            value={stats?.solvedTicket}
+            icon={MdSupportAgent}
+            loading={statsLoading}
+          />
+          <StatCard
+            title={t("pages.dashboard.totalTicket")}
+            value={stats?.totalMyTicket}
             icon={MdSupportAgent}
             loading={statsLoading}
           />
