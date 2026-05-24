@@ -22,6 +22,63 @@
     "ultrauser": "Ultrauser"
   },
   "pages": {
+    "addUserForm": {
+      "title": "Tambah Pengguna",
+      "subtitleSingle": "Isi detail berikut untuk membuat akun pengguna baru",
+      "subtitleBulk": "Impor beberapa pengguna sekaligus dari file Excel",
+      "modeSingle": "Satu Pengguna",
+      "modeBulk": "Impor Excel",
+      "fields": {
+        "role": "Peran",
+        "fullName": "Nama Lengkap",
+        "fullNamePlaceholder": "contoh: John Doe",
+        "email": "Email",
+        "emailPlaceholder": "email@example.com",
+        "password": "Password",
+        "passwordPlaceholder": "Min 6 karakter",
+        "position": "Posisi",
+        "positionPlaceholder": "contoh: Teknisi Senior",
+        "positionHint": "Opsional"
+      },
+      "errors": {
+        "nameRequired": "Nama harus diisi",
+        "emailRequired": "Email harus diisi",
+        "emailInvalid": "Format email tidak valid",
+        "passwordRequired": "Password harus diisi",
+        "passwordTooShort": "Minimal 6 karakter"
+      },
+      "buttons": {
+        "add": "Tambah",
+        "adding": "Menambahkan...",
+        "cancel": "Batal",
+        "downloadTemplate": "Unduh Template Excel"
+      },
+      "bulk": {
+        "dropzone": "Impor file dari komputer",
+        "dropzoneHint": "Drag & drop atau klik untuk memilih file Excel (.xlsx / .xls)",
+        "columnsHint": "Kolom wajib: Name, Email, Role, Position (Position opsional)",
+        "preview": "Pratinjau",
+        "rows": "{{count}} baris",
+        "errors": "{{count}} kesalahan",
+        "statusReady": "✓ Siap",
+        "creating": "Membuat pengguna…",
+        "fixErrors": "Perbaiki semua kesalahan sebelum mengirim.",
+        "partialSuccess": "{{success}} dari {{total}} pengguna berhasil dibuat. Perbaiki kesalahan yang tersisa dan coba lagi.",
+        "readError": "Gagal membaca file Excel. Pastikan file berformat .xlsx atau .xls yang valid.",
+        "addUsers": "Tambah Pengguna",
+        "addNUsers": "Tambah {{count}} Pengguna",
+        "addingProgress": "Menambahkan {{done}}/{{total}}…",
+        "tableHeaders": {
+          "no": "#",
+          "name": "Nama",
+          "email": "Email",
+          "role": "Peran",
+          "position": "Posisi",
+          "status": "Status"
+        }
+      },
+      "loading": "Membuat pengguna..."
+    },
     "adminUserPerformance": {
       "title_cs_agent": "Daftar Agen CS",
       "title_technician": "Daftar Teknisi",

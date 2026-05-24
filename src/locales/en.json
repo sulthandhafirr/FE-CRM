@@ -22,6 +22,63 @@
     "ultrauser": "Ultrauser"
   },
   "pages": {
+    "addUserForm": {
+      "title": "Add User",
+      "subtitleSingle": "Fill in the details to create a new user account",
+      "subtitleBulk": "Import multiple users from an Excel file",
+      "modeSingle": "Single User",
+      "modeBulk": "Import Excel",
+      "fields": {
+        "role": "Role",
+        "fullName": "Full Name",
+        "fullNamePlaceholder": "e.g. John Doe",
+        "email": "Email",
+        "emailPlaceholder": "email@example.com",
+        "password": "Password",
+        "passwordPlaceholder": "Min 6 characters",
+        "position": "Position",
+        "positionPlaceholder": "e.g. Senior Technician",
+        "positionHint": "Optional"
+      },
+      "errors": {
+        "nameRequired": "Name is required",
+        "emailRequired": "Email is required",
+        "emailInvalid": "Invalid email format",
+        "passwordRequired": "Password is required",
+        "passwordTooShort": "Minimum 6 characters"
+      },
+      "buttons": {
+        "add": "Add",
+        "adding": "Adding...",
+        "cancel": "Cancel",
+        "downloadTemplate": "Download Excel Template"
+      },
+      "bulk": {
+        "dropzone": "Import file from computer",
+        "dropzoneHint": "Drag & drop or click to select an Excel file (.xlsx / .xls)",
+        "columnsHint": "Required columns: Name, Email, Role, Position (Position optional)",
+        "preview": "Preview",
+        "rows": "{{count}} rows",
+        "errors": "{{count}} errors",
+        "statusReady": "✓ Ready",
+        "creating": "Creating users…",
+        "fixErrors": "Please fix all errors before submitting.",
+        "partialSuccess": "{{success}} of {{total}} users created. Fix remaining errors and retry.",
+        "readError": "Failed to read Excel file. Make sure it is a valid .xlsx or .xls file.",
+        "addUsers": "Add Users",
+        "addNUsers": "Add {{count}} Users",
+        "addingProgress": "Adding {{done}}/{{total}}…",
+        "tableHeaders": {
+          "no": "#",
+          "name": "Name",
+          "email": "Email",
+          "role": "Role",
+          "position": "Position",
+          "status": "Status"
+        }
+      },
+      "loading": "Creating user..."
+    },
     "adminUserPerformance": {
       "title_cs_agent": "List of CS Agent",
       "title_technician": "List of Technician",
