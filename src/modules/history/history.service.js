@@ -1,9 +1,81 @@
+import * as XLSX from "xlsx";
 import { api } from "../../lib/api/apiClient";
+
+export const ROLES = [
+  { id: 1, key: "customer" },
+  { id: 2, key: "cs_agent" },
+  { id: 3, key: "technician" },
+];
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SERVICE_KEY  = import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY;
 
 const BULK_DEFAULT_PASSWORD = "12345678";
+
+const ROLE_ALIASES = {
+  customer: 1,
+  "1": 1,
+  user: 1,
+  "cs agent": 2,
+  cs_agent: 2,
+  "2": 2,
+  agent: 2,
+  technician: 3,
+  teknisi: 3,
+  "3": 3,
+};
+
+const normalizeText = (value) => String(value ?? "").trim().toLowerCase();
+
+const getCellValue = (row, keys) => {
+  for (const key of keys) {
+    const value = row?.[key];
+    if (value !== undefined && value !== null && String(value).trim() !== "") {
+      return String(value).trim();
+    }
+  }
+  return "";
+};
+
+export const getRoleId = (role) => {
+  const normalized = normalizeText(role);
+  if (!normalized) return null;
+  return ROLE_ALIASES[normalized] ?? null;
+};
+
+export const normalizeRows = (rows) =>
+  (Array.isArray(rows) ? rows : []).map((row) => ({
+    name: getCellValue(row, ["name", "Name", "full_name", "full name", "nama"]),
+    email: getCellValue(row, ["email", "Email", "e-mail", "mail"]),
+    role: getCellValue(row, ["role", "Role", "jabatan", "posisi", "position"]),
+    position: getCellValue(row, ["position", "Position", "jabatan", "posisi"]),
+  }));
+
+export const validateRow = (row) => {
+  const errors = [];
+  const name = normalizeText(row?.name);
+  const email = normalizeText(row?.email);
+  const role = normalizeText(row?.role);
+
+  if (!name) errors.push("Name is required");
+  if (!email) errors.push("Email is required");
+  else if (!/^\S+@\S+\.\S+$/.test(email)) errors.push("Email is invalid");
+
+  if (!role) errors.push("Role is required");
+  else if (!getRoleId(role)) errors.push("Role is invalid");
+
+  return errors;
+};
+
+export const downloadTemplate = () => {
+  const worksheet = XLSX.utils.aoa_to_sheet([
+    ["Name", "Email", "Role", "Position"],
+    ["Jane Doe", "jane@example.com", "cs_agent", "Support Agent"],
+  ]);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
+  XLSX.writeFile(workbook, "user-import-template.xlsx");
+};
 
 // ─── Supabase Admin ───────────────────────────────────────────────────────────
 

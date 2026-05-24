@@ -27,7 +27,10 @@ import AdminDashboardPage from "../modules/dashboard/admin/AdminDashboardPage";
 import AdminTicketSelectorPage from "../modules/ticket/pages/AdminTicketSelectorPage";
 import ActiveTicketPage from "../modules/ticket/pages/admin/ActiveTicketPage";
 import SolvedTicketPage from "../modules/ticket/pages/admin/SolvedTicketPage";
-import AdminUserPerformancePage from "../modules/history/AdminUserPerformancePage";
+import AdminUserPerformancePage from "../modules/performance/pages/AdminUserPerformancePage";
+import CSAgentPerformancePage from "../modules/performance/pages/admin/CSAgentPerformancePage";
+import AdminTechnicianPerformancePage from "../modules/performance/pages/admin/TechnicianPerformancePage";
+import CustomerPerformancePage from "../modules/performance/pages/admin/CustomerPerformancePage";
 import CustomerProfilePage from "../modules/profile/customer/CustomerProfilePage";
 import AgentProfilePage from "../modules/profile/agent/AgentProfilePage";
 import TechnicianProfilePage from "../modules/profile/technician/TechnicianProfilePage";
@@ -199,6 +202,9 @@ export default function Router() {
           <Route path={ROUTE.adminTicketActive} element={<ActiveTicketPage />} />
           <Route path={ROUTE.adminTicketSolved} element={<SolvedTicketPage />} />
           <Route path={ROUTE.adminUserPerformance} element={<AdminUserPerformancePage />} />
+          <Route path={ROUTE.adminPerformanceCsAgent} element={<CSAgentPerformancePage />} />
+          <Route path={ROUTE.adminPerformanceTechnician} element={<AdminTechnicianPerformancePage />} />
+          <Route path={ROUTE.adminPerformanceCustomer} element={<CustomerPerformancePage />} />
           <Route
             path={ROUTE.adminProfile}
             element={<AdminProfilePage />}
