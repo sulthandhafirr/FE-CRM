@@ -11,6 +11,7 @@ import {
   MdCheckCircle,
 } from "react-icons/md";
 import LoadingSpinner from "../../../components/ui/LoadingSpinner";
+import { useAuth } from "../../../hooks/useAuth";
 import {
   getTicketById,
   getAttachmentDownloadUrl,
@@ -28,6 +29,7 @@ export default function AgentTicketViewDetailPage() {
   const navigate = useNavigate();
   const { ticketId } = useParams();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   const [responseText, setResponseText] = useState("");
   const [attachment, setAttachment] = useState(null);
@@ -67,6 +69,12 @@ export default function AgentTicketViewDetailPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["ticket-comments", ticketId] }),
   });
 
+  // ── Permission check ──
+  // ticket.solver berisi nama agent yang assigned, dibandingkan dengan nama user login
+  const isAssignedToMe = ticket?.solverId
+    ? ticket.solverId === user?.id
+    : false;
+
   // ── Handlers ──
   const handleViewAttachment = async (attachmentId) => {
     try {
@@ -83,7 +91,7 @@ export default function AgentTicketViewDetailPage() {
   };
 
   const handleResolveTicket = async () => {
-    if (!ticket) return;
+    if (!ticket || !isAssignedToMe) return;
     if (!window.confirm(t("pages.agentTicketDetail.confirmResolve"))) return;
     try {
       setResolvingTicket(true);
@@ -100,6 +108,7 @@ export default function AgentTicketViewDetailPage() {
 
   const handleSubmitResponse = async (e) => {
     e.preventDefault();
+    if (!isAssignedToMe) return;
     const message = responseText.trim();
     if (!message && !attachment) return;
     try {
@@ -129,7 +138,7 @@ export default function AgentTicketViewDetailPage() {
   };
 
   const handleDispatchTechnician = async () => {
-    if (!selectedTechnician || !ticket) return;
+    if (!selectedTechnician || !ticket || !isAssignedToMe) return;
     try {
       setDispatchingTech(true);
       await updateTicket(ticketId, { technicianId: selectedTechnician.id, status: "Progress" });
@@ -177,7 +186,7 @@ export default function AgentTicketViewDetailPage() {
                 {t("pages.ticketDetail.ticketNumber", { id: ticketId })}
               </div>
               <div>
-                {ticket?.status === "Progress" && (
+                {ticket?.status === "Progress" && isAssignedToMe && (
                   <button
                     onClick={handleResolveTicket}
                     disabled={resolvingTicket}
@@ -254,18 +263,27 @@ export default function AgentTicketViewDetailPage() {
                       <h3 style={{ fontSize: "20px", fontWeight: "700", marginBottom: "14px", color: "#333" }}>
                         {t("pages.ticketDetail.addResponse")}
                       </h3>
+
+                      {/* Not assigned notice */}
+                      {!isAssignedToMe && ticket.status !== "Solved" && (
+                        <div style={{ background: "#fef9ec", border: "1px solid #fde68a", borderRadius: "8px", padding: "10px 14px", marginBottom: "14px", fontSize: "13px", color: "#92400e" }}>
+                          {t("pages.agentTicketDetail.notAssigned", "You are not assigned to this ticket.")}
+                        </div>
+                      )}
+
                       <form onSubmit={handleSubmitResponse}>
                         <textarea
                           rows={4}
                           placeholder={t("pages.ticketDetail.responsePlaceholder")}
                           value={responseText}
                           onChange={(e) => setResponseText(e.target.value)}
-                          style={{ width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid #ddd", resize: "none", fontSize: "14px", outline: "none", marginBottom: "10px", boxSizing: "border-box" }}
+                          disabled={!isAssignedToMe}
+                          style={{ width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid #ddd", resize: "none", fontSize: "14px", outline: "none", marginBottom: "10px", boxSizing: "border-box", background: isAssignedToMe ? "white" : "#f9fafb", cursor: isAssignedToMe ? "text" : "not-allowed", opacity: isAssignedToMe ? 1 : 0.6 }}
                         />
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
-                          <label style={{ color: "#FF8040", fontWeight: "600", cursor: "pointer", display: "flex", alignItems: "center", gap: "5px", fontSize: "14px" }}>
+                          <label style={{ color: isAssignedToMe ? "#FF8040" : "#bbb", fontWeight: "600", cursor: isAssignedToMe ? "pointer" : "not-allowed", display: "flex", alignItems: "center", gap: "5px", fontSize: "14px" }}>
                             <MdAttachFile size={18} /> {t("pages.ticketDetail.attachFile")}
-                            <input type="file" style={{ display: "none" }} onChange={(e) => setAttachment(e.target.files[0] ?? null)} />
+                            <input type="file" style={{ display: "none" }} disabled={!isAssignedToMe} onChange={(e) => setAttachment(e.target.files[0] ?? null)} />
                           </label>
                           {attachment && (
                             <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "13px", color: "#555", background: "#FFF5EF", border: "1px solid #fde4d4", borderRadius: "6px", padding: "4px 10px" }}>
@@ -278,15 +296,16 @@ export default function AgentTicketViewDetailPage() {
                         <div style={{ display: "flex", gap: "12px" }}>
                           <button
                             type="button"
-                            onClick={() => { setShowDispatchPanel(true); setSelectedTechnician(null); setTechnicianSearch(""); }}
-                            style={{ padding: "10px 25px", borderRadius: "8px", border: "2px solid #FF8040", background: "white", color: "#FF8040", fontWeight: "600", cursor: "pointer", fontSize: "14px" }}
+                            disabled={!isAssignedToMe}
+                            onClick={() => { if (isAssignedToMe) { setShowDispatchPanel(true); setSelectedTechnician(null); setTechnicianSearch(""); } }}
+                            style={{ padding: "10px 25px", borderRadius: "8px", border: `2px solid ${isAssignedToMe ? "#FF8040" : "#ddd"}`, background: "white", color: isAssignedToMe ? "#FF8040" : "#bbb", fontWeight: "600", cursor: isAssignedToMe ? "pointer" : "not-allowed", fontSize: "14px" }}
                           >
                             {t("pages.agentTicketDetail.dispatch")}
                           </button>
                           <button
                             type="submit"
-                            disabled={submitting || (!responseText.trim() && !attachment)}
-                            style={{ padding: "10px 30px", borderRadius: "8px", border: "none", background: "#FF8040", color: "white", fontWeight: "600", cursor: submitting || (!responseText.trim() && !attachment) ? "not-allowed" : "pointer", opacity: submitting || (!responseText.trim() && !attachment) ? 0.7 : 1, fontSize: "14px" }}
+                            disabled={!isAssignedToMe || submitting || (!responseText.trim() && !attachment)}
+                            style={{ padding: "10px 30px", borderRadius: "8px", border: "none", background: "#FF8040", color: "white", fontWeight: "600", cursor: (!isAssignedToMe || submitting || (!responseText.trim() && !attachment)) ? "not-allowed" : "pointer", opacity: (!isAssignedToMe || submitting || (!responseText.trim() && !attachment)) ? 0.5 : 1, fontSize: "14px" }}
                           >
                             {submitting ? t("pages.ticketDetail.submitting") : t("pages.ticketDetail.submit")}
                           </button>
@@ -296,7 +315,7 @@ export default function AgentTicketViewDetailPage() {
                   </div>
 
                   {/* ── Right column ── */}
-                  {showDispatchPanel ? (
+                  {showDispatchPanel && isAssignedToMe ? (
                     /* ── Dispatch Panel ── */
                     <div style={{ background: "#fffdfb", borderRadius: "14px", padding: "22px", border: "1px solid #fce6d8" }}>
                       <h3 style={{ fontSize: "18px", fontWeight: "700", marginBottom: "16px", color: "#333" }}>
@@ -313,10 +332,10 @@ export default function AgentTicketViewDetailPage() {
                           onChange={(e) => { setTechnicianSearch(e.target.value); setSelectedTechnician(null); }}
                           style={{ width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid #fde4d4", fontSize: "14px", outline: "none", boxSizing: "border-box" }}
                         />
-                        {technicianSearch && (
-                          <div style={{ border: "1px solid #fde4d4", borderRadius: "8px", marginTop: "4px", background: "white", maxHeight: "160px", overflowY: "auto", boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+                        <div style={{ border: "1px solid #fde4d4", borderRadius: "8px", marginTop: "4px", background: "white", maxHeight: "160px", overflowY: "auto", boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
                             {technicians
                               .filter((tech) =>
+                                !technicianSearch ||
                                 tech.name?.toLowerCase().includes(technicianSearch.toLowerCase()) ||
                                 tech.email?.toLowerCase().includes(technicianSearch.toLowerCase())
                               )
@@ -333,6 +352,7 @@ export default function AgentTicketViewDetailPage() {
                                 </div>
                               ))}
                             {technicians.filter((tech) =>
+                              !technicianSearch ||
                               tech.name?.toLowerCase().includes(technicianSearch.toLowerCase()) ||
                               tech.email?.toLowerCase().includes(technicianSearch.toLowerCase())
                             ).length === 0 && (
@@ -340,8 +360,7 @@ export default function AgentTicketViewDetailPage() {
                                 {t("pages.agentTicketDetail.noTechnicians")}
                               </div>
                             )}
-                          </div>
-                        )}
+                        </div>
                       </div>
                       {selectedTechnician && (
                         <div style={{ background: "#FFF5EF", border: "1px solid #fde4d4", borderRadius: "10px", padding: "14px", marginBottom: "16px" }}>
@@ -433,7 +452,6 @@ export default function AgentTicketViewDetailPage() {
                             return allItems.map((item, index) => {
                               const isLast = index === allItems.length - 1;
 
-                              // ── Created ──
                               if (item._type === "created") return (
                                 <div key="ticket-created" style={{ position: "relative", marginBottom: "18px" }}>
                                   {!isLast && <div style={{ position: "absolute", left: "-20px", top: "22px", bottom: "-20px", width: "2px", background: "#FF8040" }} />}
@@ -450,7 +468,6 @@ export default function AgentTicketViewDetailPage() {
                                 </div>
                               );
 
-                              // ── Resolved ──
                               if (item._type === "resolved") {
                                 const rd = new Date(ticket.resolvedAt);
                                 const rdStr = Number.isNaN(rd.getTime()) ? "-" : rd.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
@@ -471,11 +488,10 @@ export default function AgentTicketViewDetailPage() {
                                 );
                               }
 
-                              // ── Comment ──
                               const commentDate = new Date(item.createdAt);
                               const dateStr = Number.isNaN(commentDate.getTime()) ? "-" : commentDate.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
                               const timeStr = Number.isNaN(commentDate.getTime()) ? "-" : commentDate.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
-                              const isAgentReply = ticket?.solver && item.senderName && item.senderName === ticket.solver;
+                              const isAgentReply = item.senderId && user?.id && item.senderId === user.id;
                               const commentAttachments = attachments.filter((a) => a.commentId === item.id);
 
                               return (
