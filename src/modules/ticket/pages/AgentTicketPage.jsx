@@ -18,23 +18,7 @@ import {
   getAllTickets, deleteTicket,
   takeAction,
 } from "../ticket.service";
-import { getPriorityColor, getStatusColor, formatTicketDate } from "../ticket.schema";
-
-function sortTicketsFn(list, ob, o) {
-  return [...list].sort((a, b) => {
-    let aValue = a[ob];
-    let bValue = b[ob];
-    if (ob === "createdAt") { aValue = new Date(aValue ?? 0).getTime(); bValue = new Date(bValue ?? 0).getTime(); }
-    if (ob === "id") { aValue = Number(aValue); bValue = Number(bValue); }
-    if (aValue == null) aValue = "";
-    if (bValue == null) bValue = "";
-    if (typeof aValue === "string") aValue = aValue.toLowerCase();
-    if (typeof bValue === "string") bValue = bValue.toLowerCase();
-    if (aValue < bValue) return o === "asc" ? -1 : 1;
-    if (aValue > bValue) return o === "asc" ? 1 : -1;
-    return 0;
-  });
-}
+import { sortTickets, getPriorityColor, getStatusColor, formatTicketDate } from "../ticket.schema";
 
 export default function AgentTicketPage() {
   const { t } = useTranslation();
@@ -89,12 +73,12 @@ export default function AgentTicketPage() {
     allTickets.filter((t) => t.id !== ticket.id && t.subject?.trim().toLowerCase() === ticket.subject?.trim().toLowerCase()), []);
 
   const sortedTickets = useMemo(
-    () => sortTicketsFn(tickets.filter((t) => t.status !== "Solved"), orderBy, order),
+    () => sortTickets(tickets.filter((t) => t.status !== "Solved"), orderBy, order),
     [tickets, orderBy, order]
   );
   const sortedDuplicates = useMemo(() => {
     if (!duplicateSource) return [];
-    return sortTicketsFn(getDuplicates(duplicateSource, tickets), dupOrderBy, dupOrder);
+    return sortTickets(getDuplicates(duplicateSource, tickets), dupOrderBy, dupOrder);
   }, [duplicateSource, tickets, dupOrderBy, dupOrder, getDuplicates]);
 
   const safePage = useMemo(

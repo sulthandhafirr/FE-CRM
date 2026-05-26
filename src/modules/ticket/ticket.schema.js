@@ -85,6 +85,22 @@ export const formatFileSize = (sizeInBytes) => {
   return `${(sizeInKb / 1024).toFixed(1)} MB`;
 };
 
+export const sortTickets = (list, orderBy, order) => {
+  return [...list].sort((a, b) => {
+    let aValue = a[orderBy];
+    let bValue = b[orderBy];
+    if (orderBy === "createdAt") { aValue = new Date(aValue ?? 0).getTime(); bValue = new Date(bValue ?? 0).getTime(); }
+    if (orderBy === "id") { aValue = Number(aValue); bValue = Number(bValue); }
+    if (aValue == null) aValue = "";
+    if (bValue == null) bValue = "";
+    if (typeof aValue === "string") aValue = aValue.toLowerCase();
+    if (typeof bValue === "string") bValue = bValue.toLowerCase();
+    if (aValue < bValue) return order === "asc" ? -1 : 1;
+    if (aValue > bValue) return order === "asc" ? 1 : -1;
+    return 0;
+  });
+};
+
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 export const TICKET_STATUS = {
