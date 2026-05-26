@@ -22,6 +22,24 @@
     "ultrauser": "Ultrauser"
   },
   "pages": {
+    "exportData": {
+      "title": "Ekspor Data",
+      "subtitle": "Unduh data sebagai file Excel",
+      "fileName": "Nama File",
+      "selectData": "Pilih Data",
+      "tickets": "Tiket",
+      "users": "Pengguna",
+      "dateRange": "Rentang Tanggal Tiket",
+      "startDate": "Tanggal Mulai",
+      "endDate": "Tanggal Akhir",
+      "download": "Unduh Excel",
+      "exporting": "Mengekspor...",
+      "errors": {
+        "noCompany": "ID Perusahaan tidak ditemukan. Silakan masuk kembali.",
+        "noData": "Tidak ada data untuk filter yang dipilih.",
+        "failed": "Ekspor gagal. Silakan coba lagi."
+      }
+    },
     "addUserForm": {
       "title": "Tambah Pengguna",
       "subtitleSingle": "Isi detail berikut untuk membuat akun pengguna baru",

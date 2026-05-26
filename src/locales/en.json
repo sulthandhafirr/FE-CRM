@@ -22,6 +22,24 @@
     "ultrauser": "Ultrauser"
   },
   "pages": {
+    "exportData": {
+      "title": "Export Data",
+      "subtitle": "Download data as Excel file",
+      "fileName": "File Name",
+      "selectData": "Select Data",
+      "tickets": "Tickets",
+      "users": "Users",
+      "dateRange": "Ticket Date Range",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "download": "Download Excel",
+      "exporting": "Exporting...",
+      "errors": {
+        "noCompany": "Company ID not found. Please re-login.",
+        "noData": "No data found for the selected filters.",
+        "failed": "Export failed. Please try again."
+      }
+    },
     "addUserForm": {
       "title": "Add User",
       "subtitleSingle": "Fill in the details to create a new user account",

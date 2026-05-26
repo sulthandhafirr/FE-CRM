@@ -65,10 +65,10 @@ export default function Sidebar({
         route: ROUTE.agentTicket,
       },
       {
-        key: "Performance",
+        key: "history",
         label: t("nav.performance"),
         icon: MdWorkHistory,
-        route: ROUTE.agentPerformance,
+        route: ROUTE.agentHistory,
       },
     ],
     technician: [
@@ -85,10 +85,10 @@ export default function Sidebar({
         route: ROUTE.technicianTicket,
       },
       {
-        key: "Performance",
+        key: "history",
         label: t("nav.performance"),
         icon: MdWorkHistory,
-        route: ROUTE.technicianPerformance,
+        route: ROUTE.technicianHistory,
       },
     ],
     admin: [

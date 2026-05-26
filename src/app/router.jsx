@@ -7,11 +7,11 @@ import LoginPage from "../modules/auth/login/LoginPage";
 import CustomerDashboardPage from "../modules/dashboard/customer/CustomerDashboardPage";
 import AgentDashboardPage from "../modules/dashboard/agent/AgentDashboardPage";
 import AgentTicketPage from "../modules/ticket/pages/AgentTicketPage";
-import AgentPerformancePage from "../modules/history/AgentPerformancePage";
+import AgentHistoryPage from "../modules/history/AgentHistoryPage";
 import AgentTicketViewDetailPage from "../modules/ticket/components/AgentTicketViewDetailPage";
 import TechnicianDashboardPage from "../modules/dashboard/technician/TechnicianDashboardPage";
 import TechnicianTicketPage from "../modules/ticket/pages/TechnicianTicketPage";
-import TechnicianPerformancePage from "../modules/history/TechnicianPerformancePage";
+import TechnicianHistoryPage from "../modules/history/TechnicianHistoryPage";
 import CustomerTicketPage from "../modules/ticket/pages/CustomerTicketPage";
 import CustomerTicketViewDetailPage from "../modules/ticket/components/CustomerTicketViewDetailPage";
 import CustomerHistoryPage from "../modules/history/CustomerHistoryPage";
@@ -97,7 +97,7 @@ export default function Router() {
         <Route element={<MainLayout />}>
           <Route path={ROUTE.agentDashboard} element={<AgentDashboardPage />} />
           <Route path={ROUTE.agentTicket} element={<AgentTicketPage />} />
-          <Route path={ROUTE.agentPerformance} element={<AgentPerformancePage />}/>
+          <Route path={ROUTE.agentHistory} element={<AgentHistoryPage />}/>
           <Route path={ROUTE.agentProfile} element={<AgentProfilePage />}/>
           <Route path={ROUTE.agentTicketDetail} element={<AgentTicketViewDetailPage />} />
         </Route>
@@ -184,8 +184,8 @@ export default function Router() {
             element={<CustomerTicketViewDetailPage />}
           />
           <Route
-            path={ROUTE.technicianPerformance}
-            element={<TechnicianPerformancePage />}
+            path={ROUTE.technicianHistory}
+            element={<TechnicianHistoryPage />}
           />
           <Route
             path={ROUTE.technicianProfile}
