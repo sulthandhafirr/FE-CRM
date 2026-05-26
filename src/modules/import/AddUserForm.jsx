@@ -8,8 +8,8 @@ import {
   TableHead, TableRow, TextField, Typography,
 } from "@mui/material";
 import * as XLSX from "xlsx";
-import { ROLES, downloadTemplate, createSingleUser, createBulkUser, normalizeRows, validateRow, getRoleId } from "../history.service";
-import LoadingSpinner from "../../../components/ui/LoadingSpinner";
+import { ROLES, downloadTemplate, createSingleUser, createBulkUser, normalizeRows, validateRow, getRoleId } from "./import.service";
+import LoadingSpinner from "../../components/ui/LoadingSpinner";
 
 const INIT_FORM = (roleId) => ({ name: "", email: "", password: "", roleId, position: "" });
 

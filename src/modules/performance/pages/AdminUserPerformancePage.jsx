@@ -25,7 +25,7 @@ import {
   getPriorityColor,
   getStatusColor,
 } from "../../ticket/ticket.schema";
-import AddUserForm from "../../history/components/AddUserForm";
+import AddUserForm from "../../import/AddUserForm";
 
 function sortList(list, orderBy, order) {
   return [...list].sort((a, b) => {
