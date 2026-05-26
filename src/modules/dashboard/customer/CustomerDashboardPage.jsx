@@ -14,10 +14,8 @@ export default function CustomerDashboardPage() {
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["dashboard-stats"],
     queryFn: getDashboardStats,
-    staleTime: 1000 * 60 * 10,
-    gcTime: 1000 * 60 * 15,
+    staleTime: 1000 * 60 * 5, // 5 Minutes
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
   });
 
   return (
