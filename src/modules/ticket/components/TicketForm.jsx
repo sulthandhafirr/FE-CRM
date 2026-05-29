@@ -5,12 +5,8 @@ import {
   Box,
   Button,
   Divider,
-  FormControl,
-  InputLabel,
-  MenuItem,
   Modal,
   Paper,
-  Select,
   Stack,
   TextField,
   Typography,
@@ -31,7 +27,6 @@ export default function TicketForm({ open, onClose }) {
   const [formData, setFormData] = useState({
     subject: "",
     description: "",
-    userPriorityId: "",
     attachments: [],
   });
 
@@ -50,7 +45,6 @@ export default function TicketForm({ open, onClose }) {
       const ticketData = await createTicket({
         subject: formData.subject,
         description: formData.description,
-        userPriorityId: formData.userPriorityId,
       });
       const ticketId = ticketData.ticketId;
 
@@ -89,7 +83,7 @@ export default function TicketForm({ open, onClose }) {
 
       await queryClient.invalidateQueries({ queryKey: ["my-tickets"] });
       alert(t("pages.ticketForm.alerts.created"));
-      setFormData({ subject: "", description: "",userPriorityId: "", attachments: [] });
+      setFormData({ subject: "", description: "", attachments: [] });
       onClose();
     } catch (error) {
       console.error("Submit error:", error);
@@ -205,23 +199,6 @@ export default function TicketForm({ open, onClose }) {
                   }
                   fullWidth
                 />
-                <FormControl fullWidth required>
-                  <InputLabel>
-                    {t("pages.ticketForm.fields.priorityLabel")}
-                  </InputLabel>
-                  <Select
-                    value={formData.userPriorityId}
-                    label={t("pages.ticketForm.fields.priorityLabel")}
-                    onChange={(e) =>
-                      setFormData({ ...formData, userPriorityId: e.target.value })
-                    }
-                  >
-                    <MenuItem value={1}>Low</MenuItem>
-                    <MenuItem value={2}>Normal</MenuItem>
-                    <MenuItem value={3}>High</MenuItem>
-                    <MenuItem value={4}>Critical</MenuItem>
-                  </Select>
-                </FormControl>
                 <Box>
                   <Typography
                     sx={{
