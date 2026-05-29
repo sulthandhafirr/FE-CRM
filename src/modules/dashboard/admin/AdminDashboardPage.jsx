@@ -11,6 +11,8 @@ import { useTranslation } from "react-i18next";
 import ChatBot from "../../../components/ui/ChatBot";
 import { getDashboardStats } from "../dashboard.service";
 import { useAuth } from "../../../hooks/useAuth";
+import TicketStatusDonutChart from "../chart/TicketStatusDonutChart";
+import TicketPriorityDonutChart from "../chart/TicketPriorityDonutChart";
 
 const StatCard = ({ title, value, icon, loading }) => (
   <div
@@ -125,19 +127,13 @@ export default function AdminDashboardPage() {
                 marginBottom: "20px",
               }}
             >
-              {t("pages.dashboard.ticketSolvedByAi")}
+              {t("pages.dashboard.ticketPriority")}
             </div>
-            <div
-              style={{
-                height: "300px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#999",
-                fontSize: "14px",
-              }}
-            >
-              {t("pages.dashboard.lineChartPlaceholder")}
+            <div>
+              <TicketPriorityDonutChart
+                ticketByPriority={stats?.ticketByPriority}
+                loading={statsLoading}
+              />
             </div>
           </div>
 
@@ -160,20 +156,12 @@ export default function AdminDashboardPage() {
                 marginBottom: "20px",
               }}
             >
-              {t("pages.dashboard.ticketPriority")}
+              {t("pages.dashboard.ticketByStatus")}
             </div>
-            <div
-              style={{
-                height: "300px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#999",
-                fontSize: "14px",
-              }}
-            >
-              {t("pages.dashboard.barChartPlaceholder")}
-            </div>
+            <TicketStatusDonutChart
+              ticketByStatus={stats?.ticketByStatus}
+              loading={statsLoading}
+            />
           </div>
         </div>
       </div>
