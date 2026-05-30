@@ -56,6 +56,15 @@ function isSolvedStatus(status) {
   return SOLVED_STATUS_SET.has((status ?? "").toLowerCase());
 }
 
+function getCommentIdFromResponse(result) {
+  return result?.id ?? result?.commentId ?? result?.comment_id ?? null;
+}
+
+function toTimeMs(value) {
+  const ts = new Date(value ?? "").getTime();
+  return Number.isNaN(ts) ? null : ts;
+}
+
 function InlineDropdown({ value, options, onSelect, colorFn, disabled = false }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -508,7 +517,7 @@ export function AdminTicketListPage({ mode = "active" }) {
 
       if (message) {
         const result = await submitComment(message);
-        newCommentId = result?.id ?? null;
+        newCommentId = getCommentIdFromResponse(result);
       }
 
       if (attachment) {
@@ -1089,6 +1098,7 @@ export function AdminTicketListPage({ mode = "active" }) {
                         {(() => {
                           const attachments = selectedTicket?.attachments ?? [];
                           const createdDate = new Date(selectedTicket?.createdAt);
+                          const ticketCreatedAtMs = toTimeMs(selectedTicket?.createdAt);
                           const createdDateStr = Number.isNaN(createdDate.getTime())
                             ? "-"
                             : createdDate.toLocaleDateString("en-GB", {
@@ -1102,7 +1112,72 @@ export function AdminTicketListPage({ mode = "active" }) {
                                 hour: "2-digit",
                                 minute: "2-digit",
                               });
-                          const ticketLevelAttachments = attachments.filter((a) => !a.commentId);
+                          const attachmentsByCommentId = new Map();
+                          comments.forEach((comment) => {
+                            const commentKey = String(comment.id);
+                            attachmentsByCommentId.set(commentKey, []);
+                          });
+
+                          const ticketLevelAttachments = [];
+                          const orphanAttachments = [];
+
+                          attachments.forEach((attachment) => {
+                            if (attachment.commentId != null) {
+                              const commentKey = String(attachment.commentId);
+                              const current = attachmentsByCommentId.get(commentKey) ?? [];
+                              attachmentsByCommentId.set(commentKey, [...current, attachment]);
+                              return;
+                            }
+                            orphanAttachments.push(attachment);
+                          });
+
+                          orphanAttachments.forEach((attachment) => {
+                            const attachmentAtMs = toTimeMs(
+                              attachment.createdAt ?? attachment.uploadedAt ?? attachment.updatedAt,
+                            );
+
+                            if (
+                              attachmentAtMs != null &&
+                              ticketCreatedAtMs != null &&
+                              Math.abs(attachmentAtMs - ticketCreatedAtMs) <= 2 * 60 * 1000
+                            ) {
+                              ticketLevelAttachments.push(attachment);
+                              return;
+                            }
+
+                            let targetComment = null;
+
+                            if (attachmentAtMs != null) {
+                              let bestDistance = Number.POSITIVE_INFINITY;
+                              comments.forEach((comment) => {
+                                const commentAtMs = toTimeMs(comment.createdAt);
+                                if (commentAtMs == null) return;
+                                const distance = Math.abs(commentAtMs - attachmentAtMs);
+                                if (distance < bestDistance) {
+                                  bestDistance = distance;
+                                  targetComment = comment;
+                                }
+                              });
+
+                              if (bestDistance > 10 * 60 * 1000) {
+                                targetComment = null;
+                              }
+                            }
+
+                            if (!targetComment && comments.length > 0) {
+                              targetComment = comments[comments.length - 1];
+                            }
+
+                            if (targetComment) {
+                              const key = String(targetComment.id);
+                              const current = attachmentsByCommentId.get(key) ?? [];
+                              attachmentsByCommentId.set(key, [...current, attachment]);
+                              return;
+                            }
+
+                            ticketLevelAttachments.push(attachment);
+                          });
+
                           const allItems = [
                             { _type: "created" },
                             ...comments.map((c) => ({ _type: "comment", ...c })),
@@ -1311,9 +1386,7 @@ export function AdminTicketListPage({ mode = "active" }) {
                               selectedTicket?.solver &&
                               item.senderName &&
                               item.senderName === selectedTicket.solver;
-                            const commentAttachments = attachments.filter(
-                              (a) => a.commentId === item.id,
-                            );
+                            const commentAttachments = attachmentsByCommentId.get(String(item.id)) ?? [];
 
                             return (
                               <div key={item.id ?? index} style={{ position: "relative", marginBottom: "18px" }}>
