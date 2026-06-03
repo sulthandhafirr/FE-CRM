@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import ChatBot from "../../../components/ui/ChatBot";
 import { getDashboardStats } from "../dashboard.service";
 import { useAuth } from "../../../hooks/useAuth";
+import TicketPriorityDonutChart from "../chart/TicketPriorityDonutChart";
 
 const StatCard = ({ title, value, icon, loading }) => (
   <div
@@ -59,7 +60,14 @@ export default function TechnicianDashboardPage() {
           '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
     >
-      <div style={{ padding: "30px", paddingTop: "15px", flex: 1, overflowY: "auto" }}>
+      <div
+        style={{
+          padding: "30px",
+          paddingTop: "15px",
+          flex: 1,
+          overflowY: "auto",
+        }}
+      >
         {/* Welcome Message */}
         <div style={{ marginBottom: "20px" }}>
           <div style={{ fontSize: "24px", fontWeight: "700", color: "#333" }}>
@@ -113,23 +121,17 @@ export default function TechnicianDashboardPage() {
                 marginBottom: "20px",
               }}
             >
-              {t("pages.dashboard.ticketSolvedByAi")}
+              {t("pages.dashboard.ticketPriority")}
             </div>
-            <div
-              style={{
-                height: "300px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#999",
-                fontSize: "14px",
-              }}
-            >
-              {t("pages.dashboard.lineChartPlaceholder")}
+            <div>
+              <TicketPriorityDonutChart
+                ticketByPriority={stats?.ticketByPriority}
+                loading={statsLoading}
+              />
             </div>
           </div>
 
-          <div
+          {/* <div
             style={{
               flex: 1,
               background: "white",
@@ -162,7 +164,7 @@ export default function TechnicianDashboardPage() {
             >
               {t("pages.dashboard.barChartPlaceholder")}
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 
