@@ -358,6 +358,7 @@
       "techName": "Nama",
       "techPosition": "Posisi",
       "techEmail": "Email",
+      "techSkills": "Keahlian",
       "cancel": "Batal",
       "dispatching": "Menugaskan...",
       "ticketCreated": "Tiket dibuat",

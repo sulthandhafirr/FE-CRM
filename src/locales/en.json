@@ -358,6 +358,7 @@
       "techName": "Name",
       "techPosition": "Position",
       "techEmail": "Email",
+      "techSkills": "Skills",
       "cancel": "Cancel",
       "dispatching": "Dispatching...",
       "ticketCreated": "Ticket created",

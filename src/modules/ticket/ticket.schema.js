@@ -101,6 +101,11 @@ export const sortTickets = (list, orderBy, order) => {
   });
 };
 
+export const formatTechnicianSkills = (skills) => {
+  if (!Array.isArray(skills) || skills.length === 0) return "-";
+  return skills.join(", ");
+};
+
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 export const TICKET_STATUS = {

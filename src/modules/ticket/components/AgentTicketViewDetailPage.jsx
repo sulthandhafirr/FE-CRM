@@ -22,7 +22,7 @@ import {
   updateTicket,
   getTechnicians,
 } from "../ticket.service";
-import { getPriorityColor, getStatusColor, formatTicketDate } from "../ticket.schema";
+import { getPriorityColor, getStatusColor, formatTicketDate, formatTechnicianSkills } from "../ticket.schema";
 
 export default function AgentTicketViewDetailPage() {
   const { t } = useTranslation();
@@ -368,6 +368,7 @@ export default function AgentTicketViewDetailPage() {
                             { label: t("pages.agentTicketDetail.techName"), value: selectedTechnician.name },
                             { label: t("pages.agentTicketDetail.techPosition"), value: selectedTechnician.position ?? "-" },
                             { label: t("pages.agentTicketDetail.techEmail"), value: selectedTechnician.email },
+                            { label: t("pages.agentTicketDetail.techSkills"), value: formatTechnicianSkills(selectedTechnician.skills) },
                           ].map(({ label, value }) => (
                             <div key={label} style={{ display: "flex", gap: "10px", marginBottom: "8px", fontSize: "13px" }}>
                               <span style={{ color: "#FF8040", fontWeight: "600", minWidth: "60px" }}>{label}:</span>
