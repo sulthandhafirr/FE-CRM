@@ -194,7 +194,7 @@ export default function CustomerDashboardPage() {
         </div>
 
         {/* Charts Row */}
-        <div style={{ display: "flex" }} className="chart-row-responsive">
+        {/* <div style={{ display: "flex" }} className="chart-row-responsive">
           <div
             className="chart-card-mobile"
             style={{
@@ -262,7 +262,7 @@ export default function CustomerDashboardPage() {
               {t("pages.dashboard.barChartPlaceholder")}
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Floating Chat Button */}
