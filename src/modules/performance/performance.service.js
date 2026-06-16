@@ -28,3 +28,20 @@ export const getUserDetail = async (userId) => {
   const { data } = await api.get(`/api/users/${userId}`);
   return data;
 };
+
+// GET /api/tiers — fetch all available tiers for dropdown
+export const getAllTiers = async () => {
+  const { data } = await api.get("/api/tiers");
+  return data; // [{ id, tierName }, ...]
+};
+ 
+// PUT /api/tiers/profile/:profileId — assign/replace a customer's tier
+export const setProfileTier = async (profileId, tierId) => {
+  const { data } = await api.put(`/api/tiers/profile/${profileId}`, { tierId });
+  return data;
+};
+ 
+// DELETE /api/tiers/profile/:profileId — remove tier from a customer
+export const removeProfileTier = async (profileId) => {
+  await api.delete(`/api/tiers/profile/${profileId}`);
+};
