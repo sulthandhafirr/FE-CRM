@@ -46,7 +46,7 @@ import {
 } from "../../ticket.schema";
 
 const STATUS_OPTIONS = ["Waiting", "Progress", "Solved"];
-const PRIORITY_OPTIONS = ["Low", "Normal", "High"]; //critical removed
+const PRIORITY_OPTIONS = ["Low", "Normal", "High", "critical"];
 const CS_AGENT_ROLE_ID = 2;
 
 const ACTIVE_STATUS_SET = new Set(["active", "waiting", "progress"]);
