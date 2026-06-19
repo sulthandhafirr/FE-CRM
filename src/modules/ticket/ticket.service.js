@@ -171,3 +171,9 @@ export const getTechnicians = async () => {
   const response = await api.get("/api/tickets/technicians");
   return response.data;
 };
+
+// ticket recommendation AI
+export const getTicketRecommendation = async () => {
+  const response = await api.get(`/api/recommendations`);
+  return response.data;
+};

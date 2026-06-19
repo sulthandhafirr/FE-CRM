@@ -430,6 +430,13 @@
         "deleteSome": "Failed to delete some tickets.",
         "deleteAll": "Failed to delete all duplicates.",
         "submitResponse": "Failed to submit response."
+      },
+      "recommended": {
+        "title": "Recommended for you",
+        "subtitle": "Based on your workload & impact",
+        "waiting": "Waiting {{hours}} hours",
+        "scoreImpact": "Score impact",
+        "disclaimer": "Score impact estimates the boost to your performance ranking if resolved within SLA"
       }
     },
     "adminTicket": {

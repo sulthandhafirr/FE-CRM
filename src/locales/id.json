@@ -430,6 +430,13 @@
         "deleteSome": "Gagal menghapus beberapa tiket.",
         "deleteAll": "Gagal menghapus semua duplikat.",
         "submitResponse": "Gagal mengirim respons."
+      },
+      "recommended": {
+        "title": "Direkomendasikan untukmu",
+        "subtitle": "Berdasarkan beban kerja & dampaknya",
+        "waiting": "Menunggu {{hours}} jam",
+        "scoreImpact": "Dampak skor",
+        "disclaimer": "Dampak skor memperkirakan kenaikan ranking performa jika tiket diselesaikan sesuai SLA"
       }
     },
     "adminTicket": {

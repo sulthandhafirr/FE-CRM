@@ -14,6 +14,7 @@ import {
 import ChatBot from "../../../components/ui/ChatBot";
 import SearchBar from "../../../components/ui/SearchBar";
 import LoadingSpinner from "../../../components/ui/LoadingSpinner";
+import TicketRecommendation from "../components/TicketRecommendation";
 import {
   getAllTickets, deleteTicket,
   takeAction,
@@ -376,6 +377,10 @@ export default function AgentTicketPage() {
         {/* ── MAIN LIST VIEW ── */}
         {currentPage === "list" && (
           <>
+            <TicketRecommendation 
+              onTakeAction={(ticketId) => handleTakeAction({ id: ticketId })} 
+              onDetail={(ticketId) => openTicketDetail({ id: ticketId })}
+            />
             <div style={{ fontSize: "28px", fontWeight: "700", marginBottom: "25px", color: "#333" }}>
               {t("pages.agentTicket.listOfTickets")} <span style={{ color: "#FF8040" }}>• {sortedTickets.length}</span>
             </div>
