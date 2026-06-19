@@ -3,8 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import {
   MdAvTimer,
   MdChat,
-  MdOutlineAvTimer,
-  MdOutlineWatch,
   MdOutlineWatchLater,
   MdPeople,
   MdSupportAgent,
@@ -13,6 +11,7 @@ import { useTranslation } from "react-i18next";
 import ChatBot from "../../../components/ui/ChatBot";
 import { getDashboardStats } from "../dashboard.service";
 import { formatDuration } from "../../ticket/ticket.schema";
+import AgentLeaderboard from "./components/AgentLeaderboard";
 import TicketStatusDonutChart from "../chart/TicketStatusDonutChart";
 import TicketPriorityDonutChart from "../chart/TicketPriorityDonutChart";
 import { useAuth } from "../../../hooks/useAuth";
@@ -70,7 +69,14 @@ export default function AgentDashboardPage() {
           '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
     >
-      <div style={{ padding: "30px", paddingTop: "15px", flex: 1, overflowY: "auto" }}>
+      <div
+        style={{
+          padding: "30px",
+          paddingTop: "15px",
+          flex: 1,
+          overflowY: "auto",
+        }}
+      >
         {/* Welcome Message */}
         <div style={{ marginBottom: "20px" }}>
           <div style={{ fontSize: "24px", fontWeight: "700", color: "#333" }}>
@@ -129,62 +135,86 @@ export default function AgentDashboardPage() {
           {/* <div style={{ flex: 1 }} /> */}
         </div>
 
-        {/* Charts Row */}
-        <div style={{ display: "flex", gap: "20px" }}>
-          <div
-            style={{
-              flex: 2,
-              background: "white",
-              padding: "25px",
-              borderRadius: "12px",
-              border: "2px solid #FF8040",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-              minHeight: "400px",
-            }}
-          >
-            <div
-              style={{
-                fontSize: "18px",
-                fontWeight: "600",
-                color: "#333",
-                marginBottom: "20px",
-              }}
-            >
-              {t("pages.dashboard.ticketPriority")}
-            </div>
-            <div>
-              <TicketPriorityDonutChart
-                ticketByPriority={stats?.ticketByPriority}
-                loading={statsLoading}
-              />
-            </div>
+        {/* Leaderboard + Charts Row */}
+        <div
+          style={{
+            display: "flex",
+            gap: "20px",
+            alignItems: "stretch",
+            minWidth: 0,
+          }}
+        >
+          <div style={{ flex: 1.2, display: "flex", minWidth: 0 }}>
+            <AgentLeaderboard />
           </div>
 
           <div
             style={{
               flex: 1,
-              background: "white",
-              padding: "25px",
-              borderRadius: "12px",
-              border: "2px solid #FF8040",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-              minHeight: "400px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "20px",
+              minWidth: 0,
             }}
           >
             <div
               style={{
-                fontSize: "18px",
-                fontWeight: "600",
-                color: "#333",
-                marginBottom: "20px",
+                background: "white",
+                padding: "25px",
+                borderRadius: "12px",
+                border: "2px solid #FF8040",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                minHeight: "300px",
+                flex: 1,
+                width: "100%",
+                minWidth: 0,
+                overflow: "hidden",
               }}
             >
-              {t("pages.dashboard.ticketByStatus")}
+              <div
+                style={{
+                  fontSize: "18px",
+                  fontWeight: "600",
+                  color: "#333",
+                  marginBottom: "20px",
+                }}
+              >
+                {t("pages.dashboard.ticketByStatus")}
+              </div>
+              <TicketStatusDonutChart
+                ticketByStatus={stats?.ticketByStatus}
+                loading={statsLoading}
+              />
             </div>
-            <TicketStatusDonutChart
-              ticketByStatus={stats?.ticketByStatus}
-              loading={statsLoading}
-            />
+            <div
+              style={{
+                background: "white",
+                padding: "25px",
+                borderRadius: "12px",
+                border: "2px solid #FF8040",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                minHeight: "300px",
+                flex: 1,
+                width: "100%",
+                minWidth: 0,
+                overflow: "hidden",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "18px",
+                  fontWeight: "600",
+                  color: "#333",
+                  marginBottom: "20px",
+                }}
+              >
+                {t("pages.dashboard.ticketPriority")}
+              </div>
+              <TicketPriorityDonutChart
+                ticketByPriority={stats?.ticketByPriority}
+                loading={statsLoading}
+              />
+            </div>
           </div>
         </div>
       </div>

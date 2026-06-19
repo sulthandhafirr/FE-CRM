@@ -4,7 +4,10 @@ import { useTranslation } from "react-i18next";
 const PRIORITY_ORDER = ["low", "normal", "high", "critical"];
 const PRIORITY_COLORS = ["#42A5F5", "#2E7D32", "#FF9800", "#D32F2F"];
 
-export default function TicketPriorityDonutChart({ ticketByPriority, loading }) {
+export default function TicketPriorityDonutChart({
+  ticketByPriority,
+  loading,
+}) {
   const { t } = useTranslation();
 
   const series = PRIORITY_ORDER.map((priority) =>
@@ -55,6 +58,9 @@ export default function TicketPriorityDonutChart({ ticketByPriority, loading }) 
     chart: {
       type: "donut",
       toolbar: { show: false },
+      redrawOnParentResize: true,
+      redrawOnWindowResize: true,
+      parentHeightOffset: 0,
     },
     labels,
     colors: PRIORITY_COLORS,
@@ -102,5 +108,13 @@ export default function TicketPriorityDonutChart({ ticketByPriority, loading }) 
     },
   };
 
-  return <Chart options={options} series={series} type="donut" height={300} />;
+  return (
+    <Chart
+      options={options}
+      series={series}
+      type="donut"
+      height={300}
+      width="100%"
+    />
+  );
 }

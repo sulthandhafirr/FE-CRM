@@ -10,3 +10,9 @@ export const getDashboardStats = async () => {
   const { data } = await api.get("/api/dashboard/stats");
   return data;
 };
+
+// GET /api/rank/agents-rank — cs_agent/admin only
+export const getAgentsRank = async () => {
+  const { data } = await api.get("/api/rank/agents-rank");
+  return data;
+};

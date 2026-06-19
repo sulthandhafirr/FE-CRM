@@ -55,6 +55,9 @@ export default function TicketStatusDonutChart({ ticketByStatus, loading }) {
     chart: {
       type: "donut",
       toolbar: { show: false },
+      redrawOnParentResize: true,
+      redrawOnWindowResize: true,
+      parentHeightOffset: 0,
     },
     labels,
     colors: STATUS_COLORS,
@@ -102,5 +105,13 @@ export default function TicketStatusDonutChart({ ticketByStatus, loading }) {
     },
   };
 
-  return <Chart options={options} series={series} type="donut" height={300} />;
+  return (
+    <Chart
+      options={options}
+      series={series}
+      type="donut"
+      height={300}
+      width="100%"
+    />
+  );
 }
