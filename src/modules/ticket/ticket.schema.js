@@ -16,7 +16,7 @@ export const getStatusColor = (status) => {
 
 export const getPriorityColor = (priority) => {
   switch (priority) {
-    case "Crucial":
+    case "Critical":
       return "#dc2626";
     case "High":
       return "#ea580c";
