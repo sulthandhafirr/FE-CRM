@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { MdClose, MdSend } from 'react-icons/md';
 import { FaRobot, FaUser } from 'react-icons/fa';
+import { api } from '../../lib/api/apiClient';
 
-const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:5260'}/api/chat`;
 
 export default function ChatBot({ isOpen, onClose }) {
   const [messages, setMessages] = useState([
@@ -40,29 +40,12 @@ export default function ChatBot({ isOpen, onClose }) {
           content: msg.text
         }));
 
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: inputMessage,
-          history: history
-        })
+      const response = await api.post('/api/chat', {
+        message: inputMessage,
+        history: history
       });
 
-      const data = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        const errorMessage = {
-          id: messages.length + 2,
-          type: 'bot',
-          text: `Error: ${data.error || `HTTP ${response.status}`}`,
-          timestamp: new Date()
-        };
-        setMessages(prev => [...prev, errorMessage]);
-        return;
-      }
+      const data = response.data;
 
       if (data.success) {
         const botMessage = {
@@ -85,7 +68,7 @@ export default function ChatBot({ isOpen, onClose }) {
       const errorMessage = {
         id: messages.length + 2,
         type: 'bot',
-        text: 'Sorry, I\'m having trouble connecting to the server. Please try again later.',
+        text: `Error: ${error.response?.data?.error || 'Sorry, I\'m having trouble connecting to the server. Please try again later.'}`,
         timestamp: new Date()
       };
       setMessages(prev => [...prev, errorMessage]);
@@ -216,7 +199,8 @@ export default function ChatBot({ isOpen, onClose }) {
               borderRadius: message.type === 'bot' ? '12px 12px 12px 4px' : '12px 12px 4px 12px',
               boxShadow: '0 2px 4px rgba(0,0,0,0.08)',
               fontSize: '14px',
-              lineHeight: '1.5'
+              lineHeight: '1.5',
+              whiteSpace: 'pre-line'
             }}>
               {message.text}
               <div style={{
