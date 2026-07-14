@@ -31,6 +31,13 @@ import AdminUserPerformancePage from "../modules/performance/pages/AdminUserPerf
 import CSAgentPerformancePage from "../modules/performance/pages/admin/CSAgentPerformancePage";
 import AdminTechnicianPerformancePage from "../modules/performance/pages/admin/TechnicianPerformancePage";
 import CustomerPerformancePage from "../modules/performance/pages/admin/CustomerPerformancePage";
+import GeneralSetupDashboardPage from "../modules/gsetup/pages/GeneralSetupDashboardPage";
+import IntentManagementPage from "../modules/gsetup/pages/IntentManagementPage";
+import UrgencyManagementPage from "../modules/gsetup/pages/UrgencyManagementPage";
+import TicketStatusPage from "../modules/gsetup/pages/TicketStatusPage";
+import SlaRulesPage from "../modules/gsetup/pages/SlaRulesPage";
+import RoleManagementPage from "../modules/gsetup/pages/RoleManagementPage";
+import CompanySettingsPage from "../modules/gsetup/pages/CompanySettingsPage";
 import CustomerProfilePage from "../modules/profile/customer/CustomerProfilePage";
 import AgentProfilePage from "../modules/profile/agent/AgentProfilePage";
 import TechnicianProfilePage from "../modules/profile/technician/TechnicianProfilePage";
@@ -202,6 +209,13 @@ export default function Router() {
           <Route path={ROUTE.adminTicketActive} element={<ActiveTicketPage />} />
           <Route path={ROUTE.adminTicketSolved} element={<SolvedTicketPage />} />
           <Route path={ROUTE.adminUserPerformance} element={<AdminUserPerformancePage />} />
+          <Route path={ROUTE.adminGeneralSetup} element={<GeneralSetupDashboardPage />} />
+          <Route path={ROUTE.adminGeneralSetupIntents} element={<IntentManagementPage />} />
+          <Route path={ROUTE.adminGeneralSetupUrgency} element={<UrgencyManagementPage />} />
+          <Route path={ROUTE.adminGeneralSetupTicketStatus} element={<TicketStatusPage />} />
+          <Route path={ROUTE.adminGeneralSetupSla} element={<SlaRulesPage />} />
+          <Route path={ROUTE.adminGeneralSetupRoles} element={<RoleManagementPage />} />
+          <Route path={ROUTE.adminGeneralSetupCompany} element={<CompanySettingsPage />} />
           <Route path={ROUTE.adminPerformanceCsAgent} element={<CSAgentPerformancePage />} />
           <Route path={ROUTE.adminPerformanceTechnician} element={<AdminTechnicianPerformancePage />} />
           <Route path={ROUTE.adminPerformanceCustomer} element={<CustomerPerformancePage />} />

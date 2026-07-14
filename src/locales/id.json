@@ -5,6 +5,7 @@
     "history": "Riwayat",
     "performance": "Performa",
     "userperformance": "Pengguna",
+    "generalSetup": "Pengaturan Umum",
     "menu": "Menu (ultrauser)",
     "changeRole": "Ubah Peran",
     "profile": "Profil"
@@ -140,7 +141,8 @@
     "comingSoon": {
       "message": "Halaman ini sedang dikembangkan.",
       "technicianTicketView": "Tampilan Tiket Teknisi",
-      "adminTicketView": "Tampilan Tiket Admin"
+      "adminTicketView": "Tampilan Tiket Admin",
+      "generalSetup": "Pengaturan Umum"
     },
     "notificationBell": {
       "title": "Notifikasi",

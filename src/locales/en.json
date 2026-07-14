@@ -5,6 +5,7 @@
     "history": "History",
     "performance": "Performance",
     "userperformance": "Users",
+    "generalSetup": "General Setup",
     "menu": "Menu (ultrauser)",
     "changeRole": "Change Role",
     "profile": "Profile"
@@ -140,7 +141,8 @@
     "comingSoon": {
       "message": "This view is under construction.",
       "technicianTicketView": "Technician Ticket View",
-      "adminTicketView": "Admin Ticket View"
+      "adminTicketView": "Admin Ticket View",
+      "generalSetup": "General Setup"
     },
     "notificationBell": {
       "title": "Notifications",

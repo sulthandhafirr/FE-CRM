@@ -13,6 +13,7 @@ import {
   MdSwitchAccount,
   MdWorkHistory,
   MdGroup,
+  MdSettings,
 } from "react-icons/md";
 import { supabase } from "../lib/supabase";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
@@ -105,10 +106,16 @@ export default function Sidebar({
         route: ROUTE.adminTicket,
       },
       {
-        key: "user performance",
+        key: "users",
         label: t("nav.userperformance"),
         icon: MdGroup,
         route: ROUTE.adminUserPerformance,
+      },
+      {
+        key: "general-setup",
+        label: t("nav.generalSetup"),
+        icon: MdSettings,
+        route: ROUTE.adminGeneralSetup,
       },
     ],
     ultrauser: [

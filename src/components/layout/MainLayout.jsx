@@ -1,12 +1,27 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "../Sidebar";
 import LanguageToggle from "../ui/LanguageToggle";
 import NotificationBell from "../../modules/notification/NotificationBell";
 import ExportData from "../../modules/export/ExportData";
 import BottomNav from "../ui/BottomNav";
+import CompanyIdentity from "../ui/CompanyIdentity";
+import RealtimeClock from "../ui/RealtimeClock";
+import SystemStatus from "../ui/SystemStatus";
+import UserMenu from "../ui/UserMenu";
 import { ROUTE } from "../../app/routes";
 import { useAuth } from "../../hooks/useAuth";
+
+const Divider = () => (
+  <div
+    style={{
+      width: "1px",
+      height: "32px",
+      background: "#E7E9EE",
+      flexShrink: 0,
+    }}
+  />
+);
 
 const routeToMenuKey = {
   [ROUTE.customerDashboard]: "dashboard",
@@ -14,15 +29,26 @@ const routeToMenuKey = {
   [ROUTE.customerHistory]: "history",
   [ROUTE.agentDashboard]: "dashboard",
   [ROUTE.agentTicket]: "ticket",
+  [ROUTE.adminDashboard]: "dashboard",
+  [ROUTE.adminTicket]: "ticket",
+  [ROUTE.adminUserPerformance]: "users",
+  [ROUTE.adminGeneralSetup]: "general-setup",
+};
+
+const resolveMenuKey = (pathname) => {
+  if (pathname.startsWith(ROUTE.adminGeneralSetup)) return "general-setup";
+  return routeToMenuKey[pathname] || "dashboard";
 };
 
 export default function MainLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
-  const [activeMenu, setActiveMenu] = useState(
-    routeToMenuKey[location.pathname] || "dashboard",
-  );
+  const [activeMenu, setActiveMenu] = useState(resolveMenuKey(location.pathname));
   const { role } = useAuth();
+
+  useEffect(() => {
+    setActiveMenu(resolveMenuKey(location.pathname));
+  }, [location.pathname]);
 
   return (
     <div style={{ display: "flex", height: "100vh", background: "#f5f5f5" }}>
@@ -69,14 +95,40 @@ export default function MainLayout() {
       <main>
         {/* TopBar */}
         <div style={{
-          display: "flex", justifyContent: "flex-end", alignItems: "center",
-          gap: "4px", padding: "12px 20px",
-          borderBottom: "1px solid #e5e7eb", background: "#ffffff",
-          position: "sticky", top: 0, zIndex: 50,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "8px 20px",
+          borderBottom: "1px solid #E7E9EE",
+          background: "#ffffff",
+          position: "sticky",
+          top: 0,
+          zIndex: 50,
+          minHeight: "56px",
         }}>
-          {role === "admin" && <ExportData />}
-          <NotificationBell />
-          <LanguageToggle />
+          {/* Left: Company Identity */}
+          <CompanyIdentity />
+
+          {/* Right: Clock, Notifications, Lang, Export, User */}
+          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            <RealtimeClock />
+
+            <Divider />
+
+            <LanguageToggle />
+
+            <Divider />
+
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <SystemStatus userRole={role} />
+              {role === "admin" && <ExportData />}
+              <NotificationBell />
+            </div>
+
+            <Divider />
+
+            <UserMenu />
+          </div>
         </div>
         <Outlet />
       </main>
