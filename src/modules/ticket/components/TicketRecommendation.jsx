@@ -184,7 +184,7 @@ if (recommendations.length === 0) return null;
           alignItems: "center",
           gap: "6px",
           marginTop: "10px",
-          color: "#bbb",
+          color: "#999",
           fontSize: "11px",
         }}
       >
