@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "../Sidebar";
 import LanguageToggle from "../ui/LanguageToggle";
@@ -29,10 +29,14 @@ const routeToMenuKey = {
   [ROUTE.customerHistory]: "history",
   [ROUTE.agentDashboard]: "dashboard",
   [ROUTE.agentTicket]: "ticket",
+  [ROUTE.agentHistory]: "history",
   [ROUTE.adminDashboard]: "dashboard",
   [ROUTE.adminTicket]: "ticket",
   [ROUTE.adminUserPerformance]: "users",
   [ROUTE.adminGeneralSetup]: "general-setup",
+  [ROUTE.technicianDashboard]: "dashboard",
+  [ROUTE.technicianTicket]: "ticket",
+  [ROUTE.technicianHistory]: "history",
 };
 
 const resolveMenuKey = (pathname) => {
@@ -43,12 +47,9 @@ const resolveMenuKey = (pathname) => {
 export default function MainLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
-  const [activeMenu, setActiveMenu] = useState(resolveMenuKey(location.pathname));
+  const activeMenu = resolveMenuKey(location.pathname);
+  const setActiveMenu = () => {};
   const { role } = useAuth();
-
-  useEffect(() => {
-    setActiveMenu(resolveMenuKey(location.pathname));
-  }, [location.pathname]);
 
   return (
     <div style={{ display: "flex", height: "100vh", background: "#f5f5f5" }}>
