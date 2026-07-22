@@ -1,3 +1,5 @@
+import { api } from "../../lib/api/apiClient";
+
 const STORAGE_KEY = "crm-general-setup-v1";
 
 export const PRIORITY_OPTIONS = ["Low", "Medium", "High", "Critical"];
@@ -31,10 +33,6 @@ export const TIMEZONE_OPTIONS = [
   "Europe/London",
   "America/New_York",
 ];
-
-export const LANGUAGE_OPTIONS = ["English", "Bahasa Indonesia"];
-
-export const CURRENCY_OPTIONS = ["USD", "IDR", "SGD", "EUR"];
 
 export const DATE_FORMAT_OPTIONS = [
   "YYYY-MM-DD",
@@ -259,8 +257,6 @@ const DEFAULT_GENERAL_SETUP = {
     workingHoursStart: "09:00",
     workingHoursEnd: "18:00",
     ticketNumberFormat: "TKT-{YYYY}-{0001}",
-    language: "English",
-    currency: "USD",
     dateFormat: "YYYY-MM-DD",
   },
 };
@@ -288,6 +284,57 @@ const SETTINGS_SECTIONS = [
   "roleManagement",
   "companySettings",
 ];
+
+/** Normalise company settings snake_case response → camelCase for internal state */
+function mapApiResponseToCompanySettings(apiData) {
+  return {
+    companyName: apiData.companyName ?? "",
+    supportEmail: apiData.supportEmail ?? "",
+    phoneNumber: apiData.phoneNumber ?? "",
+    timezone: apiData.timezone ?? "Asia/Jakarta",
+    workingDays: apiData.workingDays ?? ["Mon", "Tue", "Wed", "Thu", "Fri"],
+    workingHoursStart: apiData.workingHoursStart ?? "09:00",
+    workingHoursEnd: apiData.workingHoursEnd ?? "18:00",
+    ticketNumberFormat: apiData.ticketNumberFormat ?? "TKT-{YYYY}-{0001}",
+    dateFormat: apiData.dateFormat ?? "YYYY-MM-DD",
+    logoDataUrl: apiData.logoUrl ?? "",
+  };
+}
+
+export async function fetchCompanySettingsFromApi() {
+  try {
+    const { data } = await api.get("/api/company/settings");
+    return mapApiResponseToCompanySettings(data);
+  } catch {
+    return null;
+  }
+}
+
+export async function saveCompanySettingsToApi(companySettings) {
+  const payload = {
+    companyName: companySettings.companyName,
+    supportEmail: companySettings.supportEmail,
+    phoneNumber: companySettings.phoneNumber,
+    timezone: companySettings.timezone,
+    workingDays: companySettings.workingDays,
+    workingHoursStart: companySettings.workingHoursStart,
+    workingHoursEnd: companySettings.workingHoursEnd,
+    ticketNumberFormat: companySettings.ticketNumberFormat,
+    dateFormat: companySettings.dateFormat,
+    logoUrl: companySettings.logoDataUrl || "",
+  };
+  const { data } = await api.put("/api/company/settings", payload);
+  return mapApiResponseToCompanySettings(data);
+}
+
+export async function uploadCompanyLogo(file) {
+  const formData = new FormData();
+  formData.append("file", file);
+  const { data } = await api.post("/api/company/settings/logo", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return data.logoUrl;
+}
 
 export function loadGeneralSetup() {
   if (typeof window === "undefined") return createDefaultGeneralSetup();

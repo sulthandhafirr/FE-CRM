@@ -106,6 +106,62 @@ export const formatTechnicianSkills = (skills) => {
   return skills.join(", ");
 };
 
+// ─── Intent Labels ────────────────────────────────────────────────────────────
+
+export const INTENT_LABELS = {
+  technical_issue: "Technical Issue",
+  security_incident: "Security Incident",
+  billing_issue: "Billing Issue",
+  account_management: "Account Management",
+  order_inquiry: "Order Inquiry",
+  service_request: "Service Request",
+  complaint: "Complaint",
+  feature_request: "Feature Request",
+  information_request: "Information Request",
+  refund_request: "Refund Request",
+  cancellation_request: "Cancellation Request",
+  other: "Other",
+};
+
+export const getIntentLabel = (intent) => {
+  if (!intent) return "-";
+  return INTENT_LABELS[intent.toLowerCase()] || intent;
+};
+
+export const getIntentColor = (intent) => {
+  switch (intent?.toLowerCase()) {
+    case "security_incident":
+      return "#dc2626";
+    case "complaint":
+    case "refund_request":
+    case "cancellation_request":
+      return "#ea580c";
+    case "billing_issue":
+    case "technical_issue":
+      return "#ca8a04";
+    case "feature_request":
+    case "information_request":
+      return "#16a34a";
+    default:
+      return "#666";
+  }
+};
+
+export const getUrgencyColor = (urgency) => {
+  switch (urgency?.toLowerCase()) {
+    case "critical":
+      return "#dc2626";
+    case "high":
+      return "#ea580c";
+    case "medium":
+      return "#ca8a04";
+    case "low":
+      return "#16a34a";
+    default:
+      return "#666";
+  }
+};
+
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 export const TICKET_STATUS = {

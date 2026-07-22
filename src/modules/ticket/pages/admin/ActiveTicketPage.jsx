@@ -43,6 +43,8 @@ import {
   getPriorityColor,
   getStatusColor,
   formatTicketDate,
+  getIntentLabel,
+  getIntentColor,
 } from "../../ticket.schema";
 
 const STATUS_OPTIONS = ["Waiting", "Progress", "Solved"];
@@ -550,6 +552,7 @@ export function AdminTicketListPage({ mode = "active" }) {
     { id: "id", label: t("pages.agentTicket.columns.ticketId") },
     { id: "subject", label: t("pages.agentTicket.columns.subject") },
     { id: "priority", label: t("pages.agentTicket.columns.priority") },
+    { id: "intent", label: t("pages.agentTicket.columns.issue") },
     { id: "status", label: t("pages.agentTicket.columns.status") },
     { id: "solver", label: t("pages.agentTicket.columns.assignedTo") },
     { id: "createdAt", label: t("pages.agentTicket.columns.createdAt") },
@@ -626,6 +629,9 @@ export function AdminTicketListPage({ mode = "active" }) {
         <TableCell>{ticket.subject}</TableCell>
         <TableCell sx={{ color: getPriorityColor(ticket.priority), fontWeight: 500 }}>
           {ticket.priority ?? "-"}
+        </TableCell>
+        <TableCell sx={{ color: getIntentColor(ticket.intent), fontWeight: 500 }}>
+          {getIntentLabel(ticket.intent)}
         </TableCell>
         <TableCell sx={{ color: getStatusColor(ticket.status), fontWeight: 600 }}>
           {ticket.status}
@@ -865,6 +871,22 @@ export function AdminTicketListPage({ mode = "active" }) {
                           colorFn={getStatusColor}
                           disabled={isSolvedStatus(selectedTicket.status)}
                         />
+                      </div>
+
+                      <div>
+                        <div
+                          style={{
+                            color: "#FF8040",
+                            fontWeight: "600",
+                            fontSize: "13px",
+                            marginBottom: "4px",
+                          }}
+                        >
+                          Issue
+                        </div>
+                        <div style={{ color: getIntentColor(selectedTicket.intent), fontWeight: 500 }}>
+                          {getIntentLabel(selectedTicket.intent)}
+                        </div>
                       </div>
 
                       <div>

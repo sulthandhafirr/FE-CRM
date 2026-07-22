@@ -423,6 +423,7 @@
         "ticketId": "ID Tiket",
         "subject": "Subjek",
         "priority": "Prioritas",
+        "issue": "Masalah",
         "status": "Status",
         "assignedTo": "Ditugaskan ke",
         "createdAt": "Dibuat pada",

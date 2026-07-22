@@ -19,7 +19,7 @@ import {
   getAllTickets, deleteTicket,
   takeAction,
 } from "../ticket.service";
-import { sortTickets, getPriorityColor, getStatusColor, formatTicketDate } from "../ticket.schema";
+import { sortTickets, getPriorityColor, getStatusColor, formatTicketDate, getIntentLabel, getIntentColor } from "../ticket.schema";
 
 export default function AgentTicketPage() {
   const { t } = useTranslation();
@@ -179,6 +179,7 @@ export default function AgentTicketPage() {
     { id: "id",        label: t("pages.agentTicket.columns.ticketId")  },
     { id: "subject",   label: t("pages.agentTicket.columns.subject")    },
     { id: "priority",  label: t("pages.agentTicket.columns.priority")   },
+    { id: "intent",    label: t("pages.agentTicket.columns.issue")      },
     { id: "status",    label: t("pages.agentTicket.columns.status")     },
     { id: "solver",    label: t("pages.agentTicket.columns.assignedTo") },
     { id: "createdAt", label: t("pages.agentTicket.columns.createdAt")  },
@@ -203,6 +204,7 @@ export default function AgentTicketPage() {
         <TableCell sx={{ color: "#666", fontSize: "13px" }}>{ticket.id}</TableCell>
         <TableCell>{ticket.subject}</TableCell>
         <TableCell sx={{ color: getPriorityColor(ticket.priority), fontWeight: 500 }}>{ticket.priority ?? "-"}</TableCell>
+        <TableCell sx={{ color: getIntentColor(ticket.intent), fontWeight: 500 }}>{getIntentLabel(ticket.intent)}</TableCell>
         <TableCell sx={{ color: getStatusColor(ticket.status), fontWeight: 600 }}>{ticket.status}</TableCell>
         <TableCell>
           {isDispatched ? (

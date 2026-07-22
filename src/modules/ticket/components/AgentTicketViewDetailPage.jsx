@@ -22,7 +22,14 @@ import {
   updateTicket,
   getTechnicians,
 } from "../ticket.service";
-import { getPriorityColor, getStatusColor, formatTicketDate, formatTechnicianSkills } from "../ticket.schema";
+import {
+  getPriorityColor,
+  getStatusColor,
+  formatTicketDate,
+  formatTechnicianSkills,
+  getIntentLabel,
+  getIntentColor,
+} from "../ticket.schema";
 
 export default function AgentTicketViewDetailPage() {
   const { t } = useTranslation();
@@ -232,6 +239,11 @@ export default function AgentTicketViewDetailPage() {
                         <div style={{ color: "#FF8040", fontWeight: "600", fontSize: "13px", marginBottom: "4px" }}>{t("pages.agentTicketDetail.priority")}</div>
                         <div style={{ color: getPriorityColor(ticket.priority), fontWeight: "500" }}>{ticket.priority ?? "-"}</div>
                       </div>
+                      <div>
+                        <div style={{ color: "#FF8040", fontWeight: "600", fontSize: "13px", marginBottom: "4px" }}>Issue</div>
+                        <div style={{ color: getIntentColor(ticket.intent), fontWeight: 500 }}>{getIntentLabel(ticket.intent)}</div>
+                      </div>
+
                       <div>
                         <div style={{ color: "#FF8040", fontWeight: "600", fontSize: "13px", marginBottom: "4px" }}>{t("pages.ticketDetail.status")}</div>
                         <div style={{ color: getStatusColor(ticket.status), fontWeight: "600" }}>{ticket.status || "-"}</div>

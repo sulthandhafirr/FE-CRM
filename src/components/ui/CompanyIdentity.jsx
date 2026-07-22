@@ -1,11 +1,25 @@
-export default function CompanyIdentity({
-  companyName = "Capstone CRM",
-  plan = "Business Plan",
-  timezone = "Asia/Jakarta",
-  initials = "CC",
-  logoBg = "#FFF3ED",
-  logoTextColor = "#FF8040",
-}) {
+import { useEffect, useState } from "react";
+import { fetchCompanySettingsFromApi } from "../../modules/gsetup/gsetup.service";
+
+export default function CompanyIdentity() {
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    fetchCompanySettingsFromApi().then((settings) => {
+      if (settings) setData(settings);
+    });
+  }, []);
+
+  const companyName = data?.companyName || "Capstone CRM";
+  const logoUrl = data?.logoDataUrl || "";
+  const initials = companyName
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase() || "CC";
+  const timezone = data?.timezone || "Asia/Jakarta";
+
   return (
     <div
       style={{
@@ -20,23 +34,32 @@ export default function CompanyIdentity({
           width: "36px",
           height: "36px",
           borderRadius: "8px",
-          background: logoBg,
+          background: logoUrl ? "transparent" : "#FFF3ED",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           flexShrink: 0,
+          overflow: "hidden",
         }}
       >
-        <span
-          style={{
-            fontSize: "14px",
-            fontWeight: 700,
-            color: logoTextColor,
-            lineHeight: 1,
-          }}
-        >
-          {initials}
-        </span>
+        {logoUrl ? (
+          <img
+            src={logoUrl}
+            alt={companyName}
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          />
+        ) : (
+          <span
+            style={{
+              fontSize: "14px",
+              fontWeight: 700,
+              color: "#FF8040",
+              lineHeight: 1,
+            }}
+          >
+            {initials}
+          </span>
+        )}
       </div>
 
       {/* Company Info */}
@@ -56,7 +79,7 @@ export default function CompanyIdentity({
             color: "#9CA3AF",
           }}
         >
-          {plan} &middot; {timezone}
+          Business Plan &middot; {timezone}
         </span>
       </div>
     </div>

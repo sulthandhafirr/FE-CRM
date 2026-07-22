@@ -8,7 +8,9 @@ export const GENERAL_SETUP_MODULES = [
     title: "Intent Management",
     description: "Manage labels, descriptions, priorities, and manual override controls for ticket intents.",
     icon: MdPsychology,
+    accent: "#ff8040",
     accentBg: "#fff4ee",
+    accentBorder: "#fcd9bc",
     to: ROUTE.adminGeneralSetupIntents,
   },
   {
@@ -17,7 +19,9 @@ export const GENERAL_SETUP_MODULES = [
     title: "Urgency Management",
     description: "Control AI urgency thresholds, sentiment boost, keyword boost, and intent mapping.",
     icon: MdBolt,
+    accent: "#d97706",
     accentBg: "#fef3c7",
+    accentBorder: "#fde68a",
     to: ROUTE.adminGeneralSetupUrgency,
   },
   {
@@ -26,7 +30,9 @@ export const GENERAL_SETUP_MODULES = [
     title: "Ticket Status",
     description: "Edit statuses, colors, reopen behavior, and auto-close policy for ticket flow.",
     icon: MdChecklist,
+    accent: "#2563eb",
     accentBg: "#dbeafe",
+    accentBorder: "#bfdbfe",
     to: ROUTE.adminGeneralSetupTicketStatus,
   },
   {
@@ -35,7 +41,9 @@ export const GENERAL_SETUP_MODULES = [
     title: "SLA Rules",
     description: "Set first response and resolution targets per priority and SLA notifications.",
     icon: MdGavel,
+    accent: "#7c3aed",
     accentBg: "#ede9fe",
+    accentBorder: "#ddd6fe",
     to: ROUTE.adminGeneralSetupSla,
   },
   {
@@ -44,7 +52,9 @@ export const GENERAL_SETUP_MODULES = [
     title: "Role Management",
     description: "Create roles and manage permissions for ticket, AI, administration, and reports.",
     icon: MdGroup,
+    accent: "#16a34a",
     accentBg: "#dcfce7",
+    accentBorder: "#bbf7d0",
     to: ROUTE.adminGeneralSetupRoles,
   },
   {
@@ -53,7 +63,9 @@ export const GENERAL_SETUP_MODULES = [
     title: "Company Settings",
     description: "Configure company profile, locale defaults, working days, and ticket numbering.",
     icon: MdBusiness,
+    accent: "#0891b2",
     accentBg: "#cffafe",
+    accentBorder: "#a5f3fc",
     to: ROUTE.adminGeneralSetupCompany,
   },
 ];

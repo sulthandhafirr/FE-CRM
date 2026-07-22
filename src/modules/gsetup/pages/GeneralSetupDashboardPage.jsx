@@ -4,6 +4,10 @@ import { createGeneralSetupThemeTokens } from "../GeneralSetupSectionPage";
 import { GENERAL_SETUP_MODULES } from "../gsetup.navigation";
 
 function ModuleCard({ module, theme, onNavigate }) {
+  const accent = module.accent ?? theme.accent;
+  const accentBg = module.accentBg ?? "#fff4ee";
+  const accentBorder = module.accentBorder ?? "#fcd9bc";
+
   return (
     <Paper
       elevation={0}
@@ -21,8 +25,8 @@ function ModuleCard({ module, theme, onNavigate }) {
         flexDirection: "column",
         outline: "none",
         "&:hover": {
-          borderColor: theme.accent,
-          boxShadow: `0 8px 24px ${theme.accent}26`,
+          borderColor: accent,
+          boxShadow: `0 8px 24px ${accent}26`,
           transform: "translateY(-2px)",
         },
       }}
@@ -30,8 +34,9 @@ function ModuleCard({ module, theme, onNavigate }) {
       <Box
         sx={{
           display: "inline-block",
-          background: module.accentBg,
-          color: theme.accent,
+          background: accentBg,
+          border: `1px solid ${accentBorder}`,
+          color: accent,
           fontSize: 12,
           fontWeight: 700,
           px: 1.25,
@@ -53,7 +58,7 @@ function ModuleCard({ module, theme, onNavigate }) {
       >
         {module.description}
       </Typography>
-      <Typography sx={{ color: theme.accent, fontWeight: 600, fontSize: 14 }}>
+      <Typography sx={{ color: accent, fontWeight: 600, fontSize: 14 }}>
         Open View
       </Typography>
     </Paper>

@@ -19,7 +19,10 @@ import {
   createTicketComment,
   uploadTicketAttachment,
 } from "../ticket.service";
-import { getStatusColor, formatTicketDateTime } from "../ticket.schema";
+import {
+  getStatusColor,
+  formatTicketDateTime,
+} from "../ticket.schema";
 
 export default function CustomerTicketViewDetailPage() {
   const { t } = useTranslation();
@@ -344,6 +347,7 @@ export default function CustomerTicketViewDetailPage() {
                           {ticket.technician || "-"}
                         </div>
                       </div>
+
                       <div>
                         <div
                           style={{

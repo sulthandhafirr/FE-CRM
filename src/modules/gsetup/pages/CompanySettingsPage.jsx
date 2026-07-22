@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -17,16 +17,45 @@ import {
 import { MdBusiness, MdUploadFile } from "react-icons/md";
 import GeneralSetupSectionPage, { DialogField, SectionFooter, SettingsPanel } from "../GeneralSetupSectionPage";
 import {
-  CURRENCY_OPTIONS,
   DATE_FORMAT_OPTIONS,
-  LANGUAGE_OPTIONS,
   TIMEZONE_OPTIONS,
   WORKING_DAY_OPTIONS,
+  fetchCompanySettingsFromApi,
+  saveCompanySettingsToApi,
+  uploadCompanyLogo,
 } from "../gsetup.service";
 import { GRID_2_SX } from "../components/gsetup.styles";
 
-function CompanySettingsContent({ settings, updateSettings, saveSettings, theme, fileInputRef }) {
+function CompanySettingsContent({ settings, updateSettings, saveSettings, showToast, theme, fileInputRef }) {
   const [fileName, setFileName] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  /* Load company settings from API on mount — merge into editor state */
+  useEffect(() => {
+    fetchCompanySettingsFromApi().then((apiSettings) => {
+      if (apiSettings) {
+        updateSettings("companySettings", apiSettings);
+      }
+    });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleSave = useCallback(async () => {
+    setSaving(true);
+    try {
+      const updated = await saveCompanySettingsToApi(settings.companySettings);
+      /* Merge API response back into editor state, then persist to localStorage */
+      const nextSettings = {
+        ...settings,
+        companySettings: updated,
+      };
+      updateSettings("companySettings", updated);
+      saveSettings(nextSettings, "Company settings saved.");
+    } catch {
+      showToast("Failed to save company settings.", "error");
+    } finally {
+      setSaving(false);
+    }
+  }, [settings, updateSettings, saveSettings, showToast]);
 
   const handleFieldChange = useCallback(
     (field) => (event) => {
@@ -50,19 +79,26 @@ function CompanySettingsContent({ settings, updateSettings, saveSettings, theme,
     [updateSettings],
   );
 
-  const handleLogoUpload = (event) => {
+  const handleLogoUpload = async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     setFileName(file.name);
-    const reader = new FileReader();
-    reader.onload = (loadEvent) => {
+
+    try {
+      const logoUrl = await uploadCompanyLogo(file);
       updateSettings("companySettings", (section) => ({
         ...section,
-        logoDataUrl: loadEvent.target?.result?.toString() ?? "",
+        logoDataUrl: logoUrl,
       }));
-    };
-    reader.readAsDataURL(file);
+      showToast("Logo uploaded successfully.");
+    } catch {
+      showToast("Failed to upload logo.", "error");
+      setFileName("");
+    }
+
+    // Reset input so the same file can be re-selected
+    event.target.value = "";
   };
 
   const clearLogo = () => {
@@ -210,34 +246,6 @@ function CompanySettingsContent({ settings, updateSettings, saveSettings, theme,
               </Typography>
               <Stack spacing={2}>
                 <FormControl fullWidth>
-                  <InputLabel>Language</InputLabel>
-                  <Select
-                    label="Language"
-                    value={s.language}
-                    onChange={handleFieldChange("language")}
-                  >
-                    {LANGUAGE_OPTIONS.map((lang) => (
-                      <MenuItem key={lang} value={lang}>
-                        {lang}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl fullWidth>
-                  <InputLabel>Currency</InputLabel>
-                  <Select
-                    label="Currency"
-                    value={s.currency}
-                    onChange={handleFieldChange("currency")}
-                  >
-                    {CURRENCY_OPTIONS.map((currency) => (
-                      <MenuItem key={currency} value={currency}>
-                        {currency}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl fullWidth>
                   <InputLabel>Date Format</InputLabel>
                   <Select
                     label="Date Format"
@@ -322,7 +330,8 @@ function CompanySettingsContent({ settings, updateSettings, saveSettings, theme,
 
           <SectionFooter
             theme={theme}
-            onSave={() => saveSettings(settings, "Company settings saved.")}
+            onSave={handleSave}
+            loading={saving}
             helperText="Company settings influence branding, localization, and ticket numbering defaults."
           />
         </Stack>
