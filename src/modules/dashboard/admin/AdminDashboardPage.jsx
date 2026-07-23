@@ -14,6 +14,7 @@ import { useAuth } from "../../../hooks/useAuth";
 import TicketStatusDonutChart from "../chart/TicketStatusDonutChart";
 import TicketPriorityDonutChart from "../chart/TicketPriorityDonutChart";
 import AgentLeaderboard from "../components/AgentLeaderboard";
+import DateRangeFilter from "../components/DateRangeFilter";
 
 const StatCard = ({ title, value, icon, loading }) => (
   <div
@@ -53,13 +54,18 @@ export default function AdminDashboardPage() {
   const { t } = useTranslation();
   const { name } = useAuth();
   const [chatOpen, setChatOpen] = useState(false);
+  const [dateRange, setDateRange] = useState({ startDate: null, endDate: null });
 
   const { data: stats, isLoading: statsLoading } = useQuery({
-    queryKey: ["dashboard-stats"],
-    queryFn: getDashboardStats,
+    queryKey: ["dashboard-stats", dateRange.startDate, dateRange.endDate],
+    queryFn: () => getDashboardStats(dateRange.startDate, dateRange.endDate),
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
   });
+
+  const handleDateApply = (startDate, endDate) => {
+    setDateRange({ startDate, endDate });
+  }
 
   return (
     <div
@@ -76,10 +82,11 @@ export default function AdminDashboardPage() {
           overflowY: "auto",
         }}
       >
-        <div style={{ marginBottom: "20px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
           <div style={{ fontSize: "24px", fontWeight: "700", color: "#333" }}>
             {t("pages.dashboard.welcome")}, {name ?? "#"}
           </div>
+          <DateRangeFilter onApply={handleDateApply} />
         </div>
 
         <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
@@ -118,7 +125,7 @@ export default function AdminDashboardPage() {
           }}
         >
           <div style={{ flex: 1, display: "flex", minWidth: 0 }}>
-            <AgentLeaderboard />
+            <AgentLeaderboard startDate={dateRange.startDate} endDate={dateRange.endDate}/>
           </div>
 
           <div

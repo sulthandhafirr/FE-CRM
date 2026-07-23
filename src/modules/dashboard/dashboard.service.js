@@ -6,13 +6,23 @@ import { api } from "../../lib/api/apiClient";
 // Response shape: {
 //   totalCsAgent, totalTechnician
 // }
-export const getDashboardStats = async () => {
-  const { data } = await api.get("/api/dashboard/stats");
+export const getDashboardStats = async (startDate, endDate) => {
+  const { data } = await api.get("/api/dashboard/stats", {
+    params: {
+      startDate: startDate ? startDate.toISOString() : undefined,
+      endDate: endDate ? endDate.toISOString() : undefined,
+    },
+  });
   return data;
 };
 
 // GET /api/rank/agents-rank — cs_agent/admin only
-export const getAgentsRank = async () => {
-  const { data } = await api.get("/api/rank/agents-rank");
+export const getAgentsRank = async (startDate, endDate) => {
+  const { data } = await api.get("/api/rank/agents-rank", {
+    params: {
+      startDate: startDate ? startDate.toISOString() : undefined,
+      endDate: endDate ? endDate.toISOString() : undefined,
+    },
+  });
   return data;
 };

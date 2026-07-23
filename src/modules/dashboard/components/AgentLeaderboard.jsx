@@ -164,12 +164,12 @@ const LeaderboardRow = ({ agent, index, t }) => {
   );
 };
 
-export default function AgentLeaderboard() {
+export default function AgentLeaderboard({ startDate, endDate }) {
   const { t } = useTranslation();
 
   const { data: agentRanks, isLoading: agentRanksLoading } = useQuery({
-    queryKey: ["agents-rank"],
-    queryFn: getAgentsRank,
+    queryKey: ["agents-rank", startDate, endDate],
+    queryFn: () => getAgentsRank(startDate, endDate),
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
   });
