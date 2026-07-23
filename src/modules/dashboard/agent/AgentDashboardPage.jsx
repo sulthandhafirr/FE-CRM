@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next";
 import ChatBot from "../../../components/ui/ChatBot";
 import { getDashboardStats } from "../dashboard.service";
 import { formatDuration } from "../../ticket/ticket.schema";
-import AgentLeaderboard from "./components/AgentLeaderboard";
+import AgentLeaderboard from "../components/AgentLeaderboard";
 import TicketStatusDonutChart from "../chart/TicketStatusDonutChart";
 import TicketPriorityDonutChart from "../chart/TicketPriorityDonutChart";
 import { useAuth } from "../../../hooks/useAuth";

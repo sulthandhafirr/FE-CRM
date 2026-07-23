@@ -13,7 +13,7 @@ import { getDashboardStats } from "../dashboard.service";
 import { useAuth } from "../../../hooks/useAuth";
 import TicketStatusDonutChart from "../chart/TicketStatusDonutChart";
 import TicketPriorityDonutChart from "../chart/TicketPriorityDonutChart";
-import AgentLeaderboard from "../agent/components/AgentLeaderboard";
+import AgentLeaderboard from "../components/AgentLeaderboard";
 
 const StatCard = ({ title, value, icon, loading }) => (
   <div

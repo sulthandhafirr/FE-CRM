@@ -1,8 +1,8 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { getAgentsRank } from "../../dashboard.service";
-import { formatDuration } from "../../../ticket/ticket.schema";
+import { getAgentsRank } from "../dashboard.service";
+import { formatDuration } from "../../ticket/ticket.schema";
 
 const LeaderboardMetric = ({ label, value, highlight = false }) => (
   <div
