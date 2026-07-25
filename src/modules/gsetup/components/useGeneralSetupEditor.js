@@ -1,42 +1,71 @@
-import { useRef, useState } from "react";
-import { loadGeneralSetup, saveGeneralSetup } from "../gsetup.service";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  loadGeneralSetup,
+  saveGeneralSetup,
+  fetchRolesFromApi,
+} from "../gsetup.service";
 
 const DEFAULT_TOAST = { open: false, message: "", severity: "success" };
 
 /**
  * Hook that manages the General Setup editor state: load, update, save, toast.
- * Synchronously initialises from localStorage, so no loading state is needed.
+ * Role management data is loaded from the backend API; other sections fall back
+ * to localStorage.
  */
 export default function useGeneralSetupEditor() {
   const [settings, setSettings] = useState(loadGeneralSetup);
   const [toast, setToast] = useState(DEFAULT_TOAST);
+  const [roleApiLoading, setRoleApiLoading] = useState(true);
   const fileInputRef = useRef(null);
 
-  const showToast = (message, severity = "success") => {
-    setToast({ open: true, message, severity });
-  };
+  // Fetch role permissions from the backend API on mount
+  useEffect(() => {
+    let cancelled = false;
 
-  const handleCloseToast = (_, reason) => {
+    async function loadRolesFromApi() {
+      const apiRoles = await fetchRolesFromApi();
+      if (cancelled) return;
+      setRoleApiLoading(false);
+
+      if (apiRoles !== null) {
+        setSettings((prev) => ({
+          ...prev,
+          roleManagement: { roles: apiRoles },
+        }));
+      }
+    }
+
+    loadRolesFromApi();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const showToast = useCallback((message, severity = "success") => {
+    setToast({ open: true, message, severity });
+  }, []);
+
+  const handleCloseToast = useCallback((_, reason) => {
     if (reason === "clickaway") return;
     setToast((prev) => ({ ...prev, open: false }));
-  };
+  }, []);
 
-  const updateSettings = (section, updater) => {
+  const updateSettings = useCallback((section, updater) => {
     setSettings((prev) => {
-      const nextSection = typeof updater === "function" ? updater(prev[section]) : updater;
+      const nextSection =
+        typeof updater === "function" ? updater(prev[section]) : updater;
       return { ...prev, [section]: nextSection };
     });
-  };
+  }, []);
 
-  const saveSettings = (nextSettings, message) => {
+  const saveSettings = useCallback((nextSettings, message) => {
     saveGeneralSetup(nextSettings);
     setSettings(nextSettings);
     showToast(message);
-  };
+  }, [showToast]);
 
-  // isLoading is always false because localStorage is synchronous.
-  // Kept as a constant so the consuming API remains stable.
-  const isLoading = false;
+  const isLoading = roleApiLoading;
 
   return {
     settings,

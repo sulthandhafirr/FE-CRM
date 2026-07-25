@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Checkbox,
+  Chip,
   Divider,
   FormControlLabel,
   IconButton,
@@ -22,7 +23,14 @@ import GeneralSetupSectionPage, {
   SectionFooter,
   SettingsPanel,
 } from "../GeneralSetupSectionPage";
-import { PERMISSION_GROUPS, createRoleDraft } from "../gsetup.service";
+import {
+  PERMISSION_GROUPS,
+  createRoleDraft,
+  fetchRolesFromApi,
+  createRoleApi,
+  updateRoleApi,
+  deleteRoleApi,
+} from "../gsetup.service";
 import {
   ACCENT_BUTTON_SX,
   TABLE_HEADER_CELL_SX,
@@ -34,13 +42,10 @@ function buildPermissionSummary(permissions) {
   return Object.values(permissions || {}).filter(Boolean).length;
 }
 
-function buildNewRoleId(roleName) {
-  return `${roleName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now()}`;
-}
-
-function RoleManagementContent({ settings, updateSettings, saveSettings, theme, showToast }) {
+function RoleManagementContent({ settings, updateSettings, theme, showToast }) {
   const [roleDialog, setRoleDialog] = useState({ open: false, mode: "create", roleId: "" });
   const [roleDraft, setRoleDraft] = useState(createRoleDraft());
+  const [saving, setSaving] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState({ open: false, title: "", description: "", onConfirm: null });
 
   const closeRoleDialog = useCallback(() => {
@@ -53,46 +58,57 @@ function RoleManagementContent({ settings, updateSettings, saveSettings, theme, 
     setRoleDialog({ open: true, mode: role ? "edit" : "create", roleId: role?.id ?? "" });
   }, []);
 
-  const commitRole = useCallback(() => {
+  const commitRole = useCallback(async () => {
     if (!roleDraft.roleName.trim()) {
       showToast("Role name is required.", "error");
       return;
     }
 
-    updateSettings("roleManagement", (section) => {
-      const nextRoles =
-        roleDialog.mode === "edit"
-          ? section.roles.map((role) =>
-              role.id === roleDialog.roleId ? { ...roleDraft, id: role.id } : role,
-            )
-          : [
-              ...section.roles,
-              {
-                ...roleDraft,
-                id: buildNewRoleId(roleDraft.roleName),
-                userCount: Number(roleDraft.userCount) || 0,
-              },
-            ];
-
-      return { ...section, roles: nextRoles };
-    });
-
-    closeRoleDialog();
+    setSaving(true);
+    try {
+      if (roleDialog.mode === "edit") {
+        const updated = await updateRoleApi(roleDraft);
+        updateSettings("roleManagement", (section) => ({
+          ...section,
+          roles: section.roles.map((r) => (r.id === roleDialog.roleId ? updated : r)),
+        }));
+        showToast("Role updated.");
+      } else {
+        const created = await createRoleApi(roleDraft);
+        updateSettings("roleManagement", (section) => ({
+          ...section,
+          roles: [...section.roles, created],
+        }));
+        showToast("Role created.");
+      }
+      closeRoleDialog();
+    } catch {
+      showToast("Failed to save role. Please try again.", "error");
+    } finally {
+      setSaving(false);
+    }
   }, [roleDraft, roleDialog, updateSettings, showToast, closeRoleDialog]);
 
   const handleDeleteRole = useCallback(
     (role) => {
+      if (role.isSystem) return;
+
       setDeleteDialog({
         open: true,
         title: "Delete role?",
-        description: `This will remove ${role.roleName} from the role list. Users assigned to it should be reassigned first.`,
-        onConfirm: () => {
-          updateSettings("roleManagement", (section) => ({
-            ...section,
-            roles: section.roles.filter((item) => item.id !== role.id),
-          }));
+        description: `This will remove "${role.roleName}" permanently. Users assigned to it should be reassigned first.`,
+        onConfirm: async () => {
+          try {
+            await deleteRoleApi(role.id);
+            updateSettings("roleManagement", (section) => ({
+              ...section,
+              roles: section.roles.filter((item) => item.id !== role.id),
+            }));
+            showToast("Role deleted.");
+          } catch {
+            showToast("Failed to delete role.", "error");
+          }
           setDeleteDialog({ open: false, title: "", description: "", onConfirm: null });
-          showToast("Role deleted.");
         },
       });
     },
@@ -112,6 +128,23 @@ function RoleManagementContent({ settings, updateSettings, saveSettings, theme, 
       },
     }));
   }, []);
+
+  const handleRefresh = useCallback(async () => {
+    setSaving(true);
+    try {
+      const apiRoles = await fetchRolesFromApi();
+      if (apiRoles !== null) {
+        updateSettings("roleManagement", { roles: apiRoles });
+        showToast("Role list refreshed from server.");
+      }
+    } catch {
+      showToast("Failed to refresh roles.", "error");
+    } finally {
+      setSaving(false);
+    }
+  }, [updateSettings, showToast]);
+
+  const roles = settings.roleManagement?.roles ?? [];
 
   return (
     <Stack spacing={2.5}>
@@ -144,9 +177,26 @@ function RoleManagementContent({ settings, updateSettings, saveSettings, theme, 
                 </TableRow>
               </TableHead>
               <TableBody>
-                {settings.roleManagement.roles.map((role) => (
+                {roles.map((role) => (
                   <TableRow key={role.id} hover>
-                    <TableCell sx={{ fontWeight: 700 }}>{role.roleName}</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>
+                      <Stack direction="row" spacing={1} alignItems="center">
+                        {role.roleName}
+                        {role.isSystem && (
+                          <Chip
+                            label="System"
+                            size="small"
+                            sx={{
+                              fontSize: 10,
+                              height: 20,
+                              fontWeight: 700,
+                              bgcolor: theme.iconBg,
+                              color: theme.accent,
+                            }}
+                          />
+                        )}
+                      </Stack>
+                    </TableCell>
                     <TableCell>{role.userCount}</TableCell>
                     <TableCell>
                       <Button
@@ -170,6 +220,8 @@ function RoleManagementContent({ settings, updateSettings, saveSettings, theme, 
                           size="small"
                           onClick={() => handleDeleteRole(role)}
                           color="error"
+                          disabled={role.isSystem}
+                          sx={role.isSystem ? { opacity: 0.3 } : undefined}
                         >
                           <MdDeleteOutline size={18} />
                         </IconButton>
@@ -177,14 +229,23 @@ function RoleManagementContent({ settings, updateSettings, saveSettings, theme, 
                     </TableCell>
                   </TableRow>
                 ))}
+                {roles.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={4} align="center" sx={{ py: 6, color: theme.subtext }}>
+                      No roles defined yet. Click "Create Role" to add one.
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </TableContainer>
 
           <SectionFooter
             theme={theme}
-            onSave={() => saveSettings(settings, "Role settings saved.")}
-            helperText="Role permissions can be edited without changing the authentication architecture."
+            onSave={handleRefresh}
+            saveLabel="Refresh from Server"
+            helperText="Changes are saved immediately. Click refresh to reload the latest data."
+            loading={saving}
           />
         </Stack>
       </SettingsPanel>
@@ -211,16 +272,17 @@ function RoleManagementContent({ settings, updateSettings, saveSettings, theme, 
                 setRoleDraft((prev) => ({ ...prev, roleName: event.target.value }))
               }
               fullWidth
+              disabled={roleDraft.isSystem}
+              helperText={roleDraft.isSystem ? "System role names cannot be changed." : ""}
             />
             <TextField
               type="number"
               label="Number of Users"
               value={roleDraft.userCount}
-              onChange={(event) =>
-                setRoleDraft((prev) => ({ ...prev, userCount: Number(event.target.value) || 0 }))
-              }
+              disabled
               inputProps={{ min: 0 }}
               fullWidth
+              helperText="Auto-computed from server"
             />
           </Box>
 

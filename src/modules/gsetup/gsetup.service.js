@@ -98,13 +98,6 @@ const createStatus = (name, color, active = true) => ({
   active,
 });
 
-const createRole = (roleName, userCount, permissions) => ({
-  id: roleName.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-  roleName,
-  userCount,
-  permissions,
-});
-
 const DEFAULT_GENERAL_SETUP = {
   intentManagement: {
     intents: [
@@ -205,47 +198,7 @@ const DEFAULT_GENERAL_SETUP = {
     ],
   },
   roleManagement: {
-    roles: [
-      createRole("Administrator", 2, {
-        viewTickets: true,
-        createTickets: true,
-        editTickets: true,
-        deleteTickets: true,
-        overrideIntent: true,
-        overrideUrgency: true,
-        manageUsers: true,
-        manageRoles: true,
-        manageGeneralSetup: true,
-        exportReports: true,
-        viewAnalytics: true,
-      }),
-      createRole("Manager", 4, {
-        viewTickets: true,
-        createTickets: true,
-        editTickets: true,
-        deleteTickets: false,
-        overrideIntent: true,
-        overrideUrgency: true,
-        manageUsers: true,
-        manageRoles: false,
-        manageGeneralSetup: false,
-        exportReports: true,
-        viewAnalytics: true,
-      }),
-      createRole("Support Agent", 16, {
-        viewTickets: true,
-        createTickets: true,
-        editTickets: true,
-        deleteTickets: false,
-        overrideIntent: false,
-        overrideUrgency: false,
-        manageUsers: false,
-        manageRoles: false,
-        manageGeneralSetup: false,
-        exportReports: false,
-        viewAnalytics: true,
-      }),
-    ],
+    roles: [],
   },
   companySettings: {
     companyName: "Capstone CRM",
@@ -336,6 +289,54 @@ export async function uploadCompanyLogo(file) {
   return data.logoUrl;
 }
 
+// ── Role Management API ──────────────────────────────────────────────
+
+/** Map backend role response to frontend role shape */
+function mapApiRoleToFrontend(apiRole) {
+  return {
+    id: String(apiRole.id),
+    roleName: apiRole.role,
+    userCount: apiRole.userCount ?? 0,
+    isSystem: apiRole.isSystem ?? false,
+    permissions: apiRole.permissions ?? {},
+  };
+}
+
+/** Fetch all roles + permissions for the current user's company */
+export async function fetchRolesFromApi() {
+  try {
+    const { data } = await api.get("/api/roles");
+    return (data ?? []).map(mapApiRoleToFrontend);
+  } catch {
+    return null;
+  }
+}
+
+/** Create a custom role */
+export async function createRoleApi(role) {
+  const payload = {
+    role: role.roleName,
+    permissions: role.permissions ?? {},
+  };
+  const { data } = await api.post("/api/roles", payload);
+  return mapApiRoleToFrontend(data);
+}
+
+/** Update role name (custom only) and/or permissions */
+export async function updateRoleApi(role) {
+  const payload = {
+    role: role.isSystem ? undefined : role.roleName,
+    permissions: role.permissions ?? {},
+  };
+  const { data } = await api.put(`/api/roles/${role.id}`, payload);
+  return mapApiRoleToFrontend(data);
+}
+
+/** Delete a custom role */
+export async function deleteRoleApi(roleId) {
+  await api.delete(`/api/roles/${roleId}`);
+}
+
 export function loadGeneralSetup() {
   if (typeof window === "undefined") return createDefaultGeneralSetup();
 
@@ -374,6 +375,7 @@ export function createRoleDraft() {
     id: "",
     roleName: "",
     userCount: 0,
+    isSystem: false,
     permissions: PERMISSION_GROUPS.flatMap((group) => group.items).reduce(
       (accumulator, permission) => ({
         ...accumulator,
