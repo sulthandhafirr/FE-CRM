@@ -188,12 +188,15 @@
       "welcome": "Welcome",
       "totalTechnician": "Total Technician",
       "totalCustomer": "Total Customer",
-      "totalTicket": "Total Tickets",
+      "totalTicket": "All Tickets",
       "totalCsAgent": "Total CS Agent",
       "ticketSolvedByAi": "(place chart here)",
       "lineChartPlaceholder": "Chart will be implemented here (Line Chart)",
       "ticketByStatus": "Ticket Status",
       "ticketPriority": "Ticket Priority",
+      "ticketIntent": "Ticket Issue",
+      "ticketTrend": "Ticket Trend",
+      "ticketTrendSeriesName": "Tickets",
       "solvedTicket": "Solved Tickets",
       "activeTicket": "Active Tickets",
       "barChartPlaceholder": "Chart will be implemented here (Bar Chart)",
@@ -202,6 +205,8 @@
       "loadingChart": "Loading chart...",
       "noTicketStatusData": "No ticket status data available.",
       "noTicketPriorityData": "No ticket priority data available.",
+      "noTicketIntentData": "No ticket issue data available.",
+      "noTicketTrendData": "No ticket trend data available.",
       "loadingLeaderboard": "Loading leaderboard...",
       "noLeaderboardData": "No leaderboard data available.",
       "leaderboardTitle": "CS Agent Leaderboard",
@@ -212,6 +217,9 @@
       "leaderboardScore": "Avg Score",
       "leaderboardResponseTime": "Avg response",
       "leaderboardResolutionTime": "Avg resolution",
+      "agentPerformanceTitle": "My Performance",
+      "agentPerformanceSubtitle": "Your current standing based on resolved tickets.",
+      "rankOf": "Rank {{rank}} of {{total}} agents",
       "myAvgResponseTime": "My Avg Response Time",
       "myAvgResolutionTime": "My Avg Resolution Time",
       "ticketStatusLabels": {
@@ -519,6 +527,18 @@
         "updateProfile": "Failed to update profile",
         "changePassword": "Failed to change password"
       }
+    },
+    "dateFilter": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "thisWeek": "This Week",
+      "lastWeek": "Last Week",
+      "thisMonth": "This Month",
+      "lastMonth": "Last Month",
+      "thisYear": "This Year",
+      "filterByDate": "Filter by Date",
+      "clear": "Clear",
+      "apply": "Apply"
     }
   }
 }

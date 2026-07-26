@@ -1,23 +1,32 @@
 import Chart from "react-apexcharts";
 import { useTranslation } from "react-i18next";
+import { INTENT_LABELS } from "../../ticket/ticket.schema";
 
-const PRIORITY_ORDER = ["low", "normal", "high", "critical"];
-const PRIORITY_COLORS = ["#42A5F5", "#2E7D32", "#FF9800", "#D32F2F"];
+// Fixed palette, cycled through if there are more intents than colors
+const INTENT_COLORS = [
+  "#42A5F5", // blue
+  "#2E7D32", // green
+  "#FF9800", // orange
+  "#D32F2F", // red
+  "#8E24AA", // purple
+  "#00897B", // teal
+  "#F9A825", // yellow
+  "#6D4C41", // brown
+];
 
-export default function TicketPriorityDonutChart({
-  ticketByPriority,
-  loading,
-  height = 220,
-}) {
+const getIntentLabel = (intentKey) => {
+  if (intentKey === "Unclassified") return "Unclassified";
+  return INTENT_LABELS[intentKey] ?? intentKey;
+};
+
+export default function TicketIntentDonutChart({ ticketByIntent, loading, height = 220 }) {
   const { t } = useTranslation();
 
-  const series = PRIORITY_ORDER.map((priority) =>
-    Number(ticketByPriority?.[priority] ?? 0),
-  );
+  const entries = Object.entries(ticketByIntent ?? {});
+  const labels = entries.map(([intent]) => getIntentLabel(intent));
+  const series = entries.map(([, count]) => Number(count ?? 0));
   const total = series.reduce((sum, value) => sum + value, 0);
-  const labels = PRIORITY_ORDER.map((priority) =>
-    t(`pages.dashboard.ticketPriorityLabels.${priority}`),
-  );
+  const colors = labels.map((_, i) => INTENT_COLORS[i % INTENT_COLORS.length]);
 
   if (loading) {
     return (
@@ -50,7 +59,7 @@ export default function TicketPriorityDonutChart({
           padding: "0 12px",
         }}
       >
-        {t("pages.dashboard.noTicketPriorityData")}
+        {t("pages.dashboard.noTicketIntentData")}
       </div>
     );
   }
@@ -64,11 +73,11 @@ export default function TicketPriorityDonutChart({
       parentHeightOffset: 0,
     },
     labels,
-    colors: PRIORITY_COLORS,
+    colors,
     legend: {
       show: true,
       position: "bottom",
-      fontSize: "12px",
+      fontSize: "13px",
       labels: { colors: "#333" },
     },
     stroke: {
@@ -93,14 +102,14 @@ export default function TicketPriorityDonutChart({
     },
     tooltip: {
       custom: ({ series, seriesIndex, w }) => {
-        const priorityName = w.globals.labels[seriesIndex];
+        const intentName = w.globals.labels[seriesIndex];
         const count = series[seriesIndex] ?? 0;
         const percentage =
           total > 0 ? ((count / total) * 100).toFixed(1) : "0.0";
 
         return `
           <div style="padding:8px 10px;font-size:12px;line-height:1.4;">
-            <div style="font-weight:600;margin-bottom:2px;">${priorityName}</div>
+            <div style="font-weight:600;margin-bottom:2px;">${intentName}</div>
             <div>${t("pages.dashboard.count")}: ${count}</div>
             <div>${t("pages.dashboard.percentage")}: ${percentage}%</div>
           </div>

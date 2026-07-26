@@ -188,12 +188,15 @@
       "welcome": "Selamat datang",
       "totalTechnician": "Total Teknisi",
       "totalCustomer": "Total Pelanggan",
-      "totalTicket": "Total Tiket",
+      "totalTicket": "Semua Tiket",
       "totalCsAgent": "Total Agen CS",
       "ticketSolvedByAi": "Tiket Diselesaikan oleh AI",
       "lineChartPlaceholder": "Grafik akan diimplementasikan di sini (Line Chart)",
       "ticketByStatus": "Tiket Status",
       "ticketPriority": "Prioritas Tiket",
+      "ticketIntent": "Isu Tiket",
+      "ticketTrend": "Tren Tiket",
+      "ticketTrendSeriesName": "Tiket",
       "solvedTicket": "Tiket Diselesaikan",
       "activeTicket": "Tiket Aktif",
       "barChartPlaceholder": "Grafik akan diimplementasikan di sini (Bar Chart)",
@@ -202,6 +205,8 @@
       "loadingChart": "Memuat grafik...",
       "noTicketStatusData": "Data status tiket belum tersedia.",
       "noTicketPriorityData": "Data prioritas tiket belum tersedia.",
+      "noTicketIntentData": "Data isu tiket belum tersedia.",
+      "noTicketTrendData": "Data tren tiket belum tersedia.",
       "loadingLeaderboard": "Memuat papan peringkat...",
       "noLeaderboardData": "Data papan peringkat belum tersedia.",
       "leaderboardTitle": "Papan Peringkat CS Agent",
@@ -212,6 +217,9 @@
       "leaderboardScore": "Skor Rata-rata",
       "leaderboardResponseTime": "Rata-rata respons",
       "leaderboardResolutionTime": "Rata-rata resolusi",
+      "agentPerformanceTitle": "Performa Saya",
+      "agentPerformanceSubtitle": "Posisi Anda saat ini berdasarkan tiket yang diselesaikan.",
+      "rankOf": "Peringkat {{rank}} dari {{total}} agen",
       "myAvgResponseTime": "Rata-Rata Waktu Respons Saya",
       "myAvgResolutionTime": "Rata-Rata Waktu Resolusi Saya",
       "ticketStatusLabels": {
@@ -519,6 +527,18 @@
         "updateProfile": "Gagal memperbarui profil",
         "changePassword": "Gagal mengubah password"
       }
+    },
+    "dateFilter": {
+      "today": "Hari Ini",
+      "yesterday": "Kemarin",
+      "thisWeek": "Minggu Ini",
+      "lastWeek": "Minggu Lalu",
+      "thisMonth": "Bulan Ini",
+      "lastMonth": "Bulan Lalu",
+      "thisYear": "Tahun Ini",
+      "filterByDate": "Filter Tanggal",
+      "clear": "Hapus",
+      "apply": "Terapkan"
     }
   }
 }

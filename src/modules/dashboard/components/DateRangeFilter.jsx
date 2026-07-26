@@ -1,22 +1,107 @@
-import { useState } from "react";
-import { DateRangePicker, defaultStaticRanges } from "react-date-range";
+import { useState, useEffect } from "react";
+import { DateRangePicker } from "react-date-range";
 import { Popover, Button } from "@mui/material";
 import { MdCalendarToday } from "react-icons/md";
-import { startOfYear, endOfYear } from "date-fns";
+import { useTranslation } from "react-i18next";
+import { id as idLocale, enUS } from "date-fns/locale";
+import {
+  startOfToday,
+  endOfToday,
+  startOfYesterday,
+  endOfYesterday,
+  startOfWeek,
+  endOfWeek,
+  subWeeks,
+  startOfMonth,
+  endOfMonth,
+  subMonths,
+  startOfYear,
+  endOfYear,
+} from "date-fns";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 
 export default function DateRangeFilter({ onApply }) {
+  const { t, i18n } = useTranslation();
+  const currentLocale = i18n.language === "id" ? idLocale : enUS;
+
   const [anchorEl, setAnchorEl] = useState(null);
+
+  // Default range = this month
   const [range, setRange] = useState([
     {
-      startDate: null,
-      endDate: null,
+      startDate: startOfMonth(new Date()),
+      endDate: endOfMonth(new Date()),
       key: "selection",
     },
   ]);
 
+  // Apply the default range on mount so parent state matches immediately
+  useEffect(() => {
+    onApply(range[0].startDate, range[0].endDate);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const open = Boolean(anchorEl);
+
+  // Translated static ranges — labels pull from i18n, logic is plain date-fns
+  const customRanges = [
+    {
+      label: t("pages.dateFilter.today"),
+      range: () => ({ startDate: startOfToday(), endDate: endOfToday() }),
+    },
+    {
+      label: t("pages.dateFilter.yesterday"),
+      range: () => ({
+        startDate: startOfYesterday(),
+        endDate: endOfYesterday(),
+      }),
+    },
+    {
+      label: t("pages.dateFilter.thisWeek"),
+      range: () => ({
+        startDate: startOfWeek(new Date()),
+        endDate: endOfWeek(new Date()),
+      }),
+    },
+    {
+      label: t("pages.dateFilter.lastWeek"),
+      range: () => ({
+        startDate: startOfWeek(subWeeks(new Date(), 1)),
+        endDate: endOfWeek(subWeeks(new Date(), 1)),
+      }),
+    },
+    {
+      label: t("pages.dateFilter.thisMonth"),
+      range: () => ({
+        startDate: startOfMonth(new Date()),
+        endDate: endOfMonth(new Date()),
+      }),
+    },
+    {
+      label: t("pages.dateFilter.lastMonth"),
+      range: () => ({
+        startDate: startOfMonth(subMonths(new Date(), 1)),
+        endDate: endOfMonth(subMonths(new Date(), 1)),
+      }),
+    },
+    {
+      label: t("pages.dateFilter.thisYear"),
+      range: () => ({
+        startDate: startOfYear(new Date()),
+        endDate: endOfYear(new Date()),
+      }),
+    },
+  ].map((r) => ({
+    ...r,
+    isSelected(range) {
+      const defined = r.range();
+      return (
+        range.startDate?.getTime() === defined.startDate.getTime() &&
+        range.endDate?.getTime() === defined.endDate.getTime()
+      );
+    },
+  }));
 
   const handleSelect = (ranges) => {
     setRange([ranges.selection]);
@@ -28,46 +113,48 @@ export default function DateRangeFilter({ onApply }) {
   };
 
   const handleClear = () => {
-    setRange([{ startDate: null, endDate: null, key: "selection" }]);
+    const cleared = [{ startDate: null, endDate: null, key: "selection" }];
+    setRange(cleared);
     onApply(null, null);
     setAnchorEl(null);
   };
 
-  const customRanges = [
-    ...defaultStaticRanges,
-    {
-      label: "This Year",
-      range: () => ({
-        startDate: startOfYear(new Date()),
-        endDate: endOfYear(new Date()),
-      }),
-      isSelected(range) {
-        const definedRange = this.range();
-        return (
-          range.startDate?.getTime() === definedRange.startDate.getTime() &&
-          range.endDate?.getTime() === definedRange.endDate.getTime()
-        );
-      },
-    },
-  ];
+  // Button label reflects the current selection — preset name if it matches, else the raw dates
+  const getButtonLabel = () => {
+    const { startDate, endDate } = range[0];
+    if (!startDate || !endDate) {
+      return t("pages.dateFilter.filterByDate");
+    }
+
+    const matched = customRanges.find((r) => {
+      const defined = r.range();
+      return (
+        startDate.getTime() === defined.startDate.getTime() &&
+        endDate.getTime() === defined.endDate.getTime()
+      );
+    });
+
+    if (matched) return matched.label;
+
+    const formatDDMMYYYY = (date) =>
+      date.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+
+    return `${formatDDMMYYYY(startDate)} - ${formatDDMMYYYY(endDate)}`;
+  };
 
   return (
     <>
       <Button
+        variant="outlined"
+        startIcon={<MdCalendarToday />}
         onClick={(e) => setAnchorEl(e.currentTarget)}
-        startIcon={<MdCalendarToday size={20} />}
-        size="small"
-        sx={{
-          border: "1px solid #FF8040",
-          color: "#FF8040",
-          borderRadius: "8px",
-          textTransform: "none",
-          px: 1.5,
-          py: 0.75,
-          minWidth: "auto",
-        }}
+        sx={{ borderColor: "#FF8040", color: "#FF8040", whiteSpace: "nowrap" }}
       >
-        Date Filter
+        {getButtonLabel()}
       </Button>
 
       <Popover
@@ -77,12 +164,18 @@ export default function DateRangeFilter({ onApply }) {
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
       >
+        <style>{`
+          .rdrDay .rdrDayNumber span {
+            color: #000 !important;
+          }
+        `}</style>
         <DateRangePicker
           ranges={range}
           onChange={handleSelect}
           staticRanges={customRanges}
           inputRanges={[]}
-          rangeColors={["#ff8c53"]}
+          rangeColors={["#FF8040"]}
+          locale={currentLocale}
         />
         <div
           style={{
@@ -93,15 +186,15 @@ export default function DateRangeFilter({ onApply }) {
           }}
         >
           <Button onClick={handleClear} size="small">
-            Clear
+            {t("pages.dateFilter.clear")}
           </Button>
           <Button
             onClick={handleApply}
             variant="contained"
             size="small"
-            sx={{ background: "#ff8c53" }}
+            sx={{ background: "#FF8040" }}
           >
-            Apply
+            {t("pages.dateFilter.apply")}
           </Button>
         </div>
       </Popover>

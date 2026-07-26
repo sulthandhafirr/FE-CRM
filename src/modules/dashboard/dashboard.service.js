@@ -26,3 +26,13 @@ export const getAgentsRank = async (startDate, endDate) => {
   });
   return data;
 };
+
+export const getTicketTrend = async (startDate, endDate) => {
+  const { data } = await api.get("/api/dashboard/ticket-trend", {
+    params: {
+      startDate: startDate ? startDate.toISOString() : undefined,
+      endDate: endDate ? endDate.toISOString() : undefined,
+    },
+  });
+  return data;
+};

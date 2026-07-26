@@ -9,11 +9,13 @@ import {
 } from "react-icons/md";
 import { useTranslation } from "react-i18next";
 import ChatBot from "../../../components/ui/ChatBot";
-import { getDashboardStats } from "../dashboard.service";
+import { getDashboardStats, getTicketTrend } from "../dashboard.service";
 import { formatDuration } from "../../ticket/ticket.schema";
-import AgentLeaderboard from "../components/AgentLeaderboard";
+import AgentPerformance from "../components/AgentPerformance";
 import TicketStatusDonutChart from "../chart/TicketStatusDonutChart";
 import TicketPriorityDonutChart from "../chart/TicketPriorityDonutChart";
+import TicketIntentDonutChart from "../chart/TicketIntentDonutChart";
+import TicketTrendChart from "../chart/TicketTrendChart";
 import { useAuth } from "../../../hooks/useAuth";
 import DateRangeFilter from "../components/DateRangeFilter";
 
@@ -21,8 +23,9 @@ const StatCard = ({ title, value, icon, loading }) => (
   <div
     style={{
       flex: 1,
+      minWidth: 0,
       background: "white",
-      padding: "25px",
+      padding: "16px 18px",
       borderRadius: "12px",
       border: "2px solid #FF8040",
       boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
@@ -33,21 +36,48 @@ const StatCard = ({ title, value, icon, loading }) => (
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        marginBottom: "10px",
+        marginBottom: "6px",
       }}
     >
-      <div style={{ fontSize: "16px", color: "#333", fontWeight: "500" }}>
+      <div style={{ fontSize: "13px", color: "#333", fontWeight: "500" }}>
         {title}
       </div>
-      {icon ? createElement(icon, { size: 22, color: "#FF8040" }) : null}
+      {icon ? createElement(icon, { size: 18, color: "#FF8040" }) : null}
     </div>
-    <div style={{ fontSize: "36px", fontWeight: "700", color: "#FF8040" }}>
+    <div style={{ fontSize: "24px", fontWeight: "700", color: "#FF8040" }}>
       {loading ? (
-        <span style={{ fontSize: "20px", color: "#ddd" }}>—</span>
+        <span style={{ fontSize: "16px", color: "#ddd" }}>—</span>
       ) : (
         (value ?? 0)
       )}
     </div>
+  </div>
+);
+
+const ChartPanel = ({ title, children }) => (
+  <div
+    style={{
+      background: "white",
+      padding: "14px 16px",
+      borderRadius: "12px",
+      border: "2px solid #FF8040",
+      boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+      flex: 1,
+      minWidth: 0,
+      overflow: "hidden",
+    }}
+  >
+    <div
+      style={{
+        fontSize: "14px",
+        fontWeight: "600",
+        color: "#333",
+        marginBottom: "6px",
+      }}
+    >
+      {title}
+    </div>
+    {children}
   </div>
 );
 
@@ -64,9 +94,16 @@ export default function AgentDashboardPage() {
     refetchOnWindowFocus: false,
   });
 
+  const { data: trend, isLoading: trendLoading } = useQuery({
+    queryKey: ["ticket-trend", dateRange.startDate, dateRange.endDate],
+    queryFn: () => getTicketTrend(dateRange.startDate, dateRange.endDate),
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+  });
+
   const handleDateApply = (startDate, endDate) => {
     setDateRange({ startDate, endDate });
-  }
+  };
 
   return (
     <div
@@ -77,25 +114,35 @@ export default function AgentDashboardPage() {
     >
       <div
         style={{
-          padding: "30px",
-          paddingTop: "15px",
+          padding: "24px 30px",
           flex: 1,
           overflowY: "auto",
         }}
       >
         {/* Welcome Message */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-          <div style={{ fontSize: "24px", fontWeight: "700", color: "#333" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "14px",
+          }}
+        >
+          <div style={{ fontSize: "22px", fontWeight: "700", color: "#333" }}>
             {t("pages.dashboard.welcome")}, {name ?? "#"}
           </div>
-          {/* <div style={{ fontSize: "14px", color: "#999", marginTop: "4px" }}>
-            {t("pages.dashboard.welcomeSubtitle")}
-          </div> */}
           <DateRangeFilter onApply={handleDateApply} />
         </div>
 
-        {/* Top Cards Row */}
-        <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
+        {/* Stat Cards Row — compact 5-across grid */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(5, 1fr)",
+            gap: "12px",
+            marginBottom: "14px",
+          }}
+        >
           <StatCard
             title={t("pages.dashboard.totalTechnician")}
             value={stats?.totalTechnician}
@@ -114,10 +161,6 @@ export default function AgentDashboardPage() {
             icon={MdChat}
             loading={statsLoading}
           />
-        </div>
-
-        {/* Avg Time Cards Row */}
-        <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
           <StatCard
             title={t("pages.dashboard.myAvgResponseTime")}
             value={
@@ -135,95 +178,52 @@ export default function AgentDashboardPage() {
                 ? formatDuration(Math.floor(stats.myAvgResolutionTime))
                 : "-"
             }
-            icon={MdOutlineWatchLater}
+            icon={MdAvTimer}
             loading={statsLoading}
           />
-          {/* empty div to keep cards same width as row above */}
-          {/* <div style={{ flex: 1 }} /> */}
         </div>
 
-        {/* Leaderboard + Charts Row */}
+        {/* My Performance — sized to content, no more forced tall min-height */}
+        <div style={{ marginBottom: "14px" }}>
+          <AgentPerformance
+            startDate={dateRange.startDate}
+            endDate={dateRange.endDate}
+          />
+        </div>
+
+        {/* Status / Priority / Intent — 3-column row instead of stacked */}
         <div
           style={{
-            display: "flex",
-            gap: "20px",
-            alignItems: "stretch",
-            minWidth: 0,
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: "14px",
+            marginBottom: "14px",
           }}
         >
-          <div style={{ flex: 1.2, display: "flex", minWidth: 0 }}>
-            <AgentLeaderboard startDate={dateRange.startDate} endDate={dateRange.endDate} />
-          </div>
-
-          <div
-            style={{
-              flex: 1,
-              display: "flex",
-              flexDirection: "column",
-              gap: "20px",
-              minWidth: 0,
-            }}
-          >
-            <div
-              style={{
-                background: "white",
-                padding: "25px",
-                borderRadius: "12px",
-                border: "2px solid #FF8040",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-                minHeight: "300px",
-                flex: 1,
-                width: "100%",
-                minWidth: 0,
-                overflow: "hidden",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: "18px",
-                  fontWeight: "600",
-                  color: "#333",
-                  marginBottom: "20px",
-                }}
-              >
-                {t("pages.dashboard.ticketByStatus")}
-              </div>
-              <TicketStatusDonutChart
-                ticketByStatus={stats?.ticketByStatus}
-                loading={statsLoading}
-              />
-            </div>
-            <div
-              style={{
-                background: "white",
-                padding: "25px",
-                borderRadius: "12px",
-                border: "2px solid #FF8040",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-                minHeight: "300px",
-                flex: 1,
-                width: "100%",
-                minWidth: 0,
-                overflow: "hidden",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: "18px",
-                  fontWeight: "600",
-                  color: "#333",
-                  marginBottom: "20px",
-                }}
-              >
-                {t("pages.dashboard.ticketPriority")}
-              </div>
-              <TicketPriorityDonutChart
-                ticketByPriority={stats?.ticketByPriority}
-                loading={statsLoading}
-              />
-            </div>
-          </div>
+          <ChartPanel title={t("pages.dashboard.ticketByStatus")}>
+            <TicketStatusDonutChart
+              ticketByStatus={stats?.ticketByStatus}
+              loading={statsLoading}
+            />
+          </ChartPanel>
+          <ChartPanel title={t("pages.dashboard.ticketPriority")}>
+            <TicketPriorityDonutChart
+              ticketByPriority={stats?.ticketByPriority}
+              loading={statsLoading}
+            />
+          </ChartPanel>
+          <ChartPanel title={t("pages.dashboard.ticketIntent")}>
+            <TicketIntentDonutChart
+              ticketByIntent={stats?.ticketByIntent}
+              loading={statsLoading}
+            />
+          </ChartPanel>
         </div>
+
+        {/* Trend Chart — full width, shorter */}
+        <ChartPanel title={t("pages.dashboard.ticketTrend")}>
+          <TicketTrendChart trend={trend} loading={trendLoading} />
+        </ChartPanel>
       </div>
 
       {/* Floating Chat Button */}

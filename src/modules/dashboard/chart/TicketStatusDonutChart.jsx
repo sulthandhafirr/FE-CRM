@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 const STATUS_ORDER = ["solved", "progress", "waiting"];
 const STATUS_COLORS = ["#2E7D32", "#FF9800", "#42A5F5"];
 
-export default function TicketStatusDonutChart({ ticketByStatus, loading }) {
+export default function TicketStatusDonutChart({ ticketByStatus, loading, height = 220 }) {
   const { t } = useTranslation();
 
   const series = STATUS_ORDER.map((status) =>
@@ -19,7 +19,7 @@ export default function TicketStatusDonutChart({ ticketByStatus, loading }) {
     return (
       <div
         style={{
-          height: "300px",
+          height: `${height}px`,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -36,7 +36,7 @@ export default function TicketStatusDonutChart({ ticketByStatus, loading }) {
     return (
       <div
         style={{
-          height: "300px",
+          height: `${height}px`,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -64,7 +64,7 @@ export default function TicketStatusDonutChart({ ticketByStatus, loading }) {
     legend: {
       show: true,
       position: "bottom",
-      fontSize: "13px",
+      fontSize: "12px",
       labels: { colors: "#333" },
     },
     stroke: {
@@ -110,7 +110,7 @@ export default function TicketStatusDonutChart({ ticketByStatus, loading }) {
       options={options}
       series={series}
       type="donut"
-      height={300}
+      height={height}
       width="100%"
     />
   );
