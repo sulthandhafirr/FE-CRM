@@ -261,7 +261,7 @@ function ConfirmDialog({ message, onConfirm, onCancel }) {
               fontSize: "14px",
             }}
           >
-            Delete
+            Ok
           </button>
         </div>
       </div>
