@@ -1,4 +1,4 @@
-import { MdBolt, MdBusiness, MdChecklist, MdGavel, MdGroup, MdPsychology } from "react-icons/md";
+import { MdBolt, MdBusiness, MdChecklist, MdGavel, MdGroup, MdLayers, MdPsychology } from "react-icons/md";
 import { ROUTE } from "../../app/routes";
 
 export const GENERAL_SETUP_MODULES = [
@@ -67,5 +67,16 @@ export const GENERAL_SETUP_MODULES = [
     accentBg: "#cffafe",
     accentBorder: "#a5f3fc",
     to: ROUTE.adminGeneralSetupCompany,
+  },
+  {
+    key: "tierSettings",
+    badge: "Loyalty",
+    title: "Tier Settings",
+    description: "Manage customer loyalty tiers such as Bronze, Silver, Gold, or custom tiers.",
+    icon: MdLayers,
+    accent: "#e11d48",
+    accentBg: "#ffe4e6",
+    accentBorder: "#fecdd3",
+    to: ROUTE.adminGeneralSetupTiers,
   },
 ];

@@ -385,3 +385,26 @@ export function createRoleDraft() {
     ),
   };
 }
+
+/** Fetch all company tiers */
+export async function fetchCompanyTiers() {
+  const { data } = await api.get("/api/tiers");
+  return data;
+}
+
+/** Create a new tier */
+export async function createTierApi(tierName, color) {
+  const { data } = await api.post("/api/tiers", { tierName, color });
+  return data;
+}
+
+/** Fetch a single tier by ID */
+export async function updateTierApi(id, tierName, color) {
+  const { data } = await api.put(`/api/tiers/${id}`, { tierName, color });
+  return data;
+}
+
+/** Delete a tier by ID */
+export async function deleteTierApi(id) {
+  await api.delete(`/api/tiers/${id}`);
+}

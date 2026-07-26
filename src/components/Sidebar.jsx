@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useMemo } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useTranslation } from "react-i18next";
 import { ROUTE } from "../app/routes";
@@ -20,14 +20,10 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { useQueryClient } from "@tanstack/react-query";
 
-export default function Sidebar({
-  sidebarOpen,
-  setSidebarOpen,
-  activeMenu,
-  setActiveMenu,
-}) {
+export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const { role, trueRole, changeRole } = useAuth();
   const [showRoleModal, setShowRoleModal] = useState(false);
 
@@ -171,6 +167,21 @@ export default function Sidebar({
 
   const menuItems = roleMenuItems[role] || [];
 
+  // ── Hitung menu aktif dari URL saat ini, bukan dari klik terakhir ──
+  const activeMenu = useMemo(() => {
+    const matches = menuItems
+      .filter((item) => item.route && location.pathname.startsWith(item.route))
+      .sort((a, b) => b.route.length - a.route.length);
+
+    if (matches.length > 0) return matches[0].key;
+
+    const profileRoute = getProfileRoute();
+    if (profileRoute && location.pathname.startsWith(profileRoute)) return "profile";
+
+    return null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname, role]);
+
   const menuItemStyle = (menuKey) => ({
     display: "flex",
     alignItems: "center",
@@ -197,7 +208,6 @@ export default function Sidebar({
   };
 
   const handleSignOut = async () => {
-    // queryClient.removeQueries({ queryKey: ["my-tickets"] });
     queryClient.clear();
     await supabase.auth.signOut();
     navigate(ROUTE.login);
@@ -223,7 +233,6 @@ export default function Sidebar({
           fontSize: "28px",
           fontWeight: "700",
           color: "#FF8040",
-          // cursor: "pointer",
           textAlign: sidebarOpen ? "center" : "center",
         }}
       >
@@ -236,7 +245,6 @@ export default function Sidebar({
           <div
             key={item.key}
             onClick={() => {
-              setActiveMenu(item.key);
               if (item.route) navigate(item.route);
             }}
             style={menuItemStyle(item.key)}
@@ -361,10 +369,7 @@ export default function Sidebar({
         )}
 
         <div
-          onClick={() => {
-            setActiveMenu("profile");
-            navigate(getProfileRoute());
-          }}
+          onClick={() => navigate(getProfileRoute())}
           style={menuItemStyle("profile")}
           onMouseOver={(e) => handleMouseEnter(e, "profile")}
           onMouseOut={(e) => handleMouseLeave(e, "profile")}

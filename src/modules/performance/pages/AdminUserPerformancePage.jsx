@@ -34,51 +34,16 @@ import { getAllTiers, setProfileTier } from "../performance.service";
 
 // ─── tier colors ─────────────────────────────────────────────────────────────
 
-const TIER_STYLES = {
-  bronze: {
-    color: "#92400e",
-    background: "linear-gradient(135deg, #fde68a10, #d97706)",
-    bg: "#ffecdc",
-    border: "#d97706",
-    dot: "#b45309",
-    label: "Bronze",
-  },
-  silver: {
-    color: "#374151",
-    background: "linear-gradient(135deg, #f3f4f610, #9ca3af)",
-    bg: "#f3f4f6",
-    border: "#6b7280",
-    dot: "#4b5563",
-    label: "Silver",
-  },
-  gold: {
-    color: "#e4b818",
-    background: "linear-gradient(135deg, #fef9c310, #eab308)",
-    bg: "#fefce8",
-    border: "#ca8a04",
-    dot: "#e4b818",
-    label: "Gold",
-  },
-};
-
-/**
- * Resolve tier style by matching tier name (case-insensitive),
- * with index-based fallback for custom tier names.
- */
-const INDEX_FALLBACKS = [
-  { color: "#92400e", bg: "#fef3c7", border: "#d97706", dot: "#b45309" }, // bronze-ish
-  { color: "#374151", bg: "#f3f4f6", border: "#6b7280", dot: "#4b5563" }, // silver-ish
-  { color: "#78350f", bg: "#fefce8", border: "#ca8a04", dot: "#a16207" }, // gold-ish
-  { color: "#1e3a5f", bg: "#eff6ff", border: "#3b82f6", dot: "#2563eb" }, // extra
-];
-
-const getTierStyle = (tierName, tierIndex = 0) => {
+const getTierStyle = (tierName, tierColor) => {
   if (!tierName) return null;
-  const key = tierName.toLowerCase().trim();
-  if (TIER_STYLES[key]) return { ...TIER_STYLES[key], label: tierName };
-  // fallback by position in tiers list
-  const fb = INDEX_FALLBACKS[tierIndex % INDEX_FALLBACKS.length];
-  return { ...fb, label: tierName };
+  const color = tierColor || "#6b7280";
+  return {
+    label: tierName,
+    color,
+    bg: `${color}15`,
+    border: color,
+    dot: color,
+  };
 };
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
@@ -180,9 +145,8 @@ const SortHead = ({ columns, orderBy, order, onSort, prefixCell }) => (
 );
 
 // ── Tier badge chip shown in the dropdown trigger and MenuItems ───────────────
-const TierChip = ({ tierName, style, tiers }) => {
-  const idx = tiers.findIndex((t) => t.tierName === tierName);
-  const s = getTierStyle(tierName, idx);
+const TierChip = ({ tierName, tierColor, style }) => {
+  const s = getTierStyle(tierName, tierColor);
   if (!s) return <span style={{ color: "#aaa", fontSize: "13px" }}>— No tier —</span>;
   return (
     <span
@@ -201,15 +165,7 @@ const TierChip = ({ tierName, style, tiers }) => {
         ...style,
       }}
     >
-      <span
-        style={{
-          width: "7px",
-          height: "7px",
-          borderRadius: "50%",
-          background: s.dot,
-          flexShrink: 0,
-        }}
-      />
+      <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: s.dot, flexShrink: 0 }} />
       {s.label}
     </span>
   );
@@ -269,7 +225,7 @@ const TierDropdownCell = ({ user, tiers }) => {
           size="small"
           renderValue={(val) =>
             val ? (
-              <TierChip tierName={selectedTier?.tierName} tiers={tiers} />
+              <TierChip tierName={selectedTier?.tierName} tierColor={selectedTier?.color} />
             ) : (
               <span style={{ color: "#aaa", fontSize: "13px" }}>— No tier —</span>
             )
@@ -288,7 +244,7 @@ const TierDropdownCell = ({ user, tiers }) => {
           </MenuItem>
           {tiers.map((tier) => (
             <MenuItem key={tier.id} value={tier.id} sx={{ py: "6px" }}>
-              <TierChip tierName={tier.tierName} tiers={tiers} />
+              <TierChip tierName={tier.tierName} tierColor={tier.color} />
             </MenuItem>
           ))}
         </Select>

@@ -37,6 +37,7 @@ export const ROUTE = {
   adminGeneralSetupIntents: "/dashboard/admin/general-setup/intents",
   adminGeneralSetupUrgency: "/dashboard/admin/general-setup/urgency",
   adminGeneralSetupTicketStatus: "/dashboard/admin/general-setup/ticket-status",
+  adminGeneralSetupTiers: "/dashboard/admin/general-setup/tiers",
   adminGeneralSetupSla: "/dashboard/admin/general-setup/sla",
   adminGeneralSetupRoles: "/dashboard/admin/general-setup/roles",
   adminGeneralSetupCompany: "/dashboard/admin/general-setup/company",
