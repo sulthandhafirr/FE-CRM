@@ -29,6 +29,7 @@ import {
   formatTechnicianSkills,
   getIntentLabel,
   getIntentColor,
+  isResolvedStatus,
 } from "../ticket.schema";
 
 export default function AgentTicketViewDetailPage() {
@@ -203,7 +204,7 @@ export default function AgentTicketViewDetailPage() {
                     {resolvingTicket ? t("pages.agentTicketDetail.resolving") : t("pages.agentTicketDetail.markResolved")}
                   </button>
                 )}
-                {ticket?.status === "Solved" && (
+                {isResolvedStatus(ticket?.status) && (
                   <span style={{ display: "flex", alignItems: "center", gap: "6px", color: "#FF8040", fontWeight: "700", fontSize: "14px" }}>
                     <MdCheckCircle size={18} /> {t("pages.agentTicketDetail.resolved")}
                   </span>
@@ -277,7 +278,7 @@ export default function AgentTicketViewDetailPage() {
                       </h3>
 
                       {/* Not assigned notice */}
-                      {!isAssignedToMe && ticket.status !== "Solved" && (
+                      {!isAssignedToMe && !isResolvedStatus(ticket.status) && (
                         <div style={{ background: "#fef9ec", border: "1px solid #fde68a", borderRadius: "8px", padding: "10px 14px", marginBottom: "14px", fontSize: "13px", color: "#92400e" }}>
                           {t("pages.agentTicketDetail.notAssigned", "You are not assigned to this ticket.")}
                         </div>
@@ -459,7 +460,7 @@ export default function AgentTicketViewDetailPage() {
                             const allItems = [
                               { _type: "created" },
                               ...comments.map((c) => ({ _type: "comment", ...c })),
-                              ...(ticket.status === "Solved" && ticket.resolvedAt ? [{ _type: "resolved" }] : []),
+                              ...(isResolvedStatus(ticket.status) && ticket.resolvedAt ? [{ _type: "resolved" }] : []),
                             ];
 
                             return allItems.map((item, index) => {

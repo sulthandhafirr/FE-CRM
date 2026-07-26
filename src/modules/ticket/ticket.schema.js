@@ -48,11 +48,11 @@ export const getStatusColor = (status) => {
 
   // 2) Fallback to legacy hardcoded colors (covers old DB data during migration)
   const lower = status.toLowerCase();
-  if (lower === "in progress" || lower === "progress" || lower === "on progress")
+  if (lower === "progress" || lower === "in progress" || lower === "on progress")
     return "#3b82f6";
   if (lower === "waiting" || lower === "open")
     return "#f59e0b";
-  if (lower === "resolved" || lower === "solved" || lower === "closed" || lower === "completed")
+  if (lower === "solved" || lower === "resolved" || lower === "closed" || lower === "completed")
     return "#16a34a";
   if (lower === "pending")
     return "#9333ea";
@@ -72,7 +72,7 @@ export const getActiveStatusNames = () => {
       .map((s) => s.name);
   }
   // Legacy fallback
-  return ["Waiting", "In Progress", "Resolved"];
+  return ["Waiting", "Progress", "Solved"];
 };
 
 /**
@@ -85,12 +85,12 @@ export const isResolvedStatus = (status) => {
   const lower = status.toLowerCase();
 
   // Matches config status names that indicate final state
-  if (lower.includes("resolved") || lower.includes("solved") || lower.includes("closed")) {
+  if (lower.includes("solved") || lower.includes("resolved") || lower.includes("closed")) {
     return true;
   }
 
   // Legacy fallback
-  return lower === "solved" || lower === "completed";
+  return lower === "completed";
 };
 
 /**
@@ -102,14 +102,14 @@ export const getResolvedStatusName = () => {
   if (config?.statuses?.length) {
     const resolved = config.statuses.find(
       (s) =>
-        s.name.toLowerCase().includes("resolved") ||
         s.name.toLowerCase().includes("solved") ||
+        s.name.toLowerCase().includes("resolved") ||
         s.name.toLowerCase().includes("closed"),
     );
     if (resolved) return resolved.name;
   }
   // Legacy fallback
-  return "Resolved";
+  return "Solved";
 };
 
 // ─── Priority Helpers ──────────────────────────────────────────────────────────
@@ -267,8 +267,8 @@ export const getUrgencyColor = (urgency) => {
 
 export const TICKET_STATUS = {
   WAITING: "Waiting",
-  IN_PROGRESS: "In Progress",
-  RESOLVED: "Resolved",
+  PROGRESS: "Progress",
+  SOLVED: "Solved",
 };
 
 export const TICKET_PRIORITY = {

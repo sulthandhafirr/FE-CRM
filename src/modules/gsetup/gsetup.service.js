@@ -2,14 +2,14 @@ import { api } from "../../lib/api/apiClient";
 
 const STORAGE_KEY = "crm-general-setup-v1";
 
-// Status names that should be replaced with the new 3-status defaults
+// Status names that should be replaced with the current 3-status defaults
 const DEPRECATED_STATUS_NAMES = new Set([
   "open",
   "pending",
   "closed",
-  "solved",
-  "progress",
+  "in progress",
   "on progress",
+  "resolved",
   "completed",
 ]);
 
@@ -199,8 +199,8 @@ const DEFAULT_GENERAL_SETUP = {
   ticketStatus: {
     statuses: [
       createStatus("Waiting", "amber", true),
-      createStatus("In Progress", "blue", true),
-      createStatus("Resolved", "green", true),
+      createStatus("Progress", "blue", true),
+      createStatus("Solved", "green", true),
     ],
     allowTicketReopen: true,
     autoCloseTicketAfterDays: 7,

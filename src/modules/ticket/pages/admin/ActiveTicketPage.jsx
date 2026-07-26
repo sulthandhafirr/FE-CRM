@@ -474,7 +474,7 @@ export function AdminTicketListPage({ mode = "active" }) {
     if (!selectedTicket) return;
 
     setConfirmDialog({
-      message: "Mark this ticket as Resolved?",
+      message: "Mark this ticket as Solved?",
       onConfirm: async () => {
         setConfirmDialog(null);
         try {
@@ -752,7 +752,7 @@ export function AdminTicketListPage({ mode = "active" }) {
                     }}
                   >
                     <MdCheckCircle size={18} />
-                    {resolvingTicket ? "Resolving..." : "Mark as Resolved"}
+                    {resolvingTicket ? "Resolving..." : "Mark as Solved"}
                   </button>
                 )}
                 {isResolvedStatus(selectedTicket.status) && (
@@ -766,7 +766,7 @@ export function AdminTicketListPage({ mode = "active" }) {
                       fontSize: "14px",
                     }}
                   >
-                    <MdCheckCircle size={18} /> Resolved
+                    <MdCheckCircle size={18} /> Solved
                   </span>
                 )}
               </div>
@@ -952,7 +952,7 @@ export function AdminTicketListPage({ mode = "active" }) {
                               marginBottom: "4px",
                             }}
                           >
-                            Resolved at
+                            Solved at
                           </div>
                           <div style={{ color: "#333" }}>
                             {formatTicketDate(selectedTicket.resolvedAt)}
@@ -1360,7 +1360,7 @@ export function AdminTicketListPage({ mode = "active" }) {
                                           color: "#16a34a",
                                         }}
                                       >
-                                        Ticket Resolved
+                                        Ticket Solved
                                       </div>
                                       <div
                                         style={{
