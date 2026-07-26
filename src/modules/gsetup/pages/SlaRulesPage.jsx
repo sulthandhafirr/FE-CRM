@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import {
   Chip,
   FormControlLabel,
@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import { MdGavel } from "react-icons/md";
 import GeneralSetupSectionPage, { SectionFooter, SettingsPanel } from "../GeneralSetupSectionPage";
+import { saveSlaConfigToApi } from "../gsetup.service";
 import {
   SWITCH_SX,
   TABLE_HEADER_CELL_SX,
@@ -54,7 +55,9 @@ function SlaRuleRow({ rule, onUpdate }) {
   );
 }
 
-function SlaRulesContent({ settings, updateSettings, saveSettings, theme }) {
+function SlaRulesContent({ settings, updateSettings, saveSettings, showToast, theme }) {
+  const [saving, setSaving] = useState(false);
+
   const updateSlaRule = useCallback(
     (priority, field, value) => {
       updateSettings("slaRules", (section) => ({
@@ -86,6 +89,23 @@ function SlaRulesContent({ settings, updateSettings, saveSettings, theme }) {
     },
     [updateSettings],
   );
+
+  const handleSave = useCallback(async () => {
+    setSaving(true);
+    try {
+      const updated = await saveSlaConfigToApi(settings.slaRules);
+      const nextSettings = {
+        ...settings,
+        slaRules: updated,
+      };
+      updateSettings("slaRules", updated);
+      saveSettings(nextSettings, "SLA rules saved.");
+    } catch {
+      showToast("Failed to save SLA rules.", "error");
+    } finally {
+      setSaving(false);
+    }
+  }, [settings, updateSettings, saveSettings, showToast]);
 
   return (
     <Stack spacing={2.5}>
@@ -150,7 +170,8 @@ function SlaRulesContent({ settings, updateSettings, saveSettings, theme }) {
 
           <SectionFooter
             theme={theme}
-            onSave={() => saveSettings(settings, "SLA rules saved.")}
+            onSave={handleSave}
+            loading={saving}
             helperText="SLA monitoring supports proactive breach warnings and priority-based targets."
           />
         </Stack>

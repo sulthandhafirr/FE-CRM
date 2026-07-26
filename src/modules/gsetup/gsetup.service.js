@@ -461,6 +461,49 @@ export function createRoleDraft() {
   };
 }
 
+// ── SLA Rules API ───────────────────────────────────────────────────
+
+function mapApiSlaRuleToFrontend(apiRule) {
+  return {
+    priority: apiRule.priority,
+    firstResponseHours: apiRule.firstResponseHours,
+    resolutionHours: apiRule.resolutionHours,
+  };
+}
+
+/** Fetch SLA rules config from the backend API */
+export async function fetchSlaConfigFromApi() {
+  try {
+    const { data } = await api.get("/api/company/settings/sla");
+    return {
+      enableSlaMonitoring: data.enableSlaMonitoring ?? true,
+      notifyBeforeBreachedMinutes: data.notifyBeforeBreachedMinutes ?? 30,
+      rules: (data.rules ?? []).map(mapApiSlaRuleToFrontend),
+    };
+  } catch {
+    return null;
+  }
+}
+
+/** Save SLA rules config to the backend API */
+export async function saveSlaConfigToApi(slaRulesConfig) {
+  const payload = {
+    enableSlaMonitoring: slaRulesConfig.enableSlaMonitoring,
+    notifyBeforeBreachedMinutes: slaRulesConfig.notifyBeforeBreachedMinutes,
+    rules: slaRulesConfig.rules.map((rule) => ({
+      priority: rule.priority,
+      firstResponseHours: rule.firstResponseHours,
+      resolutionHours: rule.resolutionHours,
+    })),
+  };
+  const { data } = await api.put("/api/company/settings/sla", payload);
+  return {
+    enableSlaMonitoring: data.enableSlaMonitoring ?? true,
+    notifyBeforeBreachedMinutes: data.notifyBeforeBreachedMinutes ?? 30,
+    rules: (data.rules ?? []).map(mapApiSlaRuleToFrontend),
+  };
+}
+
 /** Fetch all company tiers */
 export async function fetchCompanyTiers() {
   const { data } = await api.get("/api/tiers");

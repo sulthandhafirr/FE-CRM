@@ -4,6 +4,7 @@ import {
   saveGeneralSetup,
   fetchRolesFromApi,
   fetchTicketStatusFromApi,
+  fetchSlaConfigFromApi,
 } from "../gsetup.service";
 
 const DEFAULT_TOAST = { open: false, message: "", severity: "success" };
@@ -18,6 +19,7 @@ export default function useGeneralSetupEditor() {
   const [toast, setToast] = useState(DEFAULT_TOAST);
   const [roleApiLoading, setRoleApiLoading] = useState(true);
   const [ticketStatusApiLoading, setTicketStatusApiLoading] = useState(true);
+  const [slaApiLoading, setSlaApiLoading] = useState(true);
   const fileInputRef = useRef(null);
 
   // Fetch role permissions from the backend API on mount
@@ -68,6 +70,30 @@ export default function useGeneralSetupEditor() {
     };
   }, []);
 
+  // Fetch SLA rules config from the backend API on mount
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadSlaFromApi() {
+      const apiConfig = await fetchSlaConfigFromApi();
+      if (cancelled) return;
+      setSlaApiLoading(false);
+
+      if (apiConfig !== null) {
+        setSettings((prev) => ({
+          ...prev,
+          slaRules: apiConfig,
+        }));
+      }
+    }
+
+    loadSlaFromApi();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const showToast = useCallback((message, severity = "success") => {
     setToast({ open: true, message, severity });
   }, []);
@@ -91,7 +117,7 @@ export default function useGeneralSetupEditor() {
     showToast(message);
   }, [showToast]);
 
-  const isLoading = roleApiLoading || ticketStatusApiLoading;
+  const isLoading = roleApiLoading || ticketStatusApiLoading || slaApiLoading;
 
   return {
     settings,
