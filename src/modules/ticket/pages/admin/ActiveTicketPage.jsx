@@ -45,18 +45,13 @@ import {
   formatTicketDate,
   getIntentLabel,
   getIntentColor,
+  getActiveStatusNames,
+  isResolvedStatus,
+  getResolvedStatusName,
 } from "../../ticket.schema";
 
-const STATUS_OPTIONS = ["Waiting", "Progress", "Solved"];
 const PRIORITY_OPTIONS = ["Low", "Normal", "High", "critical"];
 const CS_AGENT_ROLE_ID = 2;
-
-const ACTIVE_STATUS_SET = new Set(["active", "waiting", "progress"]);
-const SOLVED_STATUS_SET = new Set(["solved", "completed"]);
-
-function isSolvedStatus(status) {
-  return SOLVED_STATUS_SET.has((status ?? "").toLowerCase());
-}
 
 function getCommentIdFromResponse(result) {
   return result?.id ?? result?.commentId ?? result?.comment_id ?? null;
@@ -365,9 +360,9 @@ export function AdminTicketListPage({ mode = "active" }) {
 
   const filteredTickets = useMemo(() => {
     if (isSolvedMode) {
-      return tickets.filter((ticket) => isSolvedStatus(ticket.status));
+      return tickets.filter((ticket) => isResolvedStatus(ticket.status));
     }
-    return tickets.filter((ticket) => ACTIVE_STATUS_SET.has((ticket.status ?? "").toLowerCase()));
+    return tickets.filter((ticket) => !isResolvedStatus(ticket.status));
   }, [tickets, isSolvedMode]);
 
   const sortedTickets = useMemo(
@@ -479,7 +474,7 @@ export function AdminTicketListPage({ mode = "active" }) {
     if (!selectedTicket) return;
 
     setConfirmDialog({
-      message: "Mark this ticket as Solved?",
+      message: "Mark this ticket as Resolved?",
       onConfirm: async () => {
         setConfirmDialog(null);
         try {
@@ -487,7 +482,7 @@ export function AdminTicketListPage({ mode = "active" }) {
           const result = await resolveTicket(selectedTicket.id);
           setSelectedTicket((prev) => ({
             ...prev,
-            status: "Solved",
+            status: getResolvedStatusName(),
             resolvedAt: result.resolvedAt,
           }));
           queryClient.invalidateQueries({ queryKey: ["all-tickets"] });
@@ -738,7 +733,7 @@ export function AdminTicketListPage({ mode = "active" }) {
                 <div style={{ color: "#FF8040", fontWeight: "700", fontSize: "14px" }}>
                   Ticket #{selectedTicket.id}
                 </div>
-                {!isSolvedStatus(selectedTicket.status) && (
+                {!isResolvedStatus(selectedTicket.status) && (
                   <button
                     onClick={handleResolveTicket}
                     disabled={resolvingTicket}
@@ -760,7 +755,7 @@ export function AdminTicketListPage({ mode = "active" }) {
                     {resolvingTicket ? "Resolving..." : "Mark as Resolved"}
                   </button>
                 )}
-                {isSolvedStatus(selectedTicket.status) && (
+                {isResolvedStatus(selectedTicket.status) && (
                   <span
                     style={{
                       display: "flex",
@@ -849,7 +844,7 @@ export function AdminTicketListPage({ mode = "active" }) {
                           options={PRIORITY_OPTIONS}
                           onSelect={(v) => handleFieldUpdate("priority", v)}
                           colorFn={getPriorityColor}
-                          disabled={isSolvedStatus(selectedTicket.status)}
+                          disabled={isResolvedStatus(selectedTicket.status)}
                         />
                       </div>
 
@@ -866,10 +861,10 @@ export function AdminTicketListPage({ mode = "active" }) {
                         </div>
                         <InlineDropdown
                           value={selectedTicket.status}
-                          options={STATUS_OPTIONS}
+                          options={getActiveStatusNames()}
                           onSelect={(v) => handleFieldUpdate("status", v)}
                           colorFn={getStatusColor}
-                          disabled={isSolvedStatus(selectedTicket.status)}
+                          disabled={isResolvedStatus(selectedTicket.status)}
                         />
                       </div>
 
@@ -921,10 +916,11 @@ export function AdminTicketListPage({ mode = "active" }) {
                           value={selectedTicket.solver || "Unassigned"}
                           options={csAgentOptions}
                           onSelect={(v) => handleFieldUpdate("solver", v === "Unassigned" ? null : v)}
-                          disabled={isSolvedStatus(selectedTicket.status)}
+                          disabled={isResolvedStatus(selectedTicket.status)}
                         />
                       </div>
 
+                      {/* Technician Dropdown */}
                       <div>
                         <div
                           style={{
@@ -942,7 +938,7 @@ export function AdminTicketListPage({ mode = "active" }) {
                           onSelect={(v) =>
                             handleFieldUpdate("technician", v === "Unassigned" ? null : v)
                           }
-                          disabled={isSolvedStatus(selectedTicket.status)}
+                          disabled={isResolvedStatus(selectedTicket.status)}
                         />
                       </div>
 
@@ -965,7 +961,7 @@ export function AdminTicketListPage({ mode = "active" }) {
                       )}
                     </div>
 
-                    {!isSolvedStatus(selectedTicket.status) && (
+                    {!isResolvedStatus(selectedTicket.status) && (
                       <div
                         style={{
                           marginTop: "26px",
@@ -1203,7 +1199,7 @@ export function AdminTicketListPage({ mode = "active" }) {
                           const allItems = [
                             { _type: "created" },
                             ...comments.map((c) => ({ _type: "comment", ...c })),
-                            ...(isSolvedStatus(selectedTicket.status) && selectedTicket.resolvedAt
+                            ...(isResolvedStatus(selectedTicket.status) && selectedTicket.resolvedAt
                               ? [{ _type: "resolved" }]
                               : []),
                           ];

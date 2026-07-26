@@ -1,18 +1,118 @@
-// ─── Status & Priority Helpers ────────────────────────────────────────────────
+// ─── Status Color Map (config name → hex) ────────────────────────────────────
 
-export const getStatusColor = (status) => {
-  switch (status) {
-    case "On Progress":
-    case "Progress":
-      return "#FF8040";
-    case "Waiting":
-      return "#f59e0b";
-    case "Solved":
-      return "#16a34a";
-    default:
-      return "#666";
-  }
+const STATUS_COLOR_HEX = {
+  blue: "#3b82f6",
+  amber: "#f59e0b",
+  green: "#16a34a",
+  red: "#dc2626",
+  purple: "#9333ea",
+  slate: "#64748b",
 };
+
+// ─── Read ticket status config from localStorage (synced from General Setup) ────
+
+const STORAGE_KEY = "crm-general-setup-v1";
+
+function getTicketStatusConfig() {
+  try {
+    if (typeof window === "undefined") return null;
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return parsed?.ticketStatus ?? null;
+  } catch {
+    return null;
+  }
+}
+
+// ─── Status Helpers (reads from config, falls back to hardcoded) ───────────────
+
+/**
+ * Get the display color for a ticket status.
+ * Looks up the status name in the General Setup config first,
+ * then falls back to legacy hardcoded colors.
+ */
+export const getStatusColor = (status) => {
+  if (!status) return "#666";
+
+  // 1) Try configurable statuses from General Setup
+  const config = getTicketStatusConfig();
+  if (config?.statuses?.length) {
+    const match = config.statuses.find(
+      (s) => s.name.toLowerCase() === status.toLowerCase(),
+    );
+    if (match && STATUS_COLOR_HEX[match.color]) {
+      return STATUS_COLOR_HEX[match.color];
+    }
+  }
+
+  // 2) Fallback to legacy hardcoded colors (covers old DB data during migration)
+  const lower = status.toLowerCase();
+  if (lower === "in progress" || lower === "progress" || lower === "on progress")
+    return "#3b82f6";
+  if (lower === "waiting" || lower === "open")
+    return "#f59e0b";
+  if (lower === "resolved" || lower === "solved" || lower === "closed" || lower === "completed")
+    return "#16a34a";
+  if (lower === "pending")
+    return "#9333ea";
+
+  return "#666";
+};
+
+/**
+ * Get the list of active status names from General Setup config.
+ * Falls back to legacy hardcoded list if no config found.
+ */
+export const getActiveStatusNames = () => {
+  const config = getTicketStatusConfig();
+  if (config?.statuses?.length) {
+    return config.statuses
+      .filter((s) => s.active !== false)
+      .map((s) => s.name);
+  }
+  // Legacy fallback
+  return ["Waiting", "In Progress", "Resolved"];
+};
+
+/**
+ * Check whether a ticket status is considered "resolved/closed".
+ * Matches statuses whose name contains resolved/solved/closed (case-insensitive)
+ * or are explicitly matched in the config, with legacy fallback.
+ */
+export const isResolvedStatus = (status) => {
+  if (!status) return false;
+  const lower = status.toLowerCase();
+
+  // Matches config status names that indicate final state
+  if (lower.includes("resolved") || lower.includes("solved") || lower.includes("closed")) {
+    return true;
+  }
+
+  // Legacy fallback
+  return lower === "solved" || lower === "completed";
+};
+
+/**
+ * Get the name of the first "resolved/solved/closed" status from config.
+ * Used by resolveTicket() to know which status to set.
+ */
+export const getResolvedStatusName = () => {
+  const config = getTicketStatusConfig();
+  if (config?.statuses?.length) {
+    const resolved = config.statuses.find(
+      (s) =>
+        s.name.toLowerCase().includes("resolved") ||
+        s.name.toLowerCase().includes("solved") ||
+        s.name.toLowerCase().includes("closed"),
+    );
+    if (resolved) return resolved.name;
+  }
+  // Legacy fallback
+  return "Resolved";
+};
+
+// ─── Priority Helpers ──────────────────────────────────────────────────────────
 
 export const getPriorityColor = (priority) => {
   switch (priority) {
@@ -28,6 +128,8 @@ export const getPriorityColor = (priority) => {
       return "#666";
   }
 };
+
+// ─── Date & Duration Helpers ───────────────────────────────────────────────────
 
 export const formatTicketDate = (dateString) => {
   if (!dateString) return "-";
@@ -57,7 +159,6 @@ export const formatTicketDateTime = (dateString) => {
   const timePart = parsed.toLocaleTimeString("en-GB", {
     hour: "2-digit",
     minute: "2-digit",
-    // second: "2-digit",
     hour12: false,
   });
 
@@ -166,8 +267,8 @@ export const getUrgencyColor = (urgency) => {
 
 export const TICKET_STATUS = {
   WAITING: "Waiting",
-  PROGRESS: "Progress",
-  SOLVED: "Solved",
+  IN_PROGRESS: "In Progress",
+  RESOLVED: "Resolved",
 };
 
 export const TICKET_PRIORITY = {

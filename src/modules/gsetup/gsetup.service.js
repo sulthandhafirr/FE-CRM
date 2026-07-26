@@ -2,6 +2,26 @@ import { api } from "../../lib/api/apiClient";
 
 const STORAGE_KEY = "crm-general-setup-v1";
 
+// Status names that should be replaced with the new 3-status defaults
+const DEPRECATED_STATUS_NAMES = new Set([
+  "open",
+  "pending",
+  "closed",
+  "solved",
+  "progress",
+  "on progress",
+  "completed",
+]);
+
+/** Replace deprecated statuses with the current system defaults */
+function normalizeTicketStatus(stored) {
+  if (!stored?.statuses?.length) return null;
+  const hasDeprecated = stored.statuses.some(
+    (s) => DEPRECATED_STATUS_NAMES.has((s.name ?? "").toLowerCase()),
+  );
+  return hasDeprecated ? null : stored;
+}
+
 export const PRIORITY_OPTIONS = ["Low", "Medium", "High", "Critical"];
 
 export const URGENCY_OPTIONS = ["Low", "Medium", "High", "Critical"];
@@ -178,11 +198,9 @@ const DEFAULT_GENERAL_SETUP = {
   },
   ticketStatus: {
     statuses: [
-      createStatus("Open", "blue", true),
-      createStatus("In Progress", "amber", true),
-      createStatus("Pending", "purple", true),
+      createStatus("Waiting", "amber", true),
+      createStatus("In Progress", "blue", true),
       createStatus("Resolved", "green", true),
-      createStatus("Closed", "slate", true),
     ],
     allowTicketReopen: true,
     autoCloseTicketAfterDays: 7,
@@ -218,7 +236,16 @@ function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
-function mergeSection(defaultSection, storedSection) {
+function mergeSection(defaultSection, storedSection, sectionName) {
+  // For ticketStatus, detect and discard deprecated status configs
+  if (sectionName === "ticketStatus") {
+    const normalized = normalizeTicketStatus(storedSection);
+    if (normalized) {
+      return { ...clone(defaultSection), ...normalized };
+    }
+    // Stored data has deprecated statuses → use fresh defaults
+    return clone(defaultSection);
+  }
   return {
     ...clone(defaultSection),
     ...(storedSection ?? {}),
@@ -348,7 +375,7 @@ export function loadGeneralSetup() {
     return Object.fromEntries(
       SETTINGS_SECTIONS.map((section) => [
         section,
-        mergeSection(DEFAULT_GENERAL_SETUP[section], stored[section]),
+        mergeSection(DEFAULT_GENERAL_SETUP[section], stored[section], section),
       ]),
     );
   } catch {
@@ -359,6 +386,54 @@ export function loadGeneralSetup() {
 export function saveGeneralSetup(nextValue) {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextValue));
+}
+
+// ── Ticket Status API ────────────────────────────────────────────────
+
+function mapApiStatusToFrontend(apiStatus) {
+  return {
+    id: apiStatus.id,
+    name: apiStatus.name,
+    color: apiStatus.color,
+    active: apiStatus.active,
+  };
+}
+
+/** Fetch ticket status config from the backend API */
+export async function fetchTicketStatusFromApi() {
+  try {
+    const { data } = await api.get("/api/company/settings/ticket-status");
+    const config = {
+      statuses: (data.statuses ?? []).map(mapApiStatusToFrontend),
+      allowTicketReopen: data.allowTicketReopen ?? true,
+      autoCloseTicketAfterDays: data.autoCloseTicketAfterDays ?? 7,
+    };
+    // Discard if API still returns deprecated statuses
+    const normalized = normalizeTicketStatus(config);
+    return normalized ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** Save ticket status config to the backend API */
+export async function saveTicketStatusToApi(ticketStatusConfig) {
+  const payload = {
+    statuses: ticketStatusConfig.statuses.map((s) => ({
+      id: s.id,
+      name: s.name,
+      color: s.color,
+      active: s.active,
+    })),
+    allowTicketReopen: ticketStatusConfig.allowTicketReopen,
+    autoCloseTicketAfterDays: ticketStatusConfig.autoCloseTicketAfterDays,
+  };
+  const { data } = await api.put("/api/company/settings/ticket-status", payload);
+  return {
+    statuses: (data.statuses ?? []).map(mapApiStatusToFrontend),
+    allowTicketReopen: data.allowTicketReopen ?? true,
+    autoCloseTicketAfterDays: data.autoCloseTicketAfterDays ?? 7,
+  };
 }
 
 export function createStatusDraft() {

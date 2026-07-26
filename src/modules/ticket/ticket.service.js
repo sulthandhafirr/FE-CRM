@@ -1,5 +1,6 @@
 import { api } from "../../lib/api/apiClient";
 import { supabase } from "../../lib/supabase";
+import { getResolvedStatusName } from "./ticket.schema";
 
 // ─── Customer ticket calls (via backend API) ──────────────────────────────────
 
@@ -145,10 +146,11 @@ export const uploadTicketAttachment = async (ticketId, file, commentId = null) =
 // ─── Agent: Resolve ticket ────────────────────────────────────────────────────
 
 export const resolveTicket = async (ticketId) => {
+  const resolvedStatus = getResolvedStatusName();
   const resolvedAt = new Date().toISOString();
   const { data } = await api.put(`/api/tickets/${ticketId}`, {
-    status: "Solved",
-    resolvedAt: resolvedAt,   // ← camelCase, bukan resolved_at
+    status: resolvedStatus,
+    resolvedAt: resolvedAt,
   });
   return {
     ...data,

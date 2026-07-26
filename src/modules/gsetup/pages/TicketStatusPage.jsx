@@ -23,7 +23,7 @@ import GeneralSetupSectionPage, {
   SectionFooter,
   SettingsPanel,
 } from "../GeneralSetupSectionPage";
-import { STATUS_COLOR_OPTIONS, createStatusDraft } from "../gsetup.service";
+import { STATUS_COLOR_OPTIONS, createStatusDraft, saveTicketStatusToApi } from "../gsetup.service";
 import {
   SWITCH_SX,
   TABLE_HEADER_CELL_SX,
@@ -49,6 +49,7 @@ function TicketStatusContent({ settings, updateSettings, saveSettings, theme, sh
     description: "",
     onConfirm: null,
   });
+  const [saving, setSaving] = useState(false);
 
   const closeStatusDialog = useCallback(() => {
     setStatusDialog({ open: false, mode: "create", statusId: "" });
@@ -128,6 +129,24 @@ function TicketStatusContent({ settings, updateSettings, saveSettings, theme, sh
     },
     [updateSettings],
   );
+
+  const handleSave = useCallback(async () => {
+    setSaving(true);
+    try {
+      const updated = await saveTicketStatusToApi(settings.ticketStatus);
+      // Merge API response back into editor state, then persist to localStorage
+      const nextSettings = {
+        ...settings,
+        ticketStatus: updated,
+      };
+      updateSettings("ticketStatus", updated);
+      saveSettings(nextSettings, "Ticket status settings saved.");
+    } catch {
+      showToast("Failed to save ticket status settings.", "error");
+    } finally {
+      setSaving(false);
+    }
+  }, [settings, updateSettings, saveSettings, showToast]);
 
   const { ticketStatus: ts } = settings;
 
@@ -257,7 +276,8 @@ function TicketStatusContent({ settings, updateSettings, saveSettings, theme, sh
 
           <SectionFooter
             theme={theme}
-            onSave={() => saveSettings(settings, "Ticket status settings saved.")}
+            onSave={handleSave}
+            loading={saving}
             helperText="Statuses drive the CRM workflow and remain editable without rebuilding the UI."
           />
         </Stack>

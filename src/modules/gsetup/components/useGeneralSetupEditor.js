@@ -3,19 +3,21 @@ import {
   loadGeneralSetup,
   saveGeneralSetup,
   fetchRolesFromApi,
+  fetchTicketStatusFromApi,
 } from "../gsetup.service";
 
 const DEFAULT_TOAST = { open: false, message: "", severity: "success" };
 
 /**
  * Hook that manages the General Setup editor state: load, update, save, toast.
- * Role management data is loaded from the backend API; other sections fall back
- * to localStorage.
+ * Role management and ticket status data are loaded from the backend API;
+ * other sections fall back to localStorage.
  */
 export default function useGeneralSetupEditor() {
   const [settings, setSettings] = useState(loadGeneralSetup);
   const [toast, setToast] = useState(DEFAULT_TOAST);
   const [roleApiLoading, setRoleApiLoading] = useState(true);
+  const [ticketStatusApiLoading, setTicketStatusApiLoading] = useState(true);
   const fileInputRef = useRef(null);
 
   // Fetch role permissions from the backend API on mount
@@ -36,6 +38,30 @@ export default function useGeneralSetupEditor() {
     }
 
     loadRolesFromApi();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Fetch ticket status config from the backend API on mount
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadTicketStatusFromApi() {
+      const apiConfig = await fetchTicketStatusFromApi();
+      if (cancelled) return;
+      setTicketStatusApiLoading(false);
+
+      if (apiConfig !== null) {
+        setSettings((prev) => ({
+          ...prev,
+          ticketStatus: apiConfig,
+        }));
+      }
+    }
+
+    loadTicketStatusFromApi();
 
     return () => {
       cancelled = true;
@@ -65,7 +91,7 @@ export default function useGeneralSetupEditor() {
     showToast(message);
   }, [showToast]);
 
-  const isLoading = roleApiLoading;
+  const isLoading = roleApiLoading || ticketStatusApiLoading;
 
   return {
     settings,
