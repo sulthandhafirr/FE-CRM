@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { DateRangePicker } from "react-date-range";
 import { Popover, Button } from "@mui/material";
-import { MdCalendarToday } from "react-icons/md";
+import { MdCalendarToday, MdKeyboardArrowDown } from "react-icons/md";
 import { useTranslation } from "react-i18next";
 import { id as idLocale, enUS } from "date-fns/locale";
 import {
@@ -151,8 +151,24 @@ export default function DateRangeFilter({ onApply }) {
       <Button
         variant="outlined"
         startIcon={<MdCalendarToday />}
+        endIcon={<MdKeyboardArrowDown />}
         onClick={(e) => setAnchorEl(e.currentTarget)}
-        sx={{ borderColor: "#FF8040", color: "#FF8040", whiteSpace: "nowrap" }}
+        sx={{
+          borderColor: "#E5E7EB",
+          color: "#374151",
+          whiteSpace: "nowrap",
+          textTransform: "none",
+          fontWeight: 500,
+          fontSize: "14px",
+          borderRadius: "12px",
+          padding: "6px 16px",
+          boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)",
+          background: "#FFFFFF",
+          "&:hover": {
+            background: "#F9FAFB",
+            borderColor: "#E5E7EB",
+          },
+        }}
       >
         {getButtonLabel()}
       </Button>

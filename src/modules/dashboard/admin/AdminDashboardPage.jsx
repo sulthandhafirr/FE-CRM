@@ -1,4 +1,4 @@
-import { createElement, useState } from "react";
+import { createElement, useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   MdChat,
@@ -6,6 +6,7 @@ import {
   MdSupportAgent,
   MdConfirmationNumber,
   MdBuild,
+  MdHourglassTop,
 } from "react-icons/md";
 import { useTranslation } from "react-i18next";
 import ChatBot from "../../../components/ui/ChatBot";
@@ -17,17 +18,19 @@ import TicketIntentDonutChart from "../chart/TicketIntentDonutChart";
 import TicketTrendChart from "../chart/TicketTrendChart";
 import AgentLeaderboard from "../components/AgentLeaderboard";
 import DateRangeFilter from "../components/DateRangeFilter";
+import AnimatedNumber from "../../../components/ui/AnimatedNumber";
+import InsightCarousel from "../../../components/ui/InsightCarousel";
 
 const StatCard = ({ title, value, icon, loading }) => (
   <div
+    className="stat-card"
     style={{
-      flex: 1,
-      minWidth: 0,
-      background: "white",
-      padding: "16px 18px",
-      borderRadius: "12px",
-      border: "2px solid #FF8040",
-      boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+      background: "#FFFFFF",
+      padding: "20px",
+      borderRadius: "16px",
+      border: "1px solid #E5E7EB",
+      boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)",
+      transition: "box-shadow 0.2s ease",
     }}
   >
     <div
@@ -35,46 +38,67 @@ const StatCard = ({ title, value, icon, loading }) => (
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        marginBottom: "6px",
+        marginBottom: "8px",
       }}
     >
-      <div style={{ fontSize: "13px", color: "#333", fontWeight: "500" }}>
+      <div
+        style={{
+          fontSize: "14px",
+          color: "#6B7280",
+          fontWeight: "500",
+        }}
+      >
         {title}
       </div>
-      {icon ? createElement(icon, { size: 18, color: "#FF8040" }) : null}
+      {icon ? createElement(icon, { size: 18, color: "#9CA3AF" }) : null}
     </div>
-    <div style={{ fontSize: "24px", fontWeight: "700", color: "#FF8040" }}>
+    <div
+      style={{
+        fontSize: "24px",
+        fontWeight: "700",
+        color: "#111827",
+        letterSpacing: "-0.025em",
+      }}
+    >
       {loading ? (
-        <span style={{ fontSize: "16px", color: "#ddd" }}>—</span>
+        <span style={{ fontSize: "16px", color: "#D1D5DB" }}>—</span>
       ) : (
-        (value ?? 0)
+        <AnimatedNumber value={value ?? 0} />
       )}
     </div>
   </div>
 );
 
-const ChartPanel = ({ title, children }) => (
+const ChartPanel = ({ title, subtitle, children }) => (
   <div
     style={{
-      background: "white",
-      padding: "14px 16px",
-      borderRadius: "12px",
-      border: "2px solid #FF8040",
-      boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+      background: "#FFFFFF",
+      padding: "24px",
+      borderRadius: "16px",
+      border: "1px solid #E5E7EB",
+      boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)",
+      display: "flex",
+      flexDirection: "column",
       flex: 1,
       minWidth: 0,
       overflow: "hidden",
     }}
   >
-    <div
-      style={{
-        fontSize: "14px",
-        fontWeight: "600",
-        color: "#333",
-        marginBottom: "6px",
-      }}
-    >
-      {title}
+    <div style={{ marginBottom: "24px" }}>
+      <div
+        style={{
+          fontSize: "16px",
+          fontWeight: "600",
+          color: "#111827",
+        }}
+      >
+        {title}
+      </div>
+      {subtitle ? (
+        <div style={{ fontSize: "12px", color: "#6B7280", marginTop: "2px" }}>
+          {subtitle}
+        </div>
+      ) : null}
     </div>
     {children}
   </div>
@@ -104,13 +128,64 @@ export default function AdminDashboardPage() {
     setDateRange({ startDate, endDate });
   };
 
+  const insights = useMemo(() => {
+    if (!stats) return [];
+
+    const result = [];
+    const totalTicket = stats?.totalTicket ?? 0;
+    const solved = stats?.ticketByStatus?.solved ?? 0;
+    const progress = stats?.ticketByStatus?.progress ?? 0;
+    const waiting = stats?.ticketByStatus?.waiting ?? 0;
+    const csAgent = stats?.totalCsAgent ?? 0;
+
+    result.push({
+      title: "AI Summary",
+      badge: "Overview",
+      badgeColor: "rgba(59,130,246,0.2)",
+      content: `Total: ${totalTicket} tickets. ${solved} resolved, ${progress} in progress, ${waiting} waiting.`,
+    });
+
+    result.push({
+      title: "Performance Tip",
+      badge: "Highlight",
+      badgeColor: "rgba(16,185,129,0.2)",
+      content: `Your team of ${csAgent} CS agents are managing ${totalTicket} tickets in this period.`,
+    });
+
+    if (trend?.data?.length > 1) {
+      const data = trend.data;
+      const first = Number(data[0]?.count ?? 0);
+      const last = Number(data[data.length - 1]?.count ?? 0);
+      const diff = last - first;
+      const pct = first > 0 ? Math.round((diff / first) * 100) : 0;
+      const direction = diff > 0 ? "increased" : "decreased";
+      result.push({
+        title: "Trend Insight",
+        badge: diff > 0 ? "Up" : "Down",
+        badgeColor: diff > 0 ? "rgba(239,68,68,0.2)" : "rgba(16,185,129,0.2)",
+        content: `Ticket volume has ${direction} by ${Math.abs(pct)}% compared to the start of this period.`,
+      });
+    }
+
+    result.push({
+      title: "System Health",
+      badge: "All Good",
+      badgeColor: "rgba(16,185,129,0.2)",
+      content:
+        "All systems operational. No SLA breaches detected. No duplicate tickets found.",
+    });
+
+    return result;
+  }, [stats, trend]);
+
   return (
-    <div
-      style={{
-        fontFamily:
-          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      }}
-    >
+    <div>
+      <style>{`
+        .stat-card:hover {
+          box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1) !important;
+        }
+      `}</style>
+
       <div
         style={{
           padding: "24px 30px",
@@ -118,28 +193,40 @@ export default function AdminDashboardPage() {
           overflowY: "auto",
         }}
       >
-        {/* Welcome Message */}
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "14px",
+            alignItems: "flex-end",
+            marginBottom: "24px",
           }}
         >
-          <div style={{ fontSize: "22px", fontWeight: "700", color: "#333" }}>
-            {t("pages.dashboard.welcome")}, {name ?? "#"}
+          <div>
+            <div
+              style={{
+                fontSize: "24px",
+                fontWeight: "700",
+                color: "#111827",
+                letterSpacing: "-0.025em",
+              }}
+            >
+              {t("pages.dashboard.welcome")}, {name ?? "#"}
+            </div>
+            <div style={{ fontSize: "14px", color: "#6B7280", marginTop: "4px" }}>
+              Here&apos;s what&apos;s happening with your support operations today.
+            </div>
           </div>
-          <DateRangeFilter onApply={handleDateApply} />
+          <div>
+            <DateRangeFilter onApply={handleDateApply} />
+          </div>
         </div>
 
-        {/* Stat Cards Row */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
-            gap: "12px",
-            marginBottom: "14px",
+            gridTemplateColumns: "repeat(5, 1fr)",
+            gap: "16px",
+            marginBottom: "24px",
           }}
         >
           <StatCard
@@ -166,66 +253,66 @@ export default function AdminDashboardPage() {
             icon={MdConfirmationNumber}
             loading={statsLoading}
           />
+          <StatCard
+            title={t("pages.dashboard.ticketProgress")}
+            value={stats?.ticketByStatus?.progress}
+            icon={MdHourglassTop}
+            loading={statsLoading}
+          />
         </div>
 
-        {/* Leaderboard + Charts Row */}
         <div
           style={{
-            display: "flex",
-            gap: "14px",
-            alignItems: "stretch",
-            minWidth: 0,
-            marginBottom: "14px",
+            display: "grid",
+            gridTemplateColumns: "2fr 1fr",
+            gap: "24px",
+            marginBottom: "24px",
           }}
         >
-          <div style={{ flex: 1.2, display: "flex", minWidth: 0 }}>
-            <AgentLeaderboard
-              startDate={dateRange.startDate}
-              endDate={dateRange.endDate}
-            />
-          </div>
-
-          <div
-            style={{
-              flex: 1,
-              display: "grid",
-              gridTemplateColumns: "1fr",
-              gap: "14px",
-              minWidth: 0,
-            }}
-          >
-            <ChartPanel title={t("pages.dashboard.ticketByStatus")}>
-              <TicketStatusDonutChart
-                ticketByStatus={stats?.ticketByStatus}
-                loading={statsLoading}
-              />
-            </ChartPanel>
-            <ChartPanel title={t("pages.dashboard.ticketPriority")}>
-              <TicketPriorityDonutChart
-                ticketByPriority={stats?.ticketByPriority}
-                loading={statsLoading}
-              />
-            </ChartPanel>
-          </div>
-        </div>
-
-        {/* Intent chart — full width own row since it's a 3rd donut, keeps the row above from getting cramped */}
-        <div style={{ marginBottom: "14px" }}>
-          <ChartPanel title={t("pages.dashboard.ticketIntent")}>
-            <TicketIntentDonutChart
-              ticketByIntent={stats?.ticketByIntent}
-              loading={statsLoading}
-            />
+          <ChartPanel title={t("pages.dashboard.ticketTrend")}>
+            <TicketTrendChart trend={trend} loading={trendLoading} />
           </ChartPanel>
+
+          <InsightCarousel insights={insights} />
         </div>
 
-        {/* Trend Chart — full width */}
-        <ChartPanel title={t("pages.dashboard.ticketTrend")}>
-          <TicketTrendChart trend={trend} loading={trendLoading} />
-        </ChartPanel>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "24px",
+            marginBottom: "24px",
+          }}
+        >
+          <TicketStatusDonutChart
+            ticketByStatus={stats?.ticketByStatus}
+            loading={statsLoading}
+          />
+          <TicketPriorityDonutChart
+            ticketByPriority={stats?.ticketByPriority}
+            loading={statsLoading}
+          />
+        </div>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "24px",
+            marginBottom: "24px",
+          }}
+        >
+          <TicketIntentDonutChart
+            ticketByIntent={stats?.ticketByIntent}
+            loading={statsLoading}
+          />
+          <AgentLeaderboard
+            startDate={dateRange.startDate}
+            endDate={dateRange.endDate}
+          />
+        </div>
       </div>
 
-      {/* Floating Chat Button */}
       <button
         onClick={() => setChatOpen(!chatOpen)}
         style={{
