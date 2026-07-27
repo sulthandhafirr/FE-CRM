@@ -27,11 +27,11 @@ export default function DateRangeFilter({ onApply }) {
 
   const [anchorEl, setAnchorEl] = useState(null);
 
-  // Default range = this month
+  // Default range = this year
   const [range, setRange] = useState([
     {
-      startDate: startOfMonth(new Date()),
-      endDate: endOfMonth(new Date()),
+      startDate: startOfYear(new Date()),
+      endDate: endOfYear(new Date()),
       key: "selection",
     },
   ]);
