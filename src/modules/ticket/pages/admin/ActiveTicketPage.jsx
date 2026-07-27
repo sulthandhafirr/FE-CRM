@@ -293,6 +293,8 @@ export function AdminTicketListPage({ mode = "active" }) {
   const [confirmDialog, setConfirmDialog] = useState(null);
   const [savingField, setSavingField] = useState(null);
 
+  const [search, setSearch] = useState("");
+
   const selectedTicketId = selectedTicket?.id ?? null;
 
   const navigateTo = useCallback((p) => setPageHistory((prev) => [...prev, p]), []);
@@ -359,11 +361,22 @@ export function AdminTicketListPage({ mode = "active" }) {
   );
 
   const filteredTickets = useMemo(() => {
-    if (isSolvedMode) {
-      return tickets.filter((ticket) => isResolvedStatus(ticket.status));
-    }
-    return tickets.filter((ticket) => !isResolvedStatus(ticket.status));
-  }, [tickets, isSolvedMode]);
+    const base = isSolvedMode
+      ? tickets.filter((ticket) => isResolvedStatus(ticket.status))
+      : tickets.filter((ticket) => !isResolvedStatus(ticket.status));
+
+    const q = search.toLowerCase();
+    if (!q) return base;
+
+    return base.filter((ticket) =>
+      String(ticket.id).toLowerCase().includes(q) ||
+      ticket.subject?.toLowerCase().includes(q) ||
+      ticket.status?.toLowerCase().includes(q) ||
+      ticket.priority?.toLowerCase().includes(q) ||
+      ticket.intent?.toLowerCase().includes(q) ||
+      ticket.solver?.toLowerCase().includes(q)
+    );
+  }, [tickets, isSolvedMode, search]);
 
   const sortedTickets = useMemo(
     () => sortTicketsFn(filteredTickets, orderBy, order),
@@ -705,7 +718,13 @@ export function AdminTicketListPage({ mode = "active" }) {
             <MdArrowBack size={20} /> Back
           </button>
         ) : (
-          <SearchBar />
+          <SearchBar 
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(0);
+            }}
+          />
         )}
       </div>
 

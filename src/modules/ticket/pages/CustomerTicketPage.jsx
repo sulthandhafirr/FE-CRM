@@ -30,6 +30,7 @@ export default function CustomerTicketPage() {
   const [order, setOrder] = useState("desc");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [search, setSearch] = useState("");
 
   const { data: tickets = [], isLoading: loading } = useQuery({
     queryKey: ["my-tickets"],
@@ -56,31 +57,41 @@ export default function CustomerTicketPage() {
   };
 
   const sortedTickets = useMemo(() => {
-    return [...tickets].sort((a, b) => {
-      let aValue = a[orderBy];
-      let bValue = b[orderBy];
+    return [...tickets]
+      .filter((t) => {
+        const q = search.toLowerCase();
+        return (
+          String(t.id).toLowerCase().includes(q) ||
+          t.subject?.toLowerCase().includes(q) ||
+          t.status?.toLowerCase().includes(q) ||
+          t.handler?.toLowerCase().includes(q)
+        );
+      })
+      .sort((a, b) => {
+        let aValue = a[orderBy];
+        let bValue = b[orderBy];
 
-      if (orderBy === "createdAt") {
-        aValue = new Date(aValue).getTime();
-        bValue = new Date(bValue).getTime();
-      }
+        if (orderBy === "createdAt") {
+          aValue = new Date(aValue).getTime();
+          bValue = new Date(bValue).getTime();
+        }
 
-      if (orderBy === "id") {
-        aValue = Number(aValue);
-        bValue = Number(bValue);
-      }
+        if (orderBy === "id") {
+          aValue = Number(aValue);
+          bValue = Number(bValue);
+        }
 
-      if (aValue === null || aValue === undefined) aValue = "";
-      if (bValue === null || bValue === undefined) bValue = "";
+        if (aValue === null || aValue === undefined) aValue = "";
+        if (bValue === null || bValue === undefined) bValue = "";
 
-      if (typeof aValue === "string") aValue = aValue.toLowerCase();
-      if (typeof bValue === "string") bValue = bValue.toLowerCase();
+        if (typeof aValue === "string") aValue = aValue.toLowerCase();
+        if (typeof bValue === "string") bValue = bValue.toLowerCase();
 
-      if (aValue < bValue) return order === "asc" ? -1 : 1;
-      if (aValue > bValue) return order === "asc" ? 1 : -1;
-      return 0;
-    });
-  }, [tickets, order, orderBy]);
+        if (aValue < bValue) return order === "asc" ? -1 : 1;
+        if (aValue > bValue) return order === "asc" ? 1 : -1;
+        return 0;
+      });
+  }, [tickets, order, orderBy, search]);
 
   const safePage = useMemo(() => {
     const maxPage = Math.max(
@@ -170,7 +181,13 @@ export default function CustomerTicketPage() {
           gap: "15px",
         }}>
           <div className="customer-ticket-search-wrapper">
-            <SearchBar />
+            <SearchBar
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(0);
+              }}
+            />
           </div>
 
           <button

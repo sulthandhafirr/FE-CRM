@@ -343,6 +343,8 @@ export function AdminUserPerformanceView({ initialTab = "cs_agent", showAdd = tr
   const [detPage, setDetPage] = useState(0);
   const [detRows, setDetRows] = useState(10);
 
+  const [search, setSearch] = useState("");
+
   const activeTabConfig = tabs.find((tab) => tab.key === activeTab) ?? tabs[0];
 
   const { data: users = [], isLoading: usersLoading } = useQuery({
@@ -367,7 +369,16 @@ export function AdminUserPerformanceView({ initialTab = "cs_agent", showAdd = tr
     enabled: Boolean(selectedUser),
   });
 
-  const sortedUsers = useMemo(() => sortList(users, listOrderBy, listOrder), [users, listOrderBy, listOrder]);
+  const sortedUsers = useMemo(() => {
+    const q = search.toLowerCase();
+    const filtered = users.filter((user) =>
+      user.name?.toLowerCase().includes(q) ||
+      user.email?.toLowerCase().includes(q) ||
+      user.position?.toLowerCase().includes(q)
+    );
+    return sortList(filtered, listOrderBy, listOrder);
+  }, [users, listOrderBy, listOrder, search]);
+
   const safeListPage = useMemo(
     () => Math.min(listPage, Math.max(0, Math.ceil(sortedUsers.length / listRows) - 1)),
     [listPage, listRows, sortedUsers.length]
@@ -476,7 +487,15 @@ export function AdminUserPerformanceView({ initialTab = "cs_agent", showAdd = tr
           {selectedUser ? t("pages.adminUserPerformance.back") : "Back"}
         </button>
 
-        {!selectedUser && <SearchBar />}
+        {!selectedUser && (
+          <SearchBar
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setListPage(0);
+            }}
+          />
+        )}
       </div>
 
       <div style={{ padding: "30px" }}>

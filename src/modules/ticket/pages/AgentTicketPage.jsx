@@ -45,6 +45,8 @@ export default function AgentTicketPage() {
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [deleting, setDeleting] = useState(false);
 
+  const [search, setSearch] = useState("");
+
   // ── Navigate helpers ──
   const navigateTo = useCallback((p) => setPageHistory((prev) => [...prev, p]), []);
   const navigateBack = useCallback(() => setPageHistory((prev) => prev.length > 1 ? prev.slice(0, -1) : prev), []);
@@ -73,10 +75,21 @@ export default function AgentTicketPage() {
   const getDuplicates = useCallback((ticket, allTickets) =>
     allTickets.filter((t) => t.id !== ticket.id && t.subject?.trim().toLowerCase() === ticket.subject?.trim().toLowerCase()), []);
 
-  const sortedTickets = useMemo(
-    () => sortTickets(tickets.filter((t) => t.status !== "Solved"), orderBy, order),
-    [tickets, orderBy, order]
-  );
+  const sortedTickets = useMemo(() => {
+    const q = search.toLowerCase();
+    const filtered = tickets
+      .filter((t) => t.status !== "Solved")
+      .filter((t) =>
+        String(t.id).toLowerCase().includes(q) ||
+        t.subject?.toLowerCase().includes(q) ||
+        t.priority?.toLowerCase().includes(q) ||
+        t.status?.toLowerCase().includes(q) ||
+        t.intent?.toLowerCase().includes(q) ||
+        t.solver?.toLowerCase().includes(q)
+      );
+    return sortTickets(filtered, orderBy, order);
+  }, [tickets, orderBy, order, search])
+
   const sortedDuplicates = useMemo(() => {
     if (!duplicateSource) return [];
     return sortTickets(getDuplicates(duplicateSource, tickets), dupOrderBy, dupOrder);
@@ -301,7 +314,13 @@ export default function AgentTicketPage() {
             <MdArrowBack size={20} /> {t("pages.agentTicket.back")}
           </button>
         ) : (
-          <SearchBar />
+          <SearchBar 
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(0);
+            }}
+          />
         )}
       </div>
 

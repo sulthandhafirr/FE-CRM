@@ -30,6 +30,7 @@ export default function CustomerHistoryPage() {
   const [order, setOrder] = useState("desc");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [search, setSearch] = useState("");
 
   const { data: historyTickets = [], isLoading: loading } = useQuery({
     queryKey: ["history-tickets"],
@@ -56,31 +57,41 @@ export default function CustomerHistoryPage() {
   };
 
   const sortedTickets = useMemo(() => {
-    return [...historyTickets].sort((a, b) => {
-      let aValue = a[orderBy];
-      let bValue = b[orderBy];
+    return [...historyTickets]
+    .filter((t) => {
+        const q = search.toLowerCase();
+        return (
+          String(t.id).toLowerCase().includes(q) ||
+          t.subject?.toLowerCase().includes(q) ||
+          t.status?.toLowerCase().includes(q) ||
+          t.handler?.toLowerCase().includes(q)
+        );
+      })
+      .sort((a, b) => {
+        let aValue = a[orderBy];
+        let bValue = b[orderBy];
 
-      if (orderBy === "resolvedAt" || orderBy === "createdAt") {
-        aValue = new Date(aValue).getTime();
-        bValue = new Date(bValue).getTime();
-      }
+        if (orderBy === "resolvedAt" || orderBy === "createdAt") {
+          aValue = new Date(aValue).getTime();
+          bValue = new Date(bValue).getTime();
+        }
 
-      if (orderBy === "id") {
-        aValue = Number(aValue);
-        bValue = Number(bValue);
-      }
+        if (orderBy === "id") {
+          aValue = Number(aValue);
+          bValue = Number(bValue);
+        }
 
-      if (aValue === null || aValue === undefined) aValue = "";
-      if (bValue === null || bValue === undefined) bValue = "";
+        if (aValue === null || aValue === undefined) aValue = "";
+        if (bValue === null || bValue === undefined) bValue = "";
 
-      if (typeof aValue === "string") aValue = aValue.toLowerCase();
-      if (typeof bValue === "string") bValue = bValue.toLowerCase();
+        if (typeof aValue === "string") aValue = aValue.toLowerCase();
+        if (typeof bValue === "string") bValue = bValue.toLowerCase();
 
-      if (aValue < bValue) return order === "asc" ? -1 : 1;
-      if (aValue > bValue) return order === "asc" ? 1 : -1;
-      return 0;
-    });
-  }, [historyTickets, order, orderBy]);
+        if (aValue < bValue) return order === "asc" ? -1 : 1;
+        if (aValue > bValue) return order === "asc" ? 1 : -1;
+        return 0;
+      });
+  }, [historyTickets, order, orderBy, search]);
 
   const safePage = useMemo(() => {
     const maxPage = Math.max(
@@ -158,7 +169,13 @@ export default function CustomerHistoryPage() {
           height: "70px",
         }}
       >
-        <SearchBar />
+        <SearchBar 
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(0);
+          }}
+        />
       </div>
 
       {/* Dynamic Content */}

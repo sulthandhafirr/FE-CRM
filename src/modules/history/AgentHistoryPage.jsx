@@ -47,6 +47,7 @@ export default function AgentPerformancePage() {
   const [order, setOrder] = useState("desc");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [search, setSearch] = useState("");
 
   const { data: solvedTickets = [], isLoading: loading } = useQuery({
     queryKey: ["agent-solved-tickets"],
@@ -62,10 +63,19 @@ export default function AgentPerformancePage() {
     setPage(0);
   };
 
-  const sortedTickets = useMemo(
-    () => sortTicketsFn(solvedTickets, orderBy, order),
-    [solvedTickets, orderBy, order]
-  );
+  const sortedTickets = useMemo(() => {
+    const q = search.toLowerCase();
+    const filtered = solvedTickets.filter((t) =>
+      String(t.id).toLowerCase().includes(q) ||
+      t.subject?.toLowerCase().includes(q) ||
+      t.priority?.toLowerCase().includes(q) ||
+      t.customer?.toLowerCase().includes(q) ||
+      t.status?.toLowerCase().includes(q) ||
+      t.intent?.toLowerCase().includes(q) ||
+      t.solver?.toLowerCase().includes(q)
+    );
+    return sortTicketsFn(filtered, orderBy, order);
+  }, [solvedTickets, orderBy, order, search]);
 
   const safePage = useMemo(() => {
     const maxPage = Math.max(0, Math.ceil(sortedTickets.length / rowsPerPage) - 1);
@@ -96,7 +106,13 @@ export default function AgentPerformancePage() {
         display: "flex", alignItems: "center", justifyContent: "space-between",
         boxShadow: "0 2px 5px rgba(0,0,0,0.05)", height: "70px",
       }}>
-        <SearchBar />
+        <SearchBar 
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(0);
+          }}
+        />
       </div>
 
       <div style={{ padding: "30px", flex: 1, overflowY: "auto" }}>
