@@ -7,7 +7,6 @@ import ExportData from "../../modules/export/ExportData";
 import BottomNav from "../ui/BottomNav";
 import CompanyIdentity from "../ui/CompanyIdentity";
 import RealtimeClock from "../ui/RealtimeClock";
-import SystemStatus from "../ui/SystemStatus";
 import UserMenu from "../ui/UserMenu";
 import { ROUTE } from "../../app/routes";
 import { useAuth } from "../../hooks/useAuth";
@@ -121,7 +120,6 @@ export default function MainLayout() {
             <Divider />
 
             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <SystemStatus userRole={role} />
               {role === "admin" && <ExportData />}
               <NotificationBell />
             </div>
