@@ -36,3 +36,10 @@ export const getTicketTrend = async (startDate, endDate) => {
   });
   return data;
 };
+
+export const getTicketsPreview = async (filters) => {
+  const { data } = await api.get("/api/dashboard/tickets-preview", {
+    params: filters, // { status, priority, intentKey, startDate, endDate }
+  });
+  return data;
+};

@@ -1,4 +1,4 @@
-import { createElement, useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   MdAvTimer,
@@ -18,74 +18,20 @@ import TicketIntentDonutChart from "../chart/TicketIntentDonutChart";
 import TicketTrendChart from "../chart/TicketTrendChart";
 import { useAuth } from "../../../hooks/useAuth";
 import DateRangeFilter from "../components/DateRangeFilter";
-
-const StatCard = ({ title, value, icon, loading }) => (
-  <div
-    style={{
-      flex: 1,
-      minWidth: 0,
-      background: "white",
-      padding: "16px 18px",
-      borderRadius: "12px",
-      border: "2px solid #FF8040",
-      boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-    }}
-  >
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        marginBottom: "6px",
-      }}
-    >
-      <div style={{ fontSize: "13px", color: "#333", fontWeight: "500" }}>
-        {title}
-      </div>
-      {icon ? createElement(icon, { size: 18, color: "#FF8040" }) : null}
-    </div>
-    <div style={{ fontSize: "24px", fontWeight: "700", color: "#FF8040" }}>
-      {loading ? (
-        <span style={{ fontSize: "16px", color: "#ddd" }}>—</span>
-      ) : (
-        (value ?? 0)
-      )}
-    </div>
-  </div>
-);
-
-const ChartPanel = ({ title, children }) => (
-  <div
-    style={{
-      background: "white",
-      padding: "14px 16px",
-      borderRadius: "12px",
-      border: "2px solid #FF8040",
-      boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-      flex: 1,
-      minWidth: 0,
-      overflow: "hidden",
-    }}
-  >
-    <div
-      style={{
-        fontSize: "14px",
-        fontWeight: "600",
-        color: "#333",
-        marginBottom: "6px",
-      }}
-    >
-      {title}
-    </div>
-    {children}
-  </div>
-);
+import TicketPreviewModal from "../components/TicketPreviewModal";
+import { useNavigate } from "react-router-dom";
+import { ROUTE } from "../../../app/routes";
+import { StatCard } from "../components/StatCard";
+import { ChartPanel } from "../components/ChartPanel";
 
 export default function AgentDashboardPage() {
   const { t } = useTranslation();
   const { name } = useAuth();
   const [chatOpen, setChatOpen] = useState(false);
   const [dateRange, setDateRange] = useState({ startDate: null, endDate: null });
+  const navigate = useNavigate();
+  const [previewFilters, setPreviewFilters] = useState(null);
+  const [previewTitle, setPreviewTitle] = useState("");
 
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["dashboard-stats", dateRange.startDate, dateRange.endDate],
@@ -103,6 +49,15 @@ export default function AgentDashboardPage() {
 
   const handleDateApply = (startDate, endDate) => {
     setDateRange({ startDate, endDate });
+  };
+
+  const openPreview = (filters, title) => {
+    setPreviewFilters(filters);
+    setPreviewTitle(title);
+  };
+
+  const handleDetailClick = (ticket) => {
+    navigate(ROUTE.agentTicketDetail.replace(":ticketId", ticket.id));
   };
 
   return (
@@ -200,29 +155,38 @@ export default function AgentDashboardPage() {
             marginBottom: "14px",
           }}
         >
-          <ChartPanel title={t("pages.dashboard.ticketByStatus")}>
-            <TicketStatusDonutChart
-              ticketByStatus={stats?.ticketByStatus}
-              loading={statsLoading}
-            />
-          </ChartPanel>
-          <ChartPanel title={t("pages.dashboard.ticketPriority")}>
-            <TicketPriorityDonutChart
-              ticketByPriority={stats?.ticketByPriority}
-              loading={statsLoading}
-            />
-          </ChartPanel>
-          <ChartPanel title={t("pages.dashboard.ticketIntent")}>
-            <TicketIntentDonutChart
-              ticketByIntent={stats?.ticketByIntent}
-              loading={statsLoading}
-            />
-          </ChartPanel>
+          <TicketStatusDonutChart
+            ticketByStatus={stats?.ticketByStatus}
+            loading={statsLoading}
+            onSliceClick={(status) =>
+              openPreview({ status, ...dateRange }, `Tickets: ${status}`)
+            }
+          />
+          <TicketPriorityDonutChart
+            ticketByPriority={stats?.ticketByPriority}
+            loading={statsLoading}
+            onSliceClick={(priority) =>
+              openPreview({ priority, ...dateRange }, `Tickets: ${priority}`)
+            }
+          />
+          <TicketIntentDonutChart
+            ticketByIntent={stats?.ticketByIntent}
+            loading={statsLoading}
+            onSliceClick={(intentKey) =>
+              openPreview({ intentKey, ...dateRange }, `Tickets: ${intentKey}`)
+            }
+          />
         </div>
 
         {/* Trend Chart — full width, shorter */}
         <ChartPanel title={t("pages.dashboard.ticketTrend")}>
-          <TicketTrendChart trend={trend} loading={trendLoading} />
+          <TicketTrendChart
+            trend={trend}
+            loading={trendLoading}
+            onPointClick={(range, label) =>
+              openPreview({ ...range }, `Tickets: ${label}`)
+            }
+          />
         </ChartPanel>
       </div>
 
@@ -249,6 +213,13 @@ export default function AgentDashboardPage() {
         <MdChat size={28} />
       </button>
       <ChatBot isOpen={chatOpen} onClose={() => setChatOpen(false)} />
+      <TicketPreviewModal
+        open={!!previewFilters}
+        onClose={() => setPreviewFilters(null)}
+        title={previewTitle}
+        filters={previewFilters}
+        onDetailClick={handleDetailClick}
+      />
     </div>
   );
 }

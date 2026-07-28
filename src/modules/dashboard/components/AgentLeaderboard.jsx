@@ -1,8 +1,9 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { getAgentsRank } from "../dashboard.service";
 import { formatDuration } from "../../ticket/ticket.schema";
+import AgentInsightModal from "./AgentInsightModal";
 
 // ── Compact Top Agents row — mockup style ────────────────────────────
 
@@ -19,6 +20,11 @@ const AgentRow = ({ agent }) => {
   const responseTime =
     agent?.avgResponseTimeSec != null
       ? formatDuration(Math.floor(agent.avgResponseTimeSec))
+      : "-";
+
+  const resolutionTime =
+    agent?.avgResolutionTimeSec != null
+      ? formatDuration(Math.floor(agent.avgResolutionTimeSec))
       : "-";
 
   return (
@@ -49,6 +55,7 @@ const AgentRow = ({ agent }) => {
         </div>
         <div>
           <div
+            className="agent-name"
             style={{
               fontSize: "14px",
               fontWeight: "500",
@@ -58,9 +65,7 @@ const AgentRow = ({ agent }) => {
             {agent?.agentName ?? "-"}
           </div>
           <div style={{ fontSize: "12px", color: "#6B7280" }}>
-            {responseTime === "-"
-              ? "-"
-              : `Avg response: ${responseTime}`}
+            {`Avg response: ${responseTime} · Avg resolution: ${resolutionTime}`}
           </div>
         </div>
       </div>
@@ -79,6 +84,10 @@ const AgentRow = ({ agent }) => {
             resolved
           </span>
         </div>
+        <div style={{ fontSize: "12px", color: "#DC2626", fontWeight: "500" }}>
+          SLA breached: {agent?.slaBreachedCount ?? 0} (
+          {agent?.slaBreachRate ?? 0}%)
+        </div>
         <div
           style={{
             display: "flex",
@@ -87,9 +96,10 @@ const AgentRow = ({ agent }) => {
             fontSize: "12px",
             color: "#D97706",
             fontWeight: "500",
+            justifyContent: "flex-end",
           }}
         >
-          ★ {agent?.avgScore != null ? Number(agent.avgScore).toFixed(1) : "-"}
+          ★ {agent?.avgScore != null ? Number(agent.avgScore).toFixed(2) : "-"}
         </div>
       </div>
     </div>
@@ -98,6 +108,7 @@ const AgentRow = ({ agent }) => {
 
 export default function AgentLeaderboard({ startDate, endDate }) {
   const { t } = useTranslation();
+  const [selectedAgent, setSelectedAgent] = useState(null);
 
   const { data: agentRanks, isLoading: agentRanksLoading } = useQuery({
     queryKey: ["agents-rank", startDate, endDate],
@@ -128,6 +139,16 @@ export default function AgentLeaderboard({ startDate, endDate }) {
         minWidth: 0,
       }}
     >
+      <style>{`
+      .agent-leaderboard-row:hover {
+        background: #F9FAFB;
+      }
+      .agent-leaderboard-row:hover .agent-name {
+        color: #FF8040 !important;
+        text-decoration: underline;
+      }
+    `}</style>
+
       {/* Header */}
       <div
         style={{
@@ -166,12 +187,24 @@ export default function AgentLeaderboard({ startDate, endDate }) {
             {t("pages.dashboard.loadingLeaderboard")}
           </div>
         ) : topAgents.length > 0 ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+          >
             {topAgents.map((agent, index) => (
-              <AgentRow
+              <div
                 key={agent.agentId ?? `${agent.agentName}-${index}`}
-                agent={agent}
-              />
+                className="agent-leaderboard-row"
+                onClick={() => setSelectedAgent(agent)}
+                style={{
+                  cursor: "pointer",
+                  padding: "8px 12px",
+                  margin: "-8px -12px",
+                  borderRadius: "10px",
+                  transition: "background 0.15s ease",
+                }}
+              >
+                <AgentRow agent={agent} />
+              </div>
             ))}
           </div>
         ) : (
@@ -190,6 +223,12 @@ export default function AgentLeaderboard({ startDate, endDate }) {
           </div>
         )}
       </div>
+
+      <AgentInsightModal
+        agent={selectedAgent}
+        open={!!selectedAgent}
+        onClose={() => setSelectedAgent(null)}
+      />
     </div>
   );
 }

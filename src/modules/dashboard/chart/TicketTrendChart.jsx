@@ -1,8 +1,29 @@
 import Chart from "react-apexcharts";
 import { useTranslation } from "react-i18next";
-import { formatLabel } from "../dashboard.schema";
+import { formatLabel, parseIsoWeek } from "../dashboard.schema";
 
-export default function TicketTrendChart({ trend, loading, height = 240 }) {
+const pad = (n) => String(n).padStart(2, "0");
+const toDateStr = (d) => `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
+
+function labelToDateRange(label, granularity) {
+  if (granularity === "day") {
+    const d = new Date(`${label}T00:00:00Z`);
+    return { startDate: toDateStr(d), endDate: toDateStr(d) };
+  }
+  if (granularity === "week") {
+    const monday = parseIsoWeek(label);
+    const sunday = new Date(monday);
+    sunday.setUTCDate(monday.getUTCDate() + 6);
+    return { startDate: toDateStr(monday), endDate: toDateStr(sunday) };
+  }
+  // month: "yyyy-MM"
+  const [y, m] = label.split("-").map(Number);
+  const start = new Date(Date.UTC(y, m - 1, 1));
+  const end = new Date(Date.UTC(y, m, 0));
+  return { startDate: toDateStr(start), endDate: toDateStr(end) };
+}
+
+export default function TicketTrendChart({ trend, loading, height = 240, onPointClick }) {
   const { t } = useTranslation();
 
   const granularity = trend?.granularity ?? "week";
@@ -18,16 +39,7 @@ export default function TicketTrendChart({ trend, loading, height = 240 }) {
 
   if (loading) {
     return (
-      <div
-        style={{
-          height: `${height}px`,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "#999",
-          fontSize: "14px",
-        }}
-      >
+      <div style={{ height: `${height}px`, display: "flex", alignItems: "center", justifyContent: "center", color: "#999", fontSize: "14px" }}>
         {t("pages.dashboard.loadingChart")}
       </div>
     );
@@ -35,22 +47,18 @@ export default function TicketTrendChart({ trend, loading, height = 240 }) {
 
   if (dataPoints.length === 0) {
     return (
-      <div
-        style={{
-          height: `${height}px`,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "#999",
-          fontSize: "14px",
-          textAlign: "center",
-          padding: "0 12px",
-        }}
-      >
+      <div style={{ height: `${height}px`, display: "flex", alignItems: "center", justifyContent: "center", color: "#999", fontSize: "14px", textAlign: "center", padding: "0 12px" }}>
         {t("pages.dashboard.noTicketTrendData")}
       </div>
     );
   }
+
+  const handlePointClick = (dataPointIndex) => {
+    const point = dataPoints[dataPointIndex];
+    const rawLabel = point.label ?? point.Label;
+    const range = labelToDateRange(rawLabel, granularity);
+    onPointClick?.(range, categories[dataPointIndex]);
+  };
 
   const options = {
     chart: {
@@ -59,6 +67,11 @@ export default function TicketTrendChart({ trend, loading, height = 240 }) {
       redrawOnParentResize: true,
       redrawOnWindowResize: true,
       parentHeightOffset: 0,
+      events: {
+        markerClick: (event, chartContext, { dataPointIndex }) => {
+          handlePointClick(dataPointIndex);
+        },
+      },
     },
     xaxis: {
       categories,
@@ -71,7 +84,6 @@ export default function TicketTrendChart({ trend, loading, height = 240 }) {
         style: { colors: "#777", fontSize: "11px" },
         formatter: (value) => Math.round(value),
       },
-      // Tighter range so the line isn't dwarfed by excess whitespace
       tickAmount: 4,
     },
     colors: ["#FF8040"],

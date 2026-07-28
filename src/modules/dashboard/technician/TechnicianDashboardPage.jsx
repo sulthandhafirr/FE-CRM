@@ -1,4 +1,4 @@
-import { createElement, useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { MdChat, MdPeople, MdSupportAgent } from "react-icons/md";
 import { useTranslation } from "react-i18next";
@@ -7,41 +7,8 @@ import { getDashboardStats } from "../dashboard.service";
 import { useAuth } from "../../../hooks/useAuth";
 import TicketPriorityDonutChart from "../chart/TicketPriorityDonutChart";
 import DateRangeFilter from "../components/DateRangeFilter";
-
-
-const StatCard = ({ title, value, icon, loading }) => (
-  <div
-    style={{
-      flex: 1,
-      background: "white",
-      padding: "25px",
-      borderRadius: "12px",
-      border: "2px solid #FF8040",
-      boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-    }}
-  >
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        marginBottom: "10px",
-      }}
-    >
-      <div style={{ fontSize: "16px", color: "#333", fontWeight: "500" }}>
-        {title}
-      </div>
-      {icon ? createElement(icon, { size: 22, color: "#FF8040" }) : null}
-    </div>
-    <div style={{ fontSize: "36px", fontWeight: "700", color: "#FF8040" }}>
-      {loading ? (
-        <span style={{ fontSize: "20px", color: "#ddd" }}>—</span>
-      ) : (
-        (value ?? 0)
-      )}
-    </div>
-  </div>
-);
+import { StatCard } from "../components/StatCard";
+import { ChartPanel } from "../components/ChartPanel";
 
 export default function TechnicianDashboardPage() {
   const { t } = useTranslation();

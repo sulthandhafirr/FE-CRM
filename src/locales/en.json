@@ -224,6 +224,17 @@
       "rankOf": "Rank {{rank}} of {{total}} agents",
       "myAvgResponseTime": "My Avg Response Time",
       "myAvgResolutionTime": "My Avg Resolution Time",
+      "noTicketsFound": "No tickets found",
+      "previewId": "ID",
+      "previewSubject": "Subject",
+      "previewStatus": "Status",
+      "previewPriority": "Priority",
+      "previewIntent": "Issue",
+      "previewCreatedAt": "Created",
+      "previewAction": "Action",
+      "previewDetail": "Detail",
+      "previewTicketsFound": "tickets found",
+      "clickForDetails": "Click for details",
       "ticketStatusLabels": {
         "solved": "Solved",
         "progress": "Progress",
@@ -234,6 +245,12 @@
         "normal": "Normal",
         "high": "High",
         "critical": "Critical"
+      },
+      "topReason": {
+        "slowResponse": "Mostly slow response time",
+        "slowResolution": "Mostly slow resolution time",
+        "frequentBreaches": "Frequent SLA breaches",
+        "consistentPerformance": "Consistent performance"
       }
     },
     "login": {

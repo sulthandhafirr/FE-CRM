@@ -224,6 +224,16 @@
       "rankOf": "Peringkat {{rank}} dari {{total}} agen",
       "myAvgResponseTime": "Rata-Rata Waktu Respons Saya",
       "myAvgResolutionTime": "Rata-Rata Waktu Resolusi Saya",
+      "previewId": "ID",
+      "previewSubject": "Subjek",
+      "previewStatus": "Status",
+      "previewPriority": "Prioritas",
+      "previewIntent": "Isu",
+      "previewCreatedAt": "Dibuat Pada",
+      "previewAction": "Aksi",
+      "previewDetail": "Detail",
+      "previewTicketsFound": "tiket ditemukan",
+      "clickForDetails": "Klik untuk melihat",
       "ticketStatusLabels": {
         "solved": "Selesai",
         "progress": "Proses",
@@ -234,6 +244,12 @@
         "normal": "Normal",
         "High": "Tinggi",
         "Critical": "Kritis"
+      },
+      "topReason": {
+        "slowResponse": "lambat merespons",
+        "slowResolution": "lambat menyelesaikan",
+        "frequentBreaches": "sering melanggar SLA",
+        "consistentPerformance": "Performa konsisten"
       }
     },
     "login": {

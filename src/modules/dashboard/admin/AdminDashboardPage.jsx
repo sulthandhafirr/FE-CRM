@@ -1,4 +1,4 @@
-import { createElement, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   MdChat,
@@ -20,95 +20,21 @@ import AgentLeaderboard from "../components/AgentLeaderboard";
 import DateRangeFilter from "../components/DateRangeFilter";
 import AnimatedNumber from "../../../components/ui/AnimatedNumber";
 import InsightCarousel from "../../../components/ui/InsightCarousel";
-
-const StatCard = ({ title, value, icon, loading }) => (
-  <div
-    className="stat-card"
-    style={{
-      background: "#FFFFFF",
-      padding: "20px",
-      borderRadius: "16px",
-      border: "1px solid #E5E7EB",
-      boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)",
-      transition: "box-shadow 0.2s ease",
-    }}
-  >
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        marginBottom: "8px",
-      }}
-    >
-      <div
-        style={{
-          fontSize: "14px",
-          color: "#6B7280",
-          fontWeight: "500",
-        }}
-      >
-        {title}
-      </div>
-      {icon ? createElement(icon, { size: 18, color: "#9CA3AF" }) : null}
-    </div>
-    <div
-      style={{
-        fontSize: "24px",
-        fontWeight: "700",
-        color: "#111827",
-        letterSpacing: "-0.025em",
-      }}
-    >
-      {loading ? (
-        <span style={{ fontSize: "16px", color: "#D1D5DB" }}>—</span>
-      ) : (
-        <AnimatedNumber value={value ?? 0} />
-      )}
-    </div>
-  </div>
-);
-
-const ChartPanel = ({ title, subtitle, children }) => (
-  <div
-    style={{
-      background: "#FFFFFF",
-      padding: "24px",
-      borderRadius: "16px",
-      border: "1px solid #E5E7EB",
-      boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)",
-      display: "flex",
-      flexDirection: "column",
-      flex: 1,
-      minWidth: 0,
-      overflow: "hidden",
-    }}
-  >
-    <div style={{ marginBottom: "24px" }}>
-      <div
-        style={{
-          fontSize: "16px",
-          fontWeight: "600",
-          color: "#111827",
-        }}
-      >
-        {title}
-      </div>
-      {subtitle ? (
-        <div style={{ fontSize: "12px", color: "#6B7280", marginTop: "2px" }}>
-          {subtitle}
-        </div>
-      ) : null}
-    </div>
-    {children}
-  </div>
-);
+import TicketPreviewModal from "../components/TicketPreviewModal";
+import { isResolvedStatus } from "../../ticket/ticket.schema";
+import { useNavigate } from "react-router-dom";
+import { ROUTE } from "../../../app/routes";
+import { StatCard } from "../components/StatCard";
+import { ChartPanel } from "../components/ChartPanel";
 
 export default function AdminDashboardPage() {
   const { t } = useTranslation();
   const { name } = useAuth();
   const [chatOpen, setChatOpen] = useState(false);
   const [dateRange, setDateRange] = useState({ startDate: null, endDate: null });
+  const navigate = useNavigate();
+  const [previewFilters, setPreviewFilters] = useState(null);
+  const [previewTitle, setPreviewTitle] = useState("");
 
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["dashboard-stats", dateRange.startDate, dateRange.endDate],
@@ -126,6 +52,18 @@ export default function AdminDashboardPage() {
 
   const handleDateApply = (startDate, endDate) => {
     setDateRange({ startDate, endDate });
+  };
+
+  const openPreview = (filters, title) => {
+    setPreviewFilters(filters);
+    setPreviewTitle(title);
+  };
+
+  const handleDetailClick = (ticket) => {
+    const targetRoute = isResolvedStatus(ticket.status)
+      ? ROUTE.adminTicketSolved
+      : ROUTE.adminTicketActive;
+    navigate(targetRoute, { state: { openTicketId: ticket.id } });
   };
 
   const insights = useMemo(() => {
@@ -270,7 +208,13 @@ export default function AdminDashboardPage() {
           }}
         >
           <ChartPanel title={t("pages.dashboard.ticketTrend")}>
-            <TicketTrendChart trend={trend} loading={trendLoading} />
+            <TicketTrendChart 
+              trend={trend} 
+              loading={trendLoading}
+              onPointClick={(range, label) =>
+                openPreview({ ...range }, `Tickets: ${label}`)
+              }
+            />
           </ChartPanel>
 
           <InsightCarousel insights={insights} />
@@ -287,10 +231,12 @@ export default function AdminDashboardPage() {
           <TicketStatusDonutChart
             ticketByStatus={stats?.ticketByStatus}
             loading={statsLoading}
+            onSliceClick={(status) => openPreview({ status, ...dateRange }, `Tickets: ${status}`)}
           />
           <TicketPriorityDonutChart
             ticketByPriority={stats?.ticketByPriority}
             loading={statsLoading}
+            onSliceClick={(priority) => openPreview({ priority, ...dateRange }, `Tickets: ${priority}`)}
           />
         </div>
 
@@ -305,6 +251,7 @@ export default function AdminDashboardPage() {
           <TicketIntentDonutChart
             ticketByIntent={stats?.ticketByIntent}
             loading={statsLoading}
+            onSliceClick={(intentKey) => openPreview({ intentKey, ...dateRange }, `Tickets: ${intentKey}`)}
           />
           <AgentLeaderboard
             startDate={dateRange.startDate}
@@ -336,6 +283,13 @@ export default function AdminDashboardPage() {
       </button>
 
       <ChatBot isOpen={chatOpen} onClose={() => setChatOpen(false)} />
+      <TicketPreviewModal
+        open={!!previewFilters}
+        onClose={() => setPreviewFilters(null)}
+        title={previewTitle}
+        filters={previewFilters}
+        onDetailClick={handleDetailClick}
+      />
     </div>
   );
 }

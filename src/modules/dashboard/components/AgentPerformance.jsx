@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { getAgentsRank } from "../dashboard.service";
 import { formatDuration } from "../../ticket/ticket.schema";
+import AgentInsightModal from "./AgentInsightModal";
 
 const Metric = ({ label, value }) => (
   <div
@@ -31,6 +33,7 @@ const Metric = ({ label, value }) => (
 
 export default function AgentPerformance({ startDate, endDate }) {
   const { t } = useTranslation();
+  const [modalOpen, setModalOpen] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["my-rank", startDate, endDate],
@@ -96,43 +99,82 @@ export default function AgentPerformance({ startDate, endDate }) {
           {t("pages.dashboard.noLeaderboardData")}
         </div>
       ) : (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "16px",
-            flexWrap: "wrap",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "baseline", gap: "8px" }}>
-            <div style={{ fontSize: "32px", fontWeight: "800", color: "#FF8040" }}>
-              {Number(data.agent.avgScore).toFixed(2)}
+        <>
+          <div
+            onClick={() => setModalOpen(true)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "16px",
+              flexWrap: "wrap",
+              cursor: "pointer",
+            }}
+            title={t("pages.dashboard.clickForDetails")}
+          >
+            <div
+              style={{ display: "flex", alignItems: "baseline", gap: "8px" }}
+            >
+              <div
+                style={{
+                  fontSize: "32px",
+                  fontWeight: "800",
+                  color: "#FF8040",
+                }}
+              >
+                {Number(data.agent.avgScore).toFixed(2)}
+              </div>
+              <div
+                style={{
+                  fontSize: "13px",
+                  color: "#777",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {t("pages.dashboard.rankOf", {
+                  rank: data.rank,
+                  total: data.totalAgents,
+                })}
+              </div>
             </div>
-            <div style={{ fontSize: "13px", color: "#777", whiteSpace: "nowrap" }}>
-              {t("pages.dashboard.rankOf", {
-                rank: data.rank,
-                total: data.totalAgents,
-              })}
-            </div>
+
+            <Metric
+              label={t("pages.dashboard.leaderboardTickets")}
+              value={data.agent.totalTickets}
+            />
+            <Metric
+              label={t("pages.dashboard.leaderboardSlaBreached")}
+              value={
+                <>
+                  {data.agent.slaBreachedCount}{" "}
+                  <span
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: "500",
+                      color: "#999",
+                    }}
+                  >
+                    ({data.agent.slaBreachRate ?? 0}%)
+                  </span>
+                </>
+              }
+            />
+            <Metric
+              label={t("pages.dashboard.leaderboardResponseTime")}
+              value={responseTime}
+            />
+            <Metric
+              label={t("pages.dashboard.leaderboardResolutionTime")}
+              value={resolutionTime}
+            />
           </div>
 
-          <Metric
-            label={t("pages.dashboard.leaderboardTickets")}
-            value={data.agent.totalTickets}
+          {/* Modal show */}
+          <AgentInsightModal
+            agent={data.agent}
+            open={modalOpen}
+            onClose={() => setModalOpen(false)}
           />
-          <Metric
-            label={t("pages.dashboard.leaderboardSlaBreached")}
-            value={data.agent.slaBreachedCount}
-          />
-          <Metric
-            label={t("pages.dashboard.leaderboardResponseTime")}
-            value={responseTime}
-          />
-          <Metric
-            label={t("pages.dashboard.leaderboardResolutionTime")}
-            value={resolutionTime}
-          />
-        </div>
+        </>
       )}
     </div>
   );

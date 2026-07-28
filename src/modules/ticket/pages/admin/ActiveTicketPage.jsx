@@ -49,6 +49,7 @@ import {
   isResolvedStatus,
   getResolvedStatusName,
 } from "../../ticket.schema";
+import { useLocation } from "react-router-dom";
 
 const PRIORITY_OPTIONS = ["Low", "Normal", "High", "critical"];
 const CS_AGENT_ROLE_ID = 2;
@@ -294,6 +295,7 @@ export function AdminTicketListPage({ mode = "active" }) {
   const [savingField, setSavingField] = useState(null);
 
   const [search, setSearch] = useState("");
+  const location = useLocation();
 
   const selectedTicketId = selectedTicket?.id ?? null;
 
@@ -514,6 +516,17 @@ export function AdminTicketListPage({ mode = "active" }) {
     setAttachment(null);
     navigateTo("detail");
   };
+
+  useEffect(() => {
+    const ticketIdToOpen = location.state?.openTicketId;
+    if (ticketIdToOpen && tickets?.length > 0) {
+      const ticket = tickets.find((t) => t.id === ticketIdToOpen);
+      if (ticket) {
+        openTicketDetail(ticket);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.state, tickets]);
 
   const handleSubmitResponse = async (e) => {
     e.preventDefault();

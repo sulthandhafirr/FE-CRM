@@ -12,11 +12,12 @@ const getIntentLabel = (intentKey) => {
   return INTENT_LABELS[intentKey] ?? intentKey;
 };
 
-export default function TicketIntentDonutChart({ ticketByIntent, loading, height }) {
+export default function TicketIntentDonutChart({ ticketByIntent, loading, height, onSliceClick }) {
   const { t } = useTranslation();
 
   const entries = Object.entries(ticketByIntent ?? {});
   const data = entries.map(([intent], i) => ({
+    key: intent,
     label: getIntentLabel(intent),
     value: Number(ticketByIntent?.[intent] ?? 0),
     color: INTENT_COLORS[i % INTENT_COLORS.length],
@@ -30,6 +31,7 @@ export default function TicketIntentDonutChart({ ticketByIntent, loading, height
       loading={loading}
       emptyMessage={t("pages.dashboard.noTicketIntentData")}
       height={height}
+      onSliceClick={onSliceClick}
     />
   );
 }
