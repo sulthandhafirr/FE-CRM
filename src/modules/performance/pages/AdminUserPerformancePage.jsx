@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { MdArrowBack, MdChat, MdOutlinePerson, MdPersonAdd } from "react-icons/md";
@@ -18,6 +18,7 @@ import {
 } from "@mui/material";
 import { ROUTE } from "../../../app/routes";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../hooks/useAuth";
 import PerformanceCard from "../components/PerformanceCard";
 import { getUsersByRole } from "../../profile/profile.service";
 import ChatBot from "../../../components/ui/ChatBot";
@@ -30,6 +31,7 @@ import {
   getStatusColor,
 } from "../../ticket/ticket.schema";
 import AddUserForm from "../../import/AddUserForm";
+import { getCompanyRoles } from "../../import/import.service";
 import { getAllTiers, setProfileTier } from "../performance.service";
 
 // ─── tier colors ─────────────────────────────────────────────────────────────
@@ -318,15 +320,32 @@ export default function AdminUserPerformancePage() {
 
 export function AdminUserPerformanceView({ initialTab = "cs_agent", showAdd = true }) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { user } = useAuth();
   const [chatOpen, setChatOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [addUserOpen, setAddUserOpen] = useState(false);
-  const { t } = useTranslation();
+
+  // Dynamically resolve role IDs from the admin's company
+  const [roleIdMap, setRoleIdMap] = useState({});
+  const roleFetched = useRef(false);
+
+  useEffect(() => {
+    if (!user?.id || roleFetched.current) return;
+    getCompanyRoles(user.id).then((roles) => {
+      const map = {};
+      for (const r of roles) {
+        map[r.role] = r.id;
+      }
+      setRoleIdMap(map);
+      roleFetched.current = true;
+    });
+  }, [user?.id]);
 
   const tabs = [
-    { key: "cs_agent", label: t("pages.adminUserPerformance.tabs.cs_agent"), roleId: 2 },
-    { key: "technician", label: t("pages.adminUserPerformance.tabs.technician"), roleId: 3 },
-    { key: "customer", label: t("pages.adminUserPerformance.tabs.customer"), roleId: 1 },
+    { key: "cs_agent", label: t("pages.adminUserPerformance.tabs.cs_agent") },
+    { key: "technician", label: t("pages.adminUserPerformance.tabs.technician") },
+    { key: "customer", label: t("pages.adminUserPerformance.tabs.customer") },
   ];
 
   const currentTab = tabs.find((tab) => tab.key === initialTab) ?? tabs[0];
@@ -347,11 +366,14 @@ export function AdminUserPerformanceView({ initialTab = "cs_agent", showAdd = tr
 
   const activeTabConfig = tabs.find((tab) => tab.key === activeTab) ?? tabs[0];
 
+  const activeRoleId = roleIdMap[activeTabConfig.key];
+
   const { data: users = [], isLoading: usersLoading } = useQuery({
-    queryKey: ["users-by-role", activeTab],
-    queryFn: () => getUsersByRole(activeTabConfig.roleId),
+    queryKey: ["users-by-role", activeTab, activeRoleId],
+    queryFn: () => getUsersByRole(activeRoleId),
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
+    enabled: Boolean(activeRoleId),
   });
 
   const { data: tiers = [] } = useQuery({
@@ -724,7 +746,7 @@ export function AdminUserPerformanceView({ initialTab = "cs_agent", showAdd = tr
             <AddUserForm
               isOpen={addUserOpen}
               onClose={() => setAddUserOpen(false)}
-              defaultRoleId={activeTabConfig.roleId}
+              defaultRoleName={activeTabConfig.key}
             />
           </>
         )}

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { MdUploadFile, MdTableChart, MdDownload } from "react-icons/md";
@@ -8,18 +8,24 @@ import {
   TableHead, TableRow, TextField, Typography,
 } from "@mui/material";
 import * as XLSX from "xlsx";
-import { ROLES, downloadTemplate, createSingleUser, createBulkUser, normalizeRows, validateRow, getRoleId } from "./import.service";
+import { useAuth } from "../../hooks/useAuth";
+import { getCompanyRoles, buildRoleMap, downloadTemplate, createSingleUser, createBulkUser, normalizeRows, validateRow, getRoleId } from "./import.service";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 
-const INIT_FORM = (roleId) => ({ name: "", email: "", password: "", roleId, position: "" });
+const INIT_FORM = (roleId) => ({ name: "", email: "", password: "", roleId: roleId ?? 0, position: "" });
 
-export default function AddUserForm({ isOpen, onClose, defaultRoleId = 2 }) {
+export default function AddUserForm({ isOpen, onClose, defaultRoleName = "cs_agent" }) {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const fileInputRef = useRef(null);
 
+  // Dynamic roles fetched from Supabase based on admin's company
+  const [companyRoles, setCompanyRoles] = useState(undefined); // undefined = still loading
+  const [roleMap, setRoleMap] = useState(null);
+
   const [mode, setMode]             = useState("single");
-  const [formData, setFormData]     = useState(INIT_FORM(defaultRoleId));
+  const [formData, setFormData]     = useState(INIT_FORM(0));
   const [errors, setErrors]         = useState({});
   const [isSubmitting, setSubmitting] = useState(false);
 
@@ -30,11 +36,47 @@ export default function AddUserForm({ isOpen, onClose, defaultRoleId = 2 }) {
   const [bulkProgress, setBulkProgress] = useState({ done: 0, total: 0 });
   const [dragOver, setDragOver]         = useState(false);
   const [fileName, setFileName]         = useState("");
+  const [bulkPassword, setBulkPassword] = useState("12345678");
 
-  const resetSingle = () => { setFormData(INIT_FORM(defaultRoleId)); setErrors({}); };
+  // Track whether initial role has been set (avoids re-setting on re-render)
+  const initialRoleSet = useRef(false);
+
+  // ─── Fetch roles for the admin's company when modal opens ──────────────
+  useEffect(() => {
+    if (!isOpen || !user?.id) return;
+    initialRoleSet.current = false;
+    setCompanyRoles(undefined);
+    setRoleMap(null);
+    getCompanyRoles(user.id).then((roles) => {
+      // Filter out ultrauser (and admin) — only show assignable roles
+      const filtered = roles.filter((r) => {
+        const name = r.role ?? r.key;
+        return name !== "ultrauser" && name !== "admin";
+      });
+      setCompanyRoles(filtered);
+      setRoleMap(buildRoleMap(filtered));
+      // Set default role from prop (cs_agent, technician, customer)
+      if (filtered?.length && !initialRoleSet.current) {
+        const match = filtered.find((r) => r.role === defaultRoleName);
+        if (match) {
+          setFormData((prev) => ({ ...prev, roleId: match.id }));
+        } else {
+          // Fallback to first available role
+          setFormData((prev) => ({ ...prev, roleId: filtered[0].id }));
+        }
+        initialRoleSet.current = true;
+      }
+    });
+  }, [isOpen, user?.id, defaultRoleName]);
+
+  const resetSingle = () => {
+    const fallbackId = companyRoles?.[0]?.id ?? 0;
+    setFormData(INIT_FORM(fallbackId));
+    setErrors({});
+  };
   const resetBulk   = () => {
     setBulkRows([]); setBulkErrors([]); setBulkApiError("");
-    setBulkProgress({ done: 0, total: 0 }); setFileName("");
+    setBulkProgress({ done: 0, total: 0 }); setFileName(""); setBulkPassword("12345678");
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -80,7 +122,7 @@ export default function AddUserForm({ isOpen, onClose, defaultRoleId = 2 }) {
         const wb   = XLSX.read(ev.target.result, { type: "array" });
         const raw  = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: "" });
         const rows = normalizeRows(raw);
-        setBulkRows(rows); setBulkErrors(rows.map(validateRow));
+        setBulkRows(rows); setBulkErrors(rows.map((row) => validateRow(row, roleMap)));
       } catch { setBulkApiError(t("pages.addUserForm.bulk.readError")); }
     };
     reader.readAsArrayBuffer(file);
@@ -99,7 +141,7 @@ export default function AddUserForm({ isOpen, onClose, defaultRoleId = 2 }) {
 
     for (let i = 0; i < bulkRows.length; i++) {
       try {
-        await createBulkUser({ ...bulkRows[i], roleId: getRoleId(bulkRows[i].role) });
+        await createBulkUser({ ...bulkRows[i], roleId: getRoleId(bulkRows[i].role, roleMap), password: bulkPassword });
         newErrors[i] = []; ok++;
       } catch (err) {
         newErrors[i] = [err?.response?.data?.message ?? err?.message ?? "Failed"];
@@ -193,8 +235,8 @@ export default function AddUserForm({ isOpen, onClose, defaultRoleId = 2 }) {
                       label={t("pages.addUserForm.fields.role")}
                       onChange={(e) => setFormData({ ...formData, roleId: e.target.value })}
                     >
-                      {ROLES.map((r) => (
-                        <MenuItem key={r.id} value={r.id}>{t(`roles.${r.key}`)}</MenuItem>
+                      {(companyRoles ?? []).map((r) => (
+                        <MenuItem key={r.id} value={r.id}>{t(`roles.${r.role ?? r.key}`)}</MenuItem>
                       ))}
                     </Select>
                   </FormControl>
@@ -221,16 +263,23 @@ export default function AddUserForm({ isOpen, onClose, defaultRoleId = 2 }) {
                     />
                   ))}
 
-                  {formData.roleId !== 1 && (
-                    <TextField
-                      label={t("pages.addUserForm.fields.position")}
-                      placeholder={t("pages.addUserForm.fields.positionPlaceholder")}
-                      helperText={t("pages.addUserForm.fields.positionHint")}
-                      value={formData.position}
-                      onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-                      fullWidth
-                    />
-                  )}
+                  {(() => {
+                    // Show position field only when role is NOT customer
+                    const selectedRole = (companyRoles ?? []).find((r) => r.id === formData.roleId);
+                    const isCustomer = selectedRole
+                      ? (selectedRole.role ?? selectedRole.key) === "customer"
+                      : false;
+                    return !isCustomer && (
+                      <TextField
+                        label={t("pages.addUserForm.fields.position")}
+                        placeholder={t("pages.addUserForm.fields.positionPlaceholder")}
+                        helperText={t("pages.addUserForm.fields.positionHint")}
+                        value={formData.position}
+                        onChange={(e) => setFormData({ ...formData, position: e.target.value })}
+                        fullWidth
+                      />
+                    );
+                  })()}
 
                   {errors.api && (
                     <Box sx={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: "8px", px: 2, py: 1.5 }}>
@@ -275,6 +324,17 @@ export default function AddUserForm({ isOpen, onClose, defaultRoleId = 2 }) {
             {/* Bulk mode */}
             {mode === "bulk" && (
               <Stack spacing={3}>
+
+                {/* Default password for all imported users */}
+                <TextField
+                  required
+                  type="password"
+                  label="Default Password"
+                  helperText="Password untuk semua user yang di-import"
+                  value={bulkPassword}
+                  onChange={(e) => setBulkPassword(e.target.value)}
+                  fullWidth
+                />
 
                 {/* Drop zone */}
                 <Box

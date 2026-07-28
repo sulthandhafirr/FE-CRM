@@ -1,29 +1,60 @@
 import * as XLSX from "xlsx";
 import { api } from "../../lib/api/apiClient";
-
-export const ROLES = [
-  { id: 1, key: "customer" },
-  { id: 2, key: "cs_agent" },
-  { id: 3, key: "technician" },
-];
+import { supabase } from "../../lib/supabase";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SERVICE_KEY  = import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY;
 
 const BULK_DEFAULT_PASSWORD = "12345678";
 
-const ROLE_ALIASES = {
-  customer: 1,
-  "1": 1,
-  user: 1,
-  "cs agent": 2,
-  cs_agent: 2,
-  "2": 2,
-  agent: 2,
-  technician: 3,
-  teknisi: 3,
-  "3": 3,
+// ─── Dynamic roles per company ─────────────────────────────────────────────────
+
+/** Build a role-name → role-id map from a roles array (fetched per company) */
+export const buildRoleMap = (roles) => {
+  const map = {};
+  for (const r of roles) {
+    const key = r.role?.toLowerCase();
+    if (key) {
+      map[key] = r.id;
+      map[String(r.id)] = r.id;
+    }
+  }
+  // Common aliases
+  map["user"]     = map["customer"] ?? null;
+  map["cs agent"] = map["cs_agent"] ?? null;
+  map["agent"]    = map["cs_agent"] ?? null;
+  map["teknisi"]  = map["technician"] ?? null;
+  return map;
 };
+
+/** Fetch roles that belong to the same company as the given user */
+export const getCompanyRoles = async (userId) => {
+  const { data: profile, error: profileErr } = await supabase
+    .from("profile")
+    .select("company_id")
+    .eq("id", userId)
+    .single();
+
+  if (profileErr || !profile?.company_id) {
+    console.warn("Could not determine company, returning empty roles");
+    return [];
+  }
+
+  const { data: roles, error: rolesErr } = await supabase
+    .from("roles")
+    .select("id, role")
+    .eq("company_id", profile.company_id)
+    .order("id");
+
+  if (rolesErr || !roles?.length) {
+    console.warn("No roles found for company, returning empty roles");
+    return [];
+  }
+
+  return roles;
+};
+
+// ─── Helpers ───────────────────────────────────────────────────────────────────
 
 const normalizeText = (value) => String(value ?? "").trim().toLowerCase();
 
@@ -37,10 +68,11 @@ const getCellValue = (row, keys) => {
   return "";
 };
 
-export const getRoleId = (role) => {
+export const getRoleId = (role, roleMap) => {
   const normalized = normalizeText(role);
   if (!normalized) return null;
-  return ROLE_ALIASES[normalized] ?? null;
+  if (roleMap && roleMap[normalized]) return roleMap[normalized];
+  return null;
 };
 
 export const normalizeRows = (rows) =>
@@ -51,7 +83,7 @@ export const normalizeRows = (rows) =>
     position: getCellValue(row, ["position", "Position", "jabatan", "posisi"]),
   }));
 
-export const validateRow = (row) => {
+export const validateRow = (row, roleMap) => {
   const errors = [];
   const name = normalizeText(row?.name);
   const email = normalizeText(row?.email);
@@ -62,7 +94,7 @@ export const validateRow = (row) => {
   else if (!/^\S+@\S+\.\S+$/.test(email)) errors.push("Email is invalid");
 
   if (!role) errors.push("Role is required");
-  else if (!getRoleId(role)) errors.push("Role is invalid");
+  else if (!getRoleId(role, roleMap)) errors.push("Role is invalid");
 
   return errors;
 };
@@ -117,7 +149,7 @@ export const createSingleUser = async ({ name, email, password, roleId, position
 
 // ─── Public: bulk user (default password) ────────────────────────────────────
 
-export const createBulkUser = async ({ name, email, roleId, position }) => {
-  const authUserId = await createAuthUser(email, BULK_DEFAULT_PASSWORD);
+export const createBulkUser = async ({ name, email, roleId, position, password }) => {
+  const authUserId = await createAuthUser(email, password || BULK_DEFAULT_PASSWORD);
   return addUserProfile({ authUserId, name, email, roleId, position });
 };
