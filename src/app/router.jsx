@@ -32,8 +32,7 @@ import CSAgentPerformancePage from "../modules/performance/pages/admin/CSAgentPe
 import AdminTechnicianPerformancePage from "../modules/performance/pages/admin/TechnicianPerformancePage";
 import CustomerPerformancePage from "../modules/performance/pages/admin/CustomerPerformancePage";
 import GeneralSetupDashboardPage from "../modules/gsetup/pages/GeneralSetupDashboardPage";
-import IntentManagementPage from "../modules/gsetup/pages/IntentManagementPage";
-import UrgencyManagementPage from "../modules/gsetup/pages/UrgencyManagementPage";
+import IssueAndPriorityManagementPage from "../modules/gsetup/pages/IssueAndPriorityManagementPage";
 import TicketStatusPage from "../modules/gsetup/pages/TicketStatusPage";
 import SlaRulesPage from "../modules/gsetup/pages/SlaRulesPage";
 import RoleManagementPage from "../modules/gsetup/pages/RoleManagementPage";
@@ -211,8 +210,7 @@ export default function Router() {
           <Route path={ROUTE.adminTicketSolved} element={<SolvedTicketPage />} />
           <Route path={ROUTE.adminUserPerformance} element={<AdminUserPerformancePage />} />
           <Route path={ROUTE.adminGeneralSetup} element={<GeneralSetupDashboardPage />} />
-          <Route path={ROUTE.adminGeneralSetupIntents} element={<IntentManagementPage />} />
-          <Route path={ROUTE.adminGeneralSetupUrgency} element={<UrgencyManagementPage />} />
+          <Route path={ROUTE.adminGeneralSetupIssuePriority} element={<IssueAndPriorityManagementPage />} />
           <Route path={ROUTE.adminGeneralSetupTicketStatus} element={<TicketStatusPage />} />
           <Route path={ROUTE.adminGeneralSetupSla} element={<SlaRulesPage />} />
           <Route path={ROUTE.adminGeneralSetupRoles} element={<RoleManagementPage />} />

@@ -1,28 +1,17 @@
-import { MdBolt, MdBusiness, MdChecklist, MdGavel, MdGroup, MdLayers, MdPsychology } from "react-icons/md";
+import { MdBusiness, MdChecklist, MdGavel, MdGroup, MdLayers, MdPsychology } from "react-icons/md";
 import { ROUTE } from "../../app/routes";
 
 export const GENERAL_SETUP_MODULES = [
   {
-    key: "intentManagement",
+    key: "issueAndPriority",
     badge: "AI",
-    title: "Intent Management",
-    description: "Manage labels, descriptions, priorities, and manual override controls for ticket intents.",
+    title: "Issue and Priority Management",
+    description: "Configure AI labels, priority thresholds, priority defaults, and keyword boosts in one place.",
     icon: MdPsychology,
     accent: "#ff8040",
     accentBg: "#fff4ee",
     accentBorder: "#fcd9bc",
-    to: ROUTE.adminGeneralSetupIntents,
-  },
-  {
-    key: "urgencyManagement",
-    badge: "Urgency",
-    title: "Urgency Management",
-    description: "Control AI urgency thresholds, sentiment boost, keyword boost, and intent mapping.",
-    icon: MdBolt,
-    accent: "#d97706",
-    accentBg: "#fef3c7",
-    accentBorder: "#fde68a",
-    to: ROUTE.adminGeneralSetupUrgency,
+    to: ROUTE.adminGeneralSetupIssuePriority,
   },
   {
     key: "ticketStatus",
