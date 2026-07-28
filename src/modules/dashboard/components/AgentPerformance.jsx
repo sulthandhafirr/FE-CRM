@@ -8,20 +8,20 @@ import AgentInsightModal from "./AgentInsightModal";
 const Metric = ({ label, value }) => (
   <div
     style={{
-      background: "#fff5ef",
-      border: "1px solid #f0f0f0",
+      background: "#FAFAFA",
+      border: "1px solid #F0F0F0",
       borderRadius: "10px",
       padding: "10px 14px",
       minWidth: "110px",
     }}
   >
-    <div style={{ fontSize: "11px", color: "#777", fontWeight: "600" }}>
+    <div style={{ fontSize: "11px", color: "#6B7280", fontWeight: "600" }}>
       {label}
     </div>
     <div
       style={{
         fontSize: "17px",
-        color: "#333",
+        color: "#111827",
         fontWeight: "700",
         marginTop: "2px",
       }}
@@ -54,25 +54,25 @@ export default function AgentPerformance({ startDate, endDate }) {
   return (
     <div
       style={{
-        background: "white",
-        padding: "16px 18px",
-        borderRadius: "12px",
-        border: "2px solid #FF8040",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+        background: "#FFFFFF",
+        padding: "24px",
+        borderRadius: "16px",
+        border: "1px solid #E5E7EB",
+        boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)",
         width: "100%",
       }}
     >
       <div
         style={{
-          fontSize: "14px",
+          fontSize: "16px",
           fontWeight: "600",
-          color: "#333",
+          color: "#111827",
           marginBottom: "2px",
         }}
       >
         {t("pages.dashboard.agentPerformanceTitle")}
       </div>
-      <div style={{ fontSize: "12px", color: "#777", marginBottom: "12px" }}>
+      <div style={{ fontSize: "12px", color: "#6B7280", marginBottom: "12px" }}>
         {t("pages.dashboard.agentPerformanceSubtitle")}
       </div>
 
@@ -81,7 +81,7 @@ export default function AgentPerformance({ startDate, endDate }) {
           style={{
             padding: "20px 0",
             textAlign: "center",
-            color: "#999",
+            color: "#9CA3AF",
             fontSize: "14px",
           }}
         >
@@ -92,7 +92,7 @@ export default function AgentPerformance({ startDate, endDate }) {
           style={{
             padding: "20px 0",
             textAlign: "center",
-            color: "#999",
+            color: "#9CA3AF",
             fontSize: "14px",
           }}
         >
@@ -126,7 +126,7 @@ export default function AgentPerformance({ startDate, endDate }) {
               <div
                 style={{
                   fontSize: "13px",
-                  color: "#777",
+                  color: "#6B7280",
                   whiteSpace: "nowrap",
                 }}
               >
@@ -150,7 +150,7 @@ export default function AgentPerformance({ startDate, endDate }) {
                     style={{
                       fontSize: "12px",
                       fontWeight: "500",
-                      color: "#999",
+                      color: "#9CA3AF",
                     }}
                   >
                     ({data.agent.slaBreachRate ?? 0}%)
@@ -168,7 +168,6 @@ export default function AgentPerformance({ startDate, endDate }) {
             />
           </div>
 
-          {/* Modal show */}
           <AgentInsightModal
             agent={data.agent}
             open={modalOpen}

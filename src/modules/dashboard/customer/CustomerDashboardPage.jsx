@@ -1,4 +1,4 @@
-import { createElement, useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { MdChat, MdCheckCircle, MdConfirmationNumber, MdHourglassBottom, MdHourglassDisabled, MdHourglassEmpty, MdListAlt, MdPending, MdPeople, MdSupportAgent, MdTaskAlt } from "react-icons/md";
 import { useTranslation } from "react-i18next";
@@ -6,7 +6,7 @@ import ChatBot from "../../../components/ui/ChatBot";
 import { getDashboardStats } from "../dashboard.service";
 import { useAuth } from "../../../hooks/useAuth";
 import DateRangeFilter from "../components/DateRangeFilter";
-
+import { StatCard } from "../components/StatCard";
 
 export default function CustomerDashboardPage() {
   const { t } = useTranslation();
@@ -26,13 +26,11 @@ export default function CustomerDashboardPage() {
   }
 
   return (
-    <div
-      style={{
-        fontFamily:
-          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      }}
-    >
+    <div>
       <style>{`
+        .stat-card:hover {
+          box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1) !important;
+        }
         @media (max-width: 767px) {
           .dashboard-container { padding: 14px !important; }
           .stat-grid-responsive { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
@@ -50,155 +48,53 @@ export default function CustomerDashboardPage() {
       `}</style>
       <div
         className="dashboard-container"
-        style={{ flex: 1, overflowY: "auto" }}
+        style={{ flex: 1, overflowY: "auto", padding: "24px 30px" }}
       >
         {/* Welcome Message */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-          <div style={{ fontSize: "24px", fontWeight: "700", color: "#333" }}>
-            {t("pages.dashboard.welcome")}, {name ?? "#"}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "24px" }}>
+          <div>
+            <div style={{ fontSize: "24px", fontWeight: "700", color: "#111827", letterSpacing: "-0.025em" }}>
+              {t("pages.dashboard.welcome")}, {name ?? "#"}
+            </div>
+            <div style={{ fontSize: "14px", color: "#6B7280", marginTop: "4px" }}>
+              Here&apos;s what&apos;s happening with your support operations.
+            </div>
           </div>
-          {/* <div style={{ fontSize: "14px", color: "#999", marginTop: "4px" }}>
-            {t("pages.dashboard.welcomeSubtitle")}
-          </div> */}
           <DateRangeFilter onApply={handleDateApply} />
         </div>
 
         {/* Top Cards Row */}
-        <div style={{ display: "grid", marginBottom: "20px" }} className="stat-grid-responsive">
-          <div className="stat-card-mobile" style={{
-            background: "white",
-            border: "2px solid #FF8040",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-          }}>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginBottom: "10px",
-              }}
-            >
-              <div style={{ fontSize: "16px", color: "#333", fontWeight: "500" }}>
-                {t("pages.dashboard.totalTechnician")}
-              </div>
-              {createElement(MdPeople, { size: 22, color: "#FF8040" })}
-            </div>
-            <div style={{ fontSize: "36px", fontWeight: "700", color: "#FF8040" }}>
-              {statsLoading ? (
-                <span style={{ fontSize: "20px", color: "#ddd" }}>—</span>
-              ) : (
-                (stats?.totalTechnician ?? 0)
-              )}
-            </div>
-          </div>
-
-          <div className="stat-card-mobile" style={{
-            background: "white",
-            border: "2px solid #FF8040",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-          }}>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginBottom: "10px",
-              }}
-            >
-              <div style={{ fontSize: "16px", color: "#333", fontWeight: "500" }}>
-                {t("pages.dashboard.totalCsAgent")}
-              </div>
-              {createElement(MdSupportAgent, { size: 22, color: "#FF8040" })}
-            </div>
-            <div style={{ fontSize: "36px", fontWeight: "700", color: "#FF8040" }}>
-              {statsLoading ? (
-                <span style={{ fontSize: "20px", color: "#ddd" }}>—</span>
-              ) : (
-                (stats?.totalCsAgent ?? 0)
-              )}
-            </div>
-          </div>
-
-          <div className="stat-card-mobile" style={{
-            background: "white",
-            border: "2px solid #FF8040",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-          }}>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginBottom: "10px",
-              }}
-            >
-              <div style={{ fontSize: "16px", color: "#333", fontWeight: "500" }}>
-                {t("pages.dashboard.solvedTicket")}
-              </div>
-              {createElement(MdTaskAlt, { size: 22, color: "#FF8040" })}
-            </div>
-            <div style={{ fontSize: "36px", fontWeight: "700", color: "#FF8040" }}>
-              {statsLoading ? (
-                <span style={{ fontSize: "20px", color: "#ddd" }}>—</span>
-              ) : (
-                (stats?.solvedTicket ?? 0)
-              )}
-            </div>
-          </div>
-
-          <div className="stat-card-mobile" style={{
-            background: "white",
-            border: "2px solid #FF8040",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-          }}>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginBottom: "10px",
-              }}
-            >
-              <div style={{ fontSize: "16px", color: "#333", fontWeight: "500" }}>
-                {t("pages.dashboard.activeTicket")}
-              </div>
-              {createElement(MdHourglassEmpty, { size: 22, color: "#FF8040" })}
-            </div>
-            <div style={{ fontSize: "36px", fontWeight: "700", color: "#FF8040" }}>
-              {statsLoading ? (
-                <span style={{ fontSize: "20px", color: "#ddd" }}>—</span>
-              ) : (
-                (stats?.activeTicket ?? 0)
-              )}
-            </div>
-          </div>
-
-          <div className="stat-card-mobile" style={{
-            background: "white",
-            border: "2px solid #FF8040",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-          }}>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginBottom: "10px",
-              }}
-            >
-              <div style={{ fontSize: "16px", color: "#333", fontWeight: "500" }}>
-                {t("pages.dashboard.totalTicket")}
-              </div>
-              {createElement(MdListAlt, { size: 22, color: "#FF8040" })}
-            </div>
-            <div style={{ fontSize: "36px", fontWeight: "700", color: "#FF8040" }}>
-              {statsLoading ? (
-                <span style={{ fontSize: "20px", color: "#ddd" }}>—</span>
-              ) : (
-                (stats?.totalMyTicket ?? 0)
-              )}
-            </div>
-          </div>
+        <div style={{ display: "grid", marginBottom: "24px", gap: "16px", gridTemplateColumns: "repeat(5, 1fr)" }}>
+          <StatCard
+            title={t("pages.dashboard.totalTechnician")}
+            value={stats?.totalTechnician}
+            icon={MdPeople}
+            loading={statsLoading}
+          />
+          <StatCard
+            title={t("pages.dashboard.totalCsAgent")}
+            value={stats?.totalCsAgent}
+            icon={MdSupportAgent}
+            loading={statsLoading}
+          />
+          <StatCard
+            title={t("pages.dashboard.solvedTicket")}
+            value={stats?.solvedTicket}
+            icon={MdTaskAlt}
+            loading={statsLoading}
+          />
+          <StatCard
+            title={t("pages.dashboard.activeTicket")}
+            value={stats?.activeTicket}
+            icon={MdHourglassEmpty}
+            loading={statsLoading}
+          />
+          <StatCard
+            title={t("pages.dashboard.totalTicket")}
+            value={stats?.totalMyTicket}
+            icon={MdListAlt}
+            loading={statsLoading}
+          />
         </div>
 
         {/* Charts Row */}

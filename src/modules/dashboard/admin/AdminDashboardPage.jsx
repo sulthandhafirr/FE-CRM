@@ -151,7 +151,7 @@ export default function AdminDashboardPage() {
               {t("pages.dashboard.welcome")}, {name ?? "#"}
             </div>
             <div style={{ fontSize: "14px", color: "#6B7280", marginTop: "4px" }}>
-              Here&apos;s what&apos;s happening with your support operations today.
+              Here&apos;s what&apos;s happening with your support operations.
             </div>
           </div>
           <div>

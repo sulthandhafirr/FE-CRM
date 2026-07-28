@@ -61,12 +61,13 @@ export default function AgentDashboardPage() {
   };
 
   return (
-    <div
-      style={{
-        fontFamily:
-          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      }}
-    >
+    <div>
+      <style>{`
+        .stat-card:hover {
+          box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1) !important;
+        }
+      `}</style>
+
       <div
         style={{
           padding: "24px 30px",
@@ -74,28 +75,39 @@ export default function AgentDashboardPage() {
           overflowY: "auto",
         }}
       >
-        {/* Welcome Message */}
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "14px",
+            alignItems: "flex-end",
+            marginBottom: "24px",
           }}
         >
-          <div style={{ fontSize: "22px", fontWeight: "700", color: "#333" }}>
-            {t("pages.dashboard.welcome")}, {name ?? "#"}
+          <div>
+            <div
+              style={{
+                fontSize: "24px",
+                fontWeight: "700",
+                color: "#111827",
+                letterSpacing: "-0.025em",
+              }}
+            >
+              {t("pages.dashboard.welcome")}, {name ?? "#"}
+            </div>
+            <div style={{ fontSize: "14px", color: "#6B7280", marginTop: "4px" }}>
+              Here&apos;s what&apos;s happening with your support operations.
+            </div>
           </div>
-          <DateRangeFilter onApply={handleDateApply} />
+          <div>
+            <DateRangeFilter onApply={handleDateApply} />
+          </div>
         </div>
-
-        {/* Stat Cards Row — compact 5-across grid */}
         <div
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(5, 1fr)",
-            gap: "12px",
-            marginBottom: "14px",
+            gap: "16px",
+            marginBottom: "24px",
           }}
         >
           <StatCard
@@ -138,21 +150,18 @@ export default function AgentDashboardPage() {
           />
         </div>
 
-        {/* My Performance — sized to content, no more forced tall min-height */}
-        <div style={{ marginBottom: "14px" }}>
+        <div style={{ marginBottom: "24px" }}>
           <AgentPerformance
             startDate={dateRange.startDate}
             endDate={dateRange.endDate}
           />
         </div>
-
-        {/* Status / Priority / Intent — 3-column row instead of stacked */}
         <div
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(3, 1fr)",
-            gap: "14px",
-            marginBottom: "14px",
+            gap: "24px",
+            marginBottom: "24px",
           }}
         >
           <TicketStatusDonutChart
@@ -177,8 +186,6 @@ export default function AgentDashboardPage() {
             }
           />
         </div>
-
-        {/* Trend Chart — full width, shorter */}
         <ChartPanel title={t("pages.dashboard.ticketTrend")}>
           <TicketTrendChart
             trend={trend}
@@ -189,8 +196,6 @@ export default function AgentDashboardPage() {
           />
         </ChartPanel>
       </div>
-
-      {/* Floating Chat Button */}
       <button
         onClick={() => setChatOpen(!chatOpen)}
         style={{
