@@ -77,7 +77,7 @@ export default function AdminDashboardPage() {
     const csAgent = stats?.totalCsAgent ?? 0;
 
     result.push({
-      title: "AI Summary",
+      title: "Summary",
       badge: "Overview",
       badgeColor: "rgba(59,130,246,0.2)",
       content: `Total: ${totalTicket} tickets. ${solved} resolved, ${progress} in progress, ${waiting} waiting.`,
