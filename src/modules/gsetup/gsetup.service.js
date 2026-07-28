@@ -46,18 +46,9 @@ export const WORKING_DAY_OPTIONS = [
 ];
 
 export const TIMEZONE_OPTIONS = [
-  "UTC",
-  "Asia/Jakarta",
-  "Asia/Singapore",
-  "Asia/Tokyo",
-  "Europe/London",
-  "America/New_York",
-];
-
-export const DATE_FORMAT_OPTIONS = [
-  "YYYY-MM-DD",
-  "DD/MM/YYYY",
-  "MM/DD/YYYY",
+  "WIB (UTC+7)",
+  "WITA (UTC+8)",
+  "WIT (UTC+9)",
 ];
 
 export const PERMISSION_GROUPS = [
@@ -223,12 +214,10 @@ const DEFAULT_GENERAL_SETUP = {
     logoDataUrl: "",
     supportEmail: "support@capstonecrm.com",
     phoneNumber: "+62 21 555 0199",
-    timezone: "Asia/Jakarta",
+    timezone: "WIB (UTC+7)",
     workingDays: ["Mon", "Tue", "Wed", "Thu", "Fri"],
     workingHoursStart: "09:00",
     workingHoursEnd: "18:00",
-    ticketNumberFormat: "TKT-{YYYY}-{0001}",
-    dateFormat: "YYYY-MM-DD",
   },
 };
 
@@ -271,12 +260,10 @@ function mapApiResponseToCompanySettings(apiData) {
     companyName: apiData.companyName ?? "",
     supportEmail: apiData.supportEmail ?? "",
     phoneNumber: apiData.phoneNumber ?? "",
-    timezone: apiData.timezone ?? "Asia/Jakarta",
+    timezone: apiData.timezone ?? "WIB (UTC+7)",
     workingDays: apiData.workingDays ?? ["Mon", "Tue", "Wed", "Thu", "Fri"],
     workingHoursStart: apiData.workingHoursStart ?? "09:00",
     workingHoursEnd: apiData.workingHoursEnd ?? "18:00",
-    ticketNumberFormat: apiData.ticketNumberFormat ?? "TKT-{YYYY}-{0001}",
-    dateFormat: apiData.dateFormat ?? "YYYY-MM-DD",
     logoDataUrl: apiData.logoUrl ?? "",
   };
 }
@@ -299,8 +286,6 @@ export async function saveCompanySettingsToApi(companySettings) {
     workingDays: companySettings.workingDays,
     workingHoursStart: companySettings.workingHoursStart,
     workingHoursEnd: companySettings.workingHoursEnd,
-    ticketNumberFormat: companySettings.ticketNumberFormat,
-    dateFormat: companySettings.dateFormat,
     logoUrl: companySettings.logoDataUrl || "",
   };
   const { data } = await api.put("/api/company/settings", payload);

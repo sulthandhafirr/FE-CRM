@@ -17,7 +17,6 @@ import {
 import { MdBusiness, MdUploadFile } from "react-icons/md";
 import GeneralSetupSectionPage, { DialogField, SectionFooter, SettingsPanel } from "../GeneralSetupSectionPage";
 import {
-  DATE_FORMAT_OPTIONS,
   TIMEZONE_OPTIONS,
   WORKING_DAY_OPTIONS,
   fetchCompanySettingsFromApi,
@@ -29,13 +28,32 @@ import { GRID_2_SX } from "../components/gsetup.styles";
 function CompanySettingsContent({ settings, updateSettings, saveSettings, showToast, theme, fileInputRef }) {
   const [fileName, setFileName] = useState("");
   const [saving, setSaving] = useState(false);
+  const [loadingApi, setLoadingApi] = useState(true);
 
-  /* Load company settings from API on mount — merge into editor state */
+  /* Load company settings from API on mount — persist to localStorage immediately */
   useEffect(() => {
+    const STORAGE_KEY = "crm-general-setup-v1";
+
+    setLoadingApi(true);
     fetchCompanySettingsFromApi().then((apiSettings) => {
       if (apiSettings) {
         updateSettings("companySettings", apiSettings);
+
+        /* Persist only the companySettings section to localStorage
+           so RealtimeClock and other components pick up the new timezone */
+        try {
+          const raw = window.localStorage.getItem(STORAGE_KEY);
+          const stored = raw ? JSON.parse(raw) : {};
+          stored.companySettings = apiSettings;
+          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+        } catch {
+          /* localStorage unavailable — non-critical */
+        }
+
+        /* Notify RealtimeClock to pick up the new timezone immediately */
+        window.dispatchEvent(new Event("company-tz-changed"));
       }
+      setLoadingApi(false);
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -50,6 +68,9 @@ function CompanySettingsContent({ settings, updateSettings, saveSettings, showTo
       };
       updateSettings("companySettings", updated);
       saveSettings(nextSettings, "Company settings saved.");
+
+      /* Notify RealtimeClock to pick up the new timezone immediately */
+      window.dispatchEvent(new Event("company-tz-changed"));
     } catch {
       showToast("Failed to save company settings.", "error");
     } finally {
@@ -108,12 +129,32 @@ function CompanySettingsContent({ settings, updateSettings, saveSettings, showTo
 
   const { companySettings: s } = settings;
 
+  /* Show loading until fresh API data arrives */
+  if (loadingApi) {
+    return (
+      <Stack spacing={2.5}>
+        <SettingsPanel
+          icon={MdBusiness}
+          title="Company Settings"
+          subtitle="Loading company settings..."
+          theme={theme}
+        >
+          <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
+            <Typography sx={{ color: theme.subtext, fontSize: 14 }}>
+              Loading company settings...
+            </Typography>
+          </Box>
+        </SettingsPanel>
+      </Stack>
+    );
+  }
+
   return (
     <Stack spacing={2.5}>
       <SettingsPanel
         icon={MdBusiness}
         title="Company Settings"
-        subtitle="Configure organization details, locale preferences, and ticket numbering format."
+        subtitle="Configure organization details, locale preferences, and default working schedule."
         theme={theme}
         actions={<Chip label="Company profile" sx={{ fontWeight: 700 }} />}
       >
@@ -150,117 +191,79 @@ function CompanySettingsContent({ settings, updateSettings, saveSettings, showTo
             </FormControl>
           </Box>
 
+          {/* Logo upload */}
           <Box
             sx={{
-              display: "grid",
-              gridTemplateColumns: { xs: "1fr", lg: "1.25fr 0.75fr" },
-              gap: 2,
+              border: `1px solid ${theme.border}`,
+              borderRadius: "16px",
+              p: 2,
+              background: theme.isDarkMode ? "rgba(255,255,255,0.02)" : "#fff",
             }}
           >
-            {/* Logo upload */}
-            <Box
-              sx={{
-                border: `1px solid ${theme.border}`,
-                borderRadius: "16px",
-                p: 2,
-                background: theme.isDarkMode ? "rgba(255,255,255,0.02)" : "#fff",
-              }}
-            >
-              <Typography sx={{ fontSize: 13, fontWeight: 800, color: theme.text, mb: 1.5 }}>
-                Company Logo
-              </Typography>
-              <Stack direction={{ xs: "column", sm: "row" }} spacing={2} alignItems="center">
-                <Box
-                  sx={{
-                    width: 84,
-                    height: 84,
-                    borderRadius: "18px",
-                    border: `1px dashed ${theme.border}`,
-                    background: theme.inputHover,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    overflow: "hidden",
-                    flexShrink: 0,
-                  }}
-                >
-                  {s.logoDataUrl ? (
-                    <Box
-                      component="img"
-                      src={s.logoDataUrl}
-                      alt="Company logo"
-                      sx={{ width: "100%", height: "100%", objectFit: "cover" }}
-                    />
-                  ) : (
-                    <MdBusiness size={30} color={theme.subtext} />
-                  )}
-                </Box>
-                <Stack spacing={1} sx={{ flex: 1, width: "100%" }}>
-                  <Typography sx={{ fontSize: 13, color: theme.subtext }}>
-                    Upload a square logo for the admin experience and branded exports.
-                  </Typography>
-                  <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
-                    <Button
-                      variant="outlined"
-                      onClick={() => fileInputRef.current?.click()}
-                      startIcon={<MdUploadFile size={18} />}
-                      sx={{ borderRadius: "12px", fontWeight: 800 }}
-                    >
-                      Upload Logo
-                    </Button>
-                    <Button
-                      variant="text"
-                      onClick={clearLogo}
-                      sx={{ borderRadius: "12px", fontWeight: 800, color: theme.accent }}
-                    >
-                      Remove
-                    </Button>
-                  </Stack>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    hidden
-                    onChange={handleLogoUpload}
+            <Typography sx={{ fontSize: 13, fontWeight: 800, color: theme.text, mb: 1.5 }}>
+              Company Logo
+            </Typography>
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={2} alignItems="center">
+              <Box
+                sx={{
+                  width: 84,
+                  height: 84,
+                  borderRadius: "18px",
+                  border: `1px dashed ${theme.border}`,
+                  background: theme.inputHover,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  overflow: "hidden",
+                  flexShrink: 0,
+                }}
+              >
+                {s.logoDataUrl ? (
+                  <Box
+                    component="img"
+                    src={s.logoDataUrl}
+                    alt="Company logo"
+                    sx={{ width: "100%", height: "100%", objectFit: "cover" }}
                   />
-                  {fileName ? (
-                    <Typography sx={{ fontSize: 12, color: theme.subtext }}>
-                      {fileName}
-                    </Typography>
-                  ) : null}
-                </Stack>
-              </Stack>
-            </Box>
-
-            {/* Locale defaults */}
-            <Box
-              sx={{
-                border: `1px solid ${theme.border}`,
-                borderRadius: "16px",
-                p: 2,
-                background: theme.isDarkMode ? "rgba(255,255,255,0.02)" : "#fff",
-              }}
-            >
-              <Typography sx={{ fontSize: 13, fontWeight: 800, color: theme.text, mb: 1.5 }}>
-                Locale Defaults
-              </Typography>
-              <Stack spacing={2}>
-                <FormControl fullWidth>
-                  <InputLabel>Date Format</InputLabel>
-                  <Select
-                    label="Date Format"
-                    value={s.dateFormat}
-                    onChange={handleFieldChange("dateFormat")}
+                ) : (
+                  <MdBusiness size={30} color={theme.subtext} />
+                )}
+              </Box>
+              <Stack spacing={1} sx={{ flex: 1, width: "100%" }}>
+                <Typography sx={{ fontSize: 13, color: theme.subtext }}>
+                  Upload a square logo for the admin experience and branded exports.
+                </Typography>
+                <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
+                  <Button
+                    variant="outlined"
+                    onClick={() => fileInputRef.current?.click()}
+                    startIcon={<MdUploadFile size={18} />}
+                    sx={{ borderRadius: "12px", fontWeight: 800 }}
                   >
-                    {DATE_FORMAT_OPTIONS.map((fmt) => (
-                      <MenuItem key={fmt} value={fmt}>
-                        {fmt}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                    Upload Logo
+                  </Button>
+                  <Button
+                    variant="text"
+                    onClick={clearLogo}
+                    sx={{ borderRadius: "12px", fontWeight: 800, color: theme.accent }}
+                  >
+                    Remove
+                  </Button>
+                </Stack>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={handleLogoUpload}
+                />
+                {fileName ? (
+                  <Typography sx={{ fontSize: 12, color: theme.subtext }}>
+                    {fileName}
+                  </Typography>
+                ) : null}
               </Stack>
-            </Box>
+            </Stack>
           </Box>
 
           {/* Working days & hours */}
@@ -312,27 +315,11 @@ function CompanySettingsContent({ settings, updateSettings, saveSettings, showTo
             </DialogField>
           </Box>
 
-          {/* Ticket number format */}
-          <Box sx={GRID_2_SX}>
-            <TextField
-              label="Ticket Number Format"
-              value={s.ticketNumberFormat}
-              onChange={handleFieldChange("ticketNumberFormat")}
-              fullWidth
-            />
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, px: 0.5 }}>
-              <Chip label="Example" size="small" sx={{ fontWeight: 700 }} />
-              <Typography sx={{ color: theme.subtext, fontSize: 13 }}>
-                {s.ticketNumberFormat.replace("{YYYY}", "2026").replace("{0001}", "0001")}
-              </Typography>
-            </Box>
-          </Box>
-
           <SectionFooter
             theme={theme}
             onSave={handleSave}
             loading={saving}
-            helperText="Company settings influence branding, localization, and ticket numbering defaults."
+            helperText="Company settings influence branding, localization, and working schedule defaults."
           />
         </Stack>
       </SettingsPanel>
@@ -344,7 +331,7 @@ export default function CompanySettingsPage() {
   return (
     <GeneralSetupSectionPage
       title="Company Settings"
-      subtitle="Configure organization details, locale preferences, and ticket numbering format."
+      subtitle="Configure organization details, locale preferences, and default working schedule."
       ContentComponent={CompanySettingsContent}
     />
   );

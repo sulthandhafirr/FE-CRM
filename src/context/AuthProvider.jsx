@@ -53,6 +53,14 @@ export function AuthProvider({ children }) {
         setName(null);
         setOverrideRole(null);
         setVerified(false)
+
+        /* Clear company settings from localStorage so next login
+           doesn't show stale timezone / data from previous company */
+        try {
+          window.localStorage.removeItem("crm-general-setup-v1");
+        } catch {
+          /* non-critical */
+        }
       }
     });
 

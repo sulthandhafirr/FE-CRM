@@ -4,10 +4,28 @@ import { fetchCompanySettingsFromApi } from "../../modules/gsetup/gsetup.service
 export default function CompanyIdentity() {
   const [data, setData] = useState(null);
 
+  /* Fetch on mount */
   useEffect(() => {
-    fetchCompanySettingsFromApi().then((settings) => {
+    let cancelled = false;
+
+    async function fetchData() {
+      const settings = await fetchCompanySettingsFromApi();
+      if (!cancelled && settings) setData(settings);
+    }
+
+    fetchData();
+
+    return () => { cancelled = true; };
+  }, []);
+
+  /* Re-fetch when timezone changes (save from Company Settings) */
+  useEffect(() => {
+    const handler = async () => {
+      const settings = await fetchCompanySettingsFromApi();
       if (settings) setData(settings);
-    });
+    };
+    window.addEventListener("company-tz-changed", handler);
+    return () => window.removeEventListener("company-tz-changed", handler);
   }, []);
 
   const companyName = data?.companyName || "Capstone CRM";
@@ -18,7 +36,7 @@ export default function CompanyIdentity() {
     .join("")
     .slice(0, 2)
     .toUpperCase() || "CC";
-  const timezone = data?.timezone || "Asia/Jakarta";
+  const timezone = data?.timezone || "WIB (UTC+7)";
 
   return (
     <div
