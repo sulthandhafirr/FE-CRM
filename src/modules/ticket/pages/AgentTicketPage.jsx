@@ -220,69 +220,115 @@ export default function AgentTicketPage() {
     const isAssignedToSelf = ticket.solver === "You";
     const isDispatched = ticket.solver && ticket.solver !== "Not yet" && !isAssignedToSelf;
     const dupCount = duplicateCounts[ticket.id] ?? 0;
+
     return (
-      <TableRow key={ticket.id} sx={{ borderBottom: "1px solid #f0f0f0" }}>
-        {isDupPage && (
-          <TableCell padding="checkbox">
-            <Checkbox
-              checked={selectedIds.has(ticket.id)}
-              onChange={() => toggleOne(ticket.id)}
-              sx={{ color: "#FF8040", "&.Mui-checked": { color: "#FF8040" } }}
-            />
-          </TableCell>
-        )}
-        <TableCell sx={{ color: "#666", fontSize: "13px" }}>{ticket.id}</TableCell>
-        <TableCell>{ticket.subject}</TableCell>
-        <TableCell sx={{ color: getPriorityColor(ticket.priority), fontWeight: 500 }}>{ticket.priority ?? "-"}</TableCell>
-        <TableCell sx={{ color: getIntentColor(ticket.intent), fontWeight: 500 }}>{getIntentLabel(ticket.intent)}</TableCell>
-        <TableCell sx={{ color: getStatusColor(ticket.status), fontWeight: 600 }}>{ticket.status}</TableCell>
-        <TableCell>
-          {isDispatched ? (
-            <span style={{ display: "flex", alignItems: "center", gap: "5px", color: "#333" }}>
-              <MdPerson size={16} /> {ticket.solver}
-            </span>
-          ) : isAssignedToSelf ? (
-            <span style={{ display: "flex", alignItems: "center", gap: "5px", color: "#FF8040" }}>
-              <MdSupportAgent size={16} /> {t("pages.agentTicket.you")}
-            </span>
-          ) : (
-            <span style={{ color: "#999", fontSize: "13px" }}>{t("pages.agentTicket.unassigned")}</span>
+      <>
+        <TableRow key={ticket.id} sx={{ borderBottom: "none" }}>
+          {isDupPage && (
+            <TableCell padding="checkbox" sx={{ borderBottom: "none" }}>
+              <Checkbox
+                checked={selectedIds.has(ticket.id)}
+                onChange={() => toggleOne(ticket.id)}
+                sx={{ color: "#FF8040", "&.Mui-checked": { color: "#FF8040" } }}
+              />
+            </TableCell>
           )}
-        </TableCell>
-        <TableCell>{formatTicketDate(ticket.createdAt)}</TableCell>
-        <TableCell>
-          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-            <button
-              onClick={() => openTicketDetail(ticket)}
-              style={{ background: "#FF8040", color: "white", border: "none", padding: "6px 14px", borderRadius: "6px", fontWeight: "600", cursor: "pointer", fontSize: "13px" }}
-            >
-              {t("pages.agentTicket.detail")}
-            </button>
-            {!isAssignedToSelf && !isDispatched && (
-              <button
-                onClick={() => handleTakeAction(ticket)}
-                style={{ background: "white", color: "#FF8040", border: "2px solid #FF8040", padding: "6px 14px", borderRadius: "6px", fontWeight: "600", cursor: "pointer", fontSize: "13px" }}
-              >
-                {t("pages.agentTicket.takeAction")}
-              </button>
+          <TableCell sx={{ color: "#666", fontSize: "13px", borderBottom: "none" }}>{ticket.id}</TableCell>
+          <TableCell sx={{ borderBottom: "none" }}>{ticket.subject}</TableCell>
+          <TableCell sx={{ color: getPriorityColor(ticket.priority), fontWeight: 500, borderBottom: "none" }}>{ticket.priority ?? "-"}</TableCell>
+          <TableCell sx={{ color: getIntentColor(ticket.intent), fontWeight: 500, borderBottom: "none" }}>{getIntentLabel(ticket.intent)}</TableCell>
+          <TableCell sx={{ color: getStatusColor(ticket.status), fontWeight: 600, borderBottom: "none" }}>{ticket.status}</TableCell>
+          <TableCell sx={{ borderBottom: "none" }}>
+            {isDispatched ? (
+              <span style={{ display: "flex", alignItems: "center", gap: "5px", color: "#333" }}>
+                <MdPerson size={16} /> {ticket.solver}
+              </span>
+            ) : isAssignedToSelf ? (
+              <span style={{ display: "flex", alignItems: "center", gap: "5px", color: "#FF8040" }}>
+                <MdSupportAgent size={16} /> {t("pages.agentTicket.you")}
+              </span>
+            ) : (
+              <span style={{ color: "#999", fontSize: "13px" }}>{t("pages.agentTicket.unassigned")}</span>
             )}
-            {showDuplicate && !isDupPage && (
+          </TableCell>
+          <TableCell sx={{ borderBottom: "none" }}>{formatTicketDate(ticket.createdAt)}</TableCell>
+          <TableCell sx={{ borderBottom: "none" }}>
+            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
               <button
-                onClick={() => openDuplicates(ticket)}
-                title={dupCount > 0 ? t("pages.agentTicket.duplicatesFound", { count: dupCount }) : t("pages.agentTicket.noDuplicates")}
-                style={{ background: "white", color: dupCount > 0 ? "#FF8040" : "#bbb", border: `2px solid ${dupCount > 0 ? "#FF8040" : "#ddd"}`, padding: "6px 10px", borderRadius: "6px", fontWeight: "600", cursor: "pointer", fontSize: "13px", display: "flex", alignItems: "center", gap: "4px", position: "relative" }}
+                onClick={() => openTicketDetail(ticket)}
+                style={{ background: "#FF8040", color: "white", border: "none", padding: "6px 14px", borderRadius: "6px", fontWeight: "600", cursor: "pointer", fontSize: "13px" }}
               >
-                <MdOutlineFilterNone size={16} />
-                {dupCount > 0 && (
-                  <span style={{ position: "absolute", top: "-6px", right: "-6px", background: "#FF8040", color: "white", borderRadius: "50%", width: "16px", height: "16px", fontSize: "10px", fontWeight: "700", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    {dupCount}
-                  </span>
+                {t("pages.agentTicket.detail")}
+              </button>
+              {!isAssignedToSelf && !isDispatched && (
+                <button
+                  onClick={() => handleTakeAction(ticket)}
+                  style={{ background: "white", color: "#FF8040", border: "2px solid #FF8040", padding: "6px 14px", borderRadius: "6px", fontWeight: "600", cursor: "pointer", fontSize: "13px" }}
+                >
+                  {t("pages.agentTicket.takeAction")}
+                </button>
+              )}
+              {showDuplicate && !isDupPage && (
+                <button
+                  onClick={() => dupCount > 0 && openDuplicates(ticket)}
+                  disabled={dupCount === 0}
+                  title={dupCount > 0 ? t("pages.agentTicket.duplicatesFound", { count: dupCount }) : t("pages.agentTicket.noDuplicates")}
+                  style={{
+                    background: "white",
+                    color: dupCount > 0 ? "#FF8040" : "#ccc",
+                    border: `2px solid ${dupCount > 0 ? "#FF8040" : "#eee"}`,
+                    padding: "6px 10px",
+                    borderRadius: "6px",
+                    fontWeight: "600",
+                    cursor: dupCount > 0 ? "pointer" : "not-allowed",
+                    fontSize: "13px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                    position: "relative",
+                    opacity: dupCount > 0 ? 1 : 0.6,
+                  }}
+                >
+                  <MdOutlineFilterNone size={16} />
+                  {dupCount > 0 && (
+                    <span style={{ position: "absolute", top: "-6px", right: "-6px", background: "#FF8040", color: "white", borderRadius: "50%", width: "16px", height: "16px", fontSize: "10px", fontWeight: "700", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      {dupCount}
+                    </span>
+                  )}
+                </button>
+              )}
+            </div>
+          </TableCell>
+        </TableRow>
+
+        {/* ── Baris description, style disamakan dengan kotak "Duplicate for" ── */}
+        {isDupPage && (
+          <TableRow sx={{ borderBottom: "1px solid #f0f0f0" }}>
+            <TableCell padding="checkbox" sx={{ borderBottom: "none" }} />
+            <TableCell colSpan={7} sx={{ borderBottom: "none", pt: 0, pb: 2 }}>
+              <div
+                style={{
+                  background: "#FFF5EF",
+                  border: "1.5px solid #FF8040",
+                  borderRadius: "10px",
+                  padding: "12px 18px",
+                }}
+              >
+                {ticket.customerName && (
+                  <div style={{ marginBottom: "6px" }}>
+                    <span style={{ fontWeight: 700, color: "#FF8040", fontSize: "13px" }}>Created By:</span>{" "}
+                    <span style={{ color: "#666", fontSize: "13px" }}>{ticket.customerName}</span>
+                  </div>
                 )}
-              </button>
-            )}
-          </div>
-        </TableCell>
-      </TableRow>
+                <span style={{ fontWeight: 700, color: "#FF8040", fontSize: "13px" }}>Description:</span>{" "}
+                <span style={{ color: "#666", fontSize: "13px" }}>
+                  {ticket.description || <span style={{ color: "#bbb", fontStyle: "italic" }}>No description available</span>}
+                </span>
+              </div>
+            </TableCell>
+          </TableRow>
+        )}
+      </>
     );
   };
 
@@ -346,19 +392,32 @@ export default function AgentTicketPage() {
         {/* ── DUPLICATE VIEW ── */}
         {currentPage === "duplicates" && duplicateSource && (
           <>
-            <div style={{ background: "#FFF5EF", border: "1.5px solid #FF8040", borderRadius: "10px", padding: "14px 20px", marginBottom: "20px", display: "flex", alignItems: "center", gap: "12px" }}>
-              <MdOutlineFilterNone size={18} color="#FF8040" />
+            <div style={{ background: "#FFF5EF", border: "1.5px solid #FF8040", borderRadius: "10px", padding: "14px 20px", marginBottom: "20px", display: "flex", alignItems: "flex-start", gap: "12px" }}>
+              <MdOutlineFilterNone size={18} color="#FF8040" style={{ marginTop: "2px", flexShrink: 0 }} />
               <div>
-                <span style={{ fontWeight: "700", color: "#FF8040", fontSize: "13px" }}>{t("pages.agentTicket.duplicateTicketsFor")}</span>{" "}
-                {!duplicateServiceAvailable && !loadingSimilar && (
-                  <div style={{ background: "#FFF9E6", border: "1.5px solid #f59e0b", borderRadius: "10px", padding: "12px 20px", marginBottom: "20px", color: "#92400e", fontSize: "13px", fontWeight: 600 }}>
-                      ⚠️ Layanan deteksi duplikat sedang tidak tersedia. Hasil di bawah mungkin tidak lengkap.
-                  </div>
-                )}
-                <span style={{ color: "#333", fontWeight: "600", fontSize: "14px" }}>{duplicateSource.subject}</span>{" "}
-                <span style={{ color: "#999", fontSize: "13px" }}>{t("pages.agentTicket.ticketNumber", { id: duplicateSource.id })}</span>
+                <div>
+                  <span style={{ fontWeight: 700, color: "#FF8040", fontSize: "13px" }}>{t("pages.agentTicket.duplicateTicketsFor")}</span>{" "}
+                  <span style={{ color: "#333", fontWeight: 600, fontSize: "14px" }}>{duplicateSource.subject}</span>{" "}
+                  <span style={{ color: "#999", fontSize: "13px" }}>{t("pages.agentTicket.ticketNumber", { id: duplicateSource.id })}</span>
+                </div>
+                <div style={{ marginTop: "6px" }}>
+                  <span style={{ fontWeight: 700, color: "#FF8040", fontSize: "13px" }}>Created By:</span>{" "}
+                  <span style={{ color: "#666", fontSize: "13px" }}>{duplicateSource?.customer || "-"}</span>
+                </div>
+                <div style={{ marginTop: "6px" }}>
+                  <span style={{ fontWeight: 700, color: "#FF8040", fontSize: "13px" }}>Description:</span>{" "}
+                  <span style={{ color: "#666", fontSize: "13px" }}>
+                    {duplicateSource.description || <span style={{ color: "#bbb", fontStyle: "italic" }}>Tidak ada deskripsi</span>}
+                  </span>
+                </div>
               </div>
             </div>
+
+              {!duplicateServiceAvailable && !loadingSimilar && (
+                <div style={{ background: "#FFF9E6", border: "1.5px solid #f59e0b", borderRadius: "10px", padding: "12px 20px", marginBottom: "20px", color: "#92400e", fontSize: "13px", fontWeight: 600 }}>
+                  ⚠️ Layanan deteksi duplikat sedang tidak tersedia. Hasil di bawah mungkin tidak lengkap.
+                </div>
+              )}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "25px" }}>
               <div style={{ fontSize: "28px", fontWeight: "700", color: "#333" }}>
                 {t("pages.agentTicket.duplicateTickets")} <span style={{ color: "#FF8040" }}>• {sortedDuplicates.length}</span>
