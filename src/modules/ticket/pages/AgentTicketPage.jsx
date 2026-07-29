@@ -17,7 +17,7 @@ import LoadingSpinner from "../../../components/ui/LoadingSpinner";
 import TicketRecommendation from "../components/TicketRecommendation";
 import {
   getAllTickets, deleteTicket,
-  takeAction,
+  takeAction, getSimilarTickets, getDuplicateCounts,
 } from "../ticket.service";
 import { sortTickets, getPriorityColor, getStatusColor, formatTicketDate, getIntentLabel, getIntentColor } from "../ticket.schema";
 
@@ -60,6 +60,23 @@ export default function AgentTicketPage() {
     refetchOnMount: false,
   });
 
+  const { data: similarData, isLoading: loadingSimilar, isError: similarError } = useQuery({
+    queryKey: ["similar-tickets", duplicateSource?.id],
+    queryFn: () => getSimilarTickets(duplicateSource.id),
+    enabled: !!duplicateSource,   // cuma jalan kalau lagi buka halaman duplicate
+    staleTime: 1000 * 60,
+  });
+
+  const { data: duplicateCounts = {} } = useQuery({
+    queryKey: ["duplicate-counts"],
+    queryFn: () => getDuplicateCounts(),
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+  });
+
+  const duplicateMatches = similarData?.duplicates ?? [];
+  const duplicateServiceAvailable = similarData?.serviceAvailable ?? true;
+
   // ── Mutations ──
   const handleTakeAction = async (ticket) => {
     try {
@@ -92,8 +109,8 @@ export default function AgentTicketPage() {
 
   const sortedDuplicates = useMemo(() => {
     if (!duplicateSource) return [];
-    return sortTickets(getDuplicates(duplicateSource, tickets), dupOrderBy, dupOrder);
-  }, [duplicateSource, tickets, dupOrderBy, dupOrder, getDuplicates]);
+    return sortTickets(duplicateMatches, dupOrderBy, dupOrder);
+  }, [duplicateSource, duplicateMatches, dupOrderBy, dupOrder]);
 
   const safePage = useMemo(
     () => Math.min(page, Math.max(0, Math.ceil(sortedTickets.length / rowsPerPage) - 1)),
@@ -202,7 +219,7 @@ export default function AgentTicketPage() {
   const renderTicketRow = (ticket, { showDuplicate = true, isDupPage = false } = {}) => {
     const isAssignedToSelf = ticket.solver === "You";
     const isDispatched = ticket.solver && ticket.solver !== "Not yet" && !isAssignedToSelf;
-    const dupCount = getDuplicates(ticket, tickets).length;
+    const dupCount = duplicateCounts[ticket.id] ?? 0;
     return (
       <TableRow key={ticket.id} sx={{ borderBottom: "1px solid #f0f0f0" }}>
         {isDupPage && (
@@ -333,6 +350,11 @@ export default function AgentTicketPage() {
               <MdOutlineFilterNone size={18} color="#FF8040" />
               <div>
                 <span style={{ fontWeight: "700", color: "#FF8040", fontSize: "13px" }}>{t("pages.agentTicket.duplicateTicketsFor")}</span>{" "}
+                {!duplicateServiceAvailable && !loadingSimilar && (
+                  <div style={{ background: "#FFF9E6", border: "1.5px solid #f59e0b", borderRadius: "10px", padding: "12px 20px", marginBottom: "20px", color: "#92400e", fontSize: "13px", fontWeight: 600 }}>
+                      ⚠️ Layanan deteksi duplikat sedang tidak tersedia. Hasil di bawah mungkin tidak lengkap.
+                  </div>
+                )}
                 <span style={{ color: "#333", fontWeight: "600", fontSize: "14px" }}>{duplicateSource.subject}</span>{" "}
                 <span style={{ color: "#999", fontSize: "13px" }}>{t("pages.agentTicket.ticketNumber", { id: duplicateSource.id })}</span>
               </div>
@@ -361,7 +383,7 @@ export default function AgentTicketPage() {
               </div>
             </div>
             <div style={{ background: "white", borderRadius: "12px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
-              {loading ? (
+              {loadingSimilar ? (
                 <div style={{ textAlign: "center", padding: "20px" }}><LoadingSpinner /></div>
               ) : (
                 <Paper elevation={0} sx={{ borderRadius: "12px", overflow: "hidden" }}>

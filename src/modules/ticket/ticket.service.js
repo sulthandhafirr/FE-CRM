@@ -179,3 +179,13 @@ export const getTicketRecommendation = async () => {
   const response = await api.get(`/api/recommendations`);
   return response.data;
 };
+
+export const getSimilarTickets = async (ticketId, threshold = 0.75) => {
+  const response = await api.get(`/api/tickets/${ticketId}/similar`, { params: { threshold } });
+  return response.data;
+};
+
+export const getDuplicateCounts = async (threshold = 0.75) => {
+  const response = await api.get("/api/tickets/duplicate-counts", { params: { threshold } });
+  return response.data; // { "ticketId": count, ... }
+};
