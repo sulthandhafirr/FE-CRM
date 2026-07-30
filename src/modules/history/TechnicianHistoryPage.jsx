@@ -132,8 +132,6 @@ export default function TechnicianPerformancePage() {
                 label: t("pages.agentPerformance.totalResolved"),
                 value: solvedTickets.length,
                 color: "#FF8040",
-                bg: "#ffffff",
-                border: "#FF8040",
               },
               {
                 label: t("pages.agentPerformance.thisMonth"),
@@ -144,8 +142,6 @@ export default function TechnicianPerformancePage() {
                   return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
                 }).length,
                 color: "#FF8040",
-                bg: "#ffffff",
-                border: "#FF8040",
               },
               {
                 label: t("pages.agentPerformance.thisYear"),
@@ -154,17 +150,16 @@ export default function TechnicianPerformancePage() {
                   return new Date(t.resolvedAt).getFullYear() === new Date().getFullYear();
                 }).length,
                 color: "#FF8040",
-                bg: "#ffffff",
-                border: "#FF8040",
               },
             ].map((stat) => (
               <div key={stat.label} style={{
-                background: stat.bg,
-                border: `1px solid ${stat.border}`,
-                borderRadius: "12px",
+                background: "#FFFFFF",
+                border: "1px solid #E5E7EB",
+                borderRadius: "16px",
                 padding: "20px 24px",
+                boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)",
               }}>
-                <div style={{ fontSize: "13px", color: "#666", marginBottom: "6px" }}>{stat.label}</div>
+                <div style={{ fontSize: "13px", color: "#6B7280", marginBottom: "6px" }}>{stat.label}</div>
                 <div style={{ fontSize: "32px", fontWeight: "700", color: stat.color }}>{stat.value}</div>
               </div>
             ))}
