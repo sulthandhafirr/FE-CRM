@@ -110,7 +110,7 @@ export default function AgentDashboardPage() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(5, 1fr)",
+            gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
             gap: "16px",
             marginBottom: "24px",
           }}
@@ -164,7 +164,7 @@ export default function AgentDashboardPage() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
+            gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
             gap: "24px",
             marginBottom: "24px",
           }}
