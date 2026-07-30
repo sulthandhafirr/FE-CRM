@@ -58,7 +58,7 @@ export default function TechnicianTicketPage() {
 
   const sortedTickets = useMemo(() => {
     return [...tickets]
-    .filter((t) => {
+      .filter((t) => {
         const q = search.toLowerCase();
         return (
           String(t.id).toLowerCase().includes(q) ||
@@ -125,7 +125,7 @@ export default function TechnicianTicketPage() {
           height: "70px",
         }}
       >
-        <SearchBar 
+        <SearchBar
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
@@ -291,7 +291,7 @@ export default function TechnicianTicketPage() {
         onClick={() => setChatOpen(!chatOpen)}
         style={{
           position: "fixed",
-          bottom: "30px",
+          bottom: "68px",
           right: "30px",
           width: "60px",
           height: "60px",

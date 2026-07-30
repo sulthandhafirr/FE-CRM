@@ -18,7 +18,11 @@ import ChatBot from "../../components/ui/ChatBot";
 import SearchBar from "../../components/ui/SearchBar";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import { getAgentSolvedTickets } from "../ticket/ticket.service";
-import { formatTicketDate, getPriorityColor, formatDuration } from "../ticket/ticket.schema";
+import {
+  formatTicketDate,
+  getPriorityColor,
+  formatDuration,
+} from "../ticket/ticket.schema";
 
 function sortTicketsFn(list, ob, o) {
   return [...list].sort((a, b) => {
@@ -28,7 +32,10 @@ function sortTicketsFn(list, ob, o) {
       aValue = new Date(aValue ?? 0).getTime();
       bValue = new Date(bValue ?? 0).getTime();
     }
-    if (ob === "id") { aValue = Number(aValue); bValue = Number(bValue); }
+    if (ob === "id") {
+      aValue = Number(aValue);
+      bValue = Number(bValue);
+    }
     if (aValue == null) aValue = "";
     if (bValue == null) bValue = "";
     if (typeof aValue === "string") aValue = aValue.toLowerCase();
@@ -58,27 +65,33 @@ export default function AgentPerformancePage() {
   });
 
   const handleRequestSort = (property) => {
-    setOrder((prev) => (orderBy === property && prev === "asc" ? "desc" : "asc"));
+    setOrder((prev) =>
+      orderBy === property && prev === "asc" ? "desc" : "asc",
+    );
     setOrderBy(property);
     setPage(0);
   };
 
   const sortedTickets = useMemo(() => {
     const q = search.toLowerCase();
-    const filtered = solvedTickets.filter((t) =>
-      String(t.id).toLowerCase().includes(q) ||
-      t.subject?.toLowerCase().includes(q) ||
-      t.priority?.toLowerCase().includes(q) ||
-      t.customer?.toLowerCase().includes(q) ||
-      t.status?.toLowerCase().includes(q) ||
-      t.intent?.toLowerCase().includes(q) ||
-      t.solver?.toLowerCase().includes(q)
+    const filtered = solvedTickets.filter(
+      (t) =>
+        String(t.id).toLowerCase().includes(q) ||
+        t.subject?.toLowerCase().includes(q) ||
+        t.priority?.toLowerCase().includes(q) ||
+        t.customer?.toLowerCase().includes(q) ||
+        t.status?.toLowerCase().includes(q) ||
+        t.intent?.toLowerCase().includes(q) ||
+        t.solver?.toLowerCase().includes(q),
     );
     return sortTicketsFn(filtered, orderBy, order);
   }, [solvedTickets, orderBy, order, search]);
 
   const safePage = useMemo(() => {
-    const maxPage = Math.max(0, Math.ceil(sortedTickets.length / rowsPerPage) - 1);
+    const maxPage = Math.max(
+      0,
+      Math.ceil(sortedTickets.length / rowsPerPage) - 1,
+    );
     return Math.min(page, maxPage);
   }, [page, rowsPerPage, sortedTickets.length]);
 
@@ -94,19 +107,36 @@ export default function AgentPerformancePage() {
     { id: "customer", label: t("pages.agentPerformance.columns.customer") },
     { id: "createdAt", label: t("pages.agentPerformance.columns.createdAt") },
     { id: "resolvedAt", label: t("pages.agentPerformance.columns.resolvedAt") },
-    { id: "responseTimeSec", label: t("pages.agentPerformance.columns.responseTimeSec") },
-    { id: "resolutionTimeSec", label: t("pages.agentPerformance.columns.resolutionTimeSec") },
+    {
+      id: "responseTimeSec",
+      label: t("pages.agentPerformance.columns.responseTimeSec"),
+    },
+    {
+      id: "resolutionTimeSec",
+      label: t("pages.agentPerformance.columns.resolutionTimeSec"),
+    },
   ];
 
   return (
-    <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+    <div
+      style={{
+        fontFamily:
+          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      }}
+    >
       {/* Top Bar */}
-      <div style={{
-        background: "white", padding: "15px 30px",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        boxShadow: "0 2px 5px rgba(0,0,0,0.05)", height: "70px",
-      }}>
-        <SearchBar 
+      <div
+        style={{
+          background: "white",
+          padding: "15px 30px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          boxShadow: "0 2px 5px rgba(0,0,0,0.05)",
+          height: "70px",
+        }}
+      >
+        <SearchBar
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
@@ -118,7 +148,14 @@ export default function AgentPerformancePage() {
       <div style={{ padding: "30px", flex: 1, overflowY: "auto" }}>
         {/* Title + summary */}
         <div style={{ marginBottom: "25px" }}>
-          <div style={{ fontSize: "28px", fontWeight: "700", color: "#333", marginBottom: "6px" }}>
+          <div
+            style={{
+              fontSize: "28px",
+              fontWeight: "700",
+              color: "#333",
+              marginBottom: "6px",
+            }}
+          >
             {t("pages.agentPerformance.title")}{" "}
             <span style={{ color: "#FF8040" }}>• {solvedTickets.length}</span>
           </div>
@@ -126,12 +163,14 @@ export default function AgentPerformancePage() {
 
         {/* Stats cards */}
         {!loading && solvedTickets.length > 0 && (
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: "16px",
-            marginBottom: "24px",
-          }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: "16px",
+              marginBottom: "24px",
+            }}
+          >
             {[
               {
                 label: t("pages.agentPerformance.totalResolved"),
@@ -144,7 +183,10 @@ export default function AgentPerformancePage() {
                   if (!t.resolvedAt) return false;
                   const d = new Date(t.resolvedAt);
                   const now = new Date();
-                  return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                  return (
+                    d.getMonth() === now.getMonth() &&
+                    d.getFullYear() === now.getFullYear()
+                  );
                 }).length,
                 color: "#FF8040",
               },
@@ -152,42 +194,73 @@ export default function AgentPerformancePage() {
                 label: t("pages.agentPerformance.thisYear"),
                 value: solvedTickets.filter((t) => {
                   if (!t.resolvedAt) return false;
-                  return new Date(t.resolvedAt).getFullYear() === new Date().getFullYear();
+                  return (
+                    new Date(t.resolvedAt).getFullYear() ===
+                    new Date().getFullYear()
+                  );
                 }).length,
                 color: "#FF8040",
               },
             ].map((stat) => (
-              <div key={stat.label} style={{
-                background: "#FFFFFF",
-                border: "1px solid #E5E7EB",
-                borderRadius: "16px",
-                padding: "20px 24px",
-                boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)",
-              }}>
-                <div style={{ fontSize: "13px", color: "#6B7280", marginBottom: "6px" }}>{stat.label}</div>
-                <div style={{ fontSize: "32px", fontWeight: "700", color: stat.color }}>{stat.value}</div>
+              <div
+                key={stat.label}
+                style={{
+                  background: "#FFFFFF",
+                  border: "1px solid #E5E7EB",
+                  borderRadius: "16px",
+                  padding: "20px 24px",
+                  boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "13px",
+                    color: "#6B7280",
+                    marginBottom: "6px",
+                  }}
+                >
+                  {stat.label}
+                </div>
+                <div
+                  style={{
+                    fontSize: "32px",
+                    fontWeight: "700",
+                    color: stat.color,
+                  }}
+                >
+                  {stat.value}
+                </div>
               </div>
             ))}
           </div>
         )}
 
         {/* Table */}
-        <div style={{
-          background: "white", borderRadius: "12px",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-        }}>
+        <div
+          style={{
+            background: "white",
+            borderRadius: "12px",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+          }}
+        >
           {loading ? (
             <div style={{ textAlign: "center", padding: "20px" }}>
               <LoadingSpinner />
             </div>
           ) : (
-            <Paper elevation={0} sx={{ borderRadius: "12px", overflow: "hidden" }}>
+            <Paper
+              elevation={0}
+              sx={{ borderRadius: "12px", overflow: "hidden" }}
+            >
               <TableContainer>
                 <Table>
                   <TableHead>
                     <TableRow sx={{ borderBottom: "2px solid #f0f0f0" }}>
                       {columns.map(({ id, label }) => (
-                        <TableCell key={id} sx={{ color: "#FF8040", fontWeight: 700 }}>
+                        <TableCell
+                          key={id}
+                          sx={{ color: "#FF8040", fontWeight: 700 }}
+                        >
                           <TableSortLabel
                             active={orderBy === id}
                             direction={orderBy === id ? order : "asc"}
@@ -195,42 +268,65 @@ export default function AgentPerformancePage() {
                             sx={{
                               color: "#FF8040 !important",
                               "&.Mui-active": { color: "#FF8040 !important" },
-                              "& .MuiTableSortLabel-icon": { color: "#FF8040 !important" },
+                              "& .MuiTableSortLabel-icon": {
+                                color: "#FF8040 !important",
+                              },
                             }}
                           >
                             {label}
                           </TableSortLabel>
                         </TableCell>
                       ))}
-                      <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>Action</TableCell>
+                      <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
+                        Action
+                      </TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {paginatedTickets.map((ticket) => (
-                      <TableRow key={ticket.id} sx={{ borderBottom: "1px solid #f0f0f0" }}>
-                        <TableCell sx={{ color: "#666", fontSize: "13px" }}>{ticket.id}</TableCell>
+                      <TableRow
+                        key={ticket.id}
+                        sx={{ borderBottom: "1px solid #f0f0f0" }}
+                      >
+                        <TableCell sx={{ color: "#666", fontSize: "13px" }}>
+                          {ticket.id}
+                        </TableCell>
                         <TableCell>{ticket.subject || "-"}</TableCell>
-                        <TableCell sx={{
-                          color: getPriorityColor(ticket.priority),
-                          fontWeight: 500,
-                        }}>
+                        <TableCell
+                          sx={{
+                            color: getPriorityColor(ticket.priority),
+                            fontWeight: 500,
+                          }}
+                        >
                           {ticket.priority ?? "-"}
                         </TableCell>
                         <TableCell>{ticket.customer || "-"}</TableCell>
-                        <TableCell>{formatTicketDate(ticket.createdAt)}</TableCell>
+                        <TableCell>
+                          {formatTicketDate(ticket.createdAt)}
+                        </TableCell>
                         <TableCell sx={{ color: "#22c55e", fontWeight: 600 }}>
                           {formatTicketDate(ticket.resolvedAt)}
                         </TableCell>
-                        <TableCell>{formatDuration(ticket.responseTimeSec)}</TableCell>
-                        <TableCell>{formatDuration(ticket.resolutionTimeSec)}</TableCell>
+                        <TableCell>
+                          {formatDuration(ticket.responseTimeSec)}
+                        </TableCell>
+                        <TableCell>
+                          {formatDuration(ticket.resolutionTimeSec)}
+                        </TableCell>
                         <TableCell>
                           <button
-                            onClick={() => navigate(`/dashboard/csAgent/ticket/${ticket.id}`)}
+                            onClick={() =>
+                              navigate(`/dashboard/csAgent/ticket/${ticket.id}`)
+                            }
                             style={{
-                              background: "#FF8040", color: "white",
-                              border: "none", padding: "6px 15px",
-                              borderRadius: "6px", cursor: "pointer",
-                              fontWeight: "600", fontSize: "13px",
+                              background: "#FF8040",
+                              color: "white",
+                              border: "none",
+                              padding: "6px 15px",
+                              borderRadius: "6px",
+                              cursor: "pointer",
+                              fontWeight: "600",
+                              fontSize: "13px",
                             }}
                           >
                             {t("pages.agentPerformance.detail")}
@@ -240,7 +336,10 @@ export default function AgentPerformancePage() {
                     ))}
                     {sortedTickets.length === 0 && (
                       <TableRow>
-                        <TableCell colSpan={7} sx={{ textAlign: "center", py: 4, color: "#999" }}>
+                        <TableCell
+                          colSpan={7}
+                          sx={{ textAlign: "center", py: 4, color: "#999" }}
+                        >
                           {t("pages.agentPerformance.empty")}
                         </TableCell>
                       </TableRow>
@@ -269,11 +368,20 @@ export default function AgentPerformancePage() {
       <button
         onClick={() => setChatOpen(!chatOpen)}
         style={{
-          position: "fixed", bottom: "30px", right: "30px",
-          width: "60px", height: "60px", borderRadius: "50%",
-          background: "#FF8040", border: "none", color: "white",
-          cursor: "pointer", boxShadow: "0 4px 12px rgba(255, 128, 64, 0.4)",
-          display: "flex", alignItems: "center", justifyContent: "center",
+          position: "fixed",
+          bottom: "68px",
+          right: "30px",
+          width: "60px",
+          height: "60px",
+          borderRadius: "50%",
+          background: "#FF8040",
+          border: "none",
+          color: "white",
+          cursor: "pointer",
+          boxShadow: "0 4px 12px rgba(255, 128, 64, 0.4)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
         <MdChat size={28} />

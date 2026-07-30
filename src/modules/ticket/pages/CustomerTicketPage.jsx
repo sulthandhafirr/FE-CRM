@@ -159,7 +159,7 @@ export default function CustomerTicketPage() {
           }
         }
       `}</style>
-      
+
       {/* Top Bar */}
       <div
         className="customer-ticket-header"
@@ -173,13 +173,16 @@ export default function CustomerTicketPage() {
           height: "70px",
         }}
       >
-        <div className="customer-ticket-search-button-wrapper" style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          width: "100%",
-          gap: "15px",
-        }}>
+        <div
+          className="customer-ticket-search-button-wrapper"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+            gap: "15px",
+          }}
+        >
           <div className="customer-ticket-search-wrapper">
             <SearchBar
               value={search}
@@ -210,7 +213,10 @@ export default function CustomerTicketPage() {
       </div>
 
       {/* Dynamic Content */}
-      <div className="customer-ticket-content" style={{ padding: "30px", flex: 1, overflowY: "auto" }}>
+      <div
+        className="customer-ticket-content"
+        style={{ padding: "30px", flex: 1, overflowY: "auto" }}
+      >
         <div
           className="customer-ticket-title"
           style={{
@@ -223,13 +229,16 @@ export default function CustomerTicketPage() {
           {t("pages.customerTicket.title")}{" "}
           <span style={{ color: "#FF8040" }}>• {tickets.length}</span>
         </div>
-        
+
         {/* Desktop Table View */}
-        <div className="customer-ticket-table-wrapper" style={{
-          background: "white",
-          borderRadius: "12px",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-        }}>
+        <div
+          className="customer-ticket-table-wrapper"
+          style={{
+            background: "white",
+            borderRadius: "12px",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+          }}
+        >
           {loading ? (
             <div style={{ textAlign: "center", padding: "20px" }}>
               <LoadingSpinner />
@@ -364,7 +373,13 @@ export default function CustomerTicketPage() {
             </div>
           ) : (
             <>
-              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "12px",
+                }}
+              >
                 {paginatedTickets.map((ticket) => (
                   <div
                     key={ticket.id}
@@ -377,8 +392,21 @@ export default function CustomerTicketPage() {
                     }}
                   >
                     {/* Top Row: Ticket ID and Status */}
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
-                      <div style={{ fontSize: "14px", fontWeight: "700", color: "#333" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        marginBottom: "12px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: "14px",
+                          fontWeight: "700",
+                          color: "#333",
+                        }}
+                      >
                         #{ticket.id}
                       </div>
                       <span
@@ -396,17 +424,39 @@ export default function CustomerTicketPage() {
                     </div>
 
                     {/* Subject */}
-                    <div style={{ fontSize: "15px", fontWeight: "600", color: "#333", marginBottom: "10px", wordBreak: "break-word" }}>
+                    <div
+                      style={{
+                        fontSize: "15px",
+                        fontWeight: "600",
+                        color: "#333",
+                        marginBottom: "10px",
+                        wordBreak: "break-word",
+                      }}
+                    >
                       {ticket.subject}
                     </div>
 
                     {/* Handler/Assigned */}
-                    <div style={{ fontSize: "13px", color: "#666", marginBottom: "12px" }}>
-                      {ticket.handler ? `Handler: ${ticket.handler}` : "Not assigned yet"}
+                    <div
+                      style={{
+                        fontSize: "13px",
+                        color: "#666",
+                        marginBottom: "12px",
+                      }}
+                    >
+                      {ticket.handler
+                        ? `Handler: ${ticket.handler}`
+                        : "Not assigned yet"}
                     </div>
 
                     {/* Bottom Row: Date and Button */}
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
                       <span style={{ fontSize: "12px", color: "#999" }}>
                         {formatTicketDate(ticket.createdAt)}
                       </span>
@@ -431,14 +481,30 @@ export default function CustomerTicketPage() {
                 ))}
 
                 {sortedTickets.length === 0 && (
-                  <div style={{ textAlign: "center", py: 4, color: "#999", padding: "20px" }}>
+                  <div
+                    style={{
+                      textAlign: "center",
+                      py: 4,
+                      color: "#999",
+                      padding: "20px",
+                    }}
+                  >
                     {t("pages.customerTicket.empty")}
                   </div>
                 )}
               </div>
 
               {/* Mobile Pagination */}
-              <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "12px", marginTop: "20px", padding: "16px 0" }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: "12px",
+                  marginTop: "20px",
+                  padding: "16px 0",
+                }}
+              >
                 <select
                   value={rowsPerPage}
                   onChange={handleChangeRowsPerPage}
@@ -457,7 +523,9 @@ export default function CustomerTicketPage() {
                   <option value={50}>50</option>
                 </select>
                 <span style={{ fontSize: "12px", color: "#666" }}>
-                  {safePage * rowsPerPage + 1}–{Math.min((safePage + 1) * rowsPerPage, sortedTickets.length)} of {sortedTickets.length}
+                  {safePage * rowsPerPage + 1}–
+                  {Math.min((safePage + 1) * rowsPerPage, sortedTickets.length)}{" "}
+                  of {sortedTickets.length}
                 </span>
                 <button
                   onClick={() => handleChangePage(null, safePage - 1)}
@@ -477,14 +545,29 @@ export default function CustomerTicketPage() {
                 </button>
                 <button
                   onClick={() => handleChangePage(null, safePage + 1)}
-                  disabled={safePage >= Math.ceil(sortedTickets.length / rowsPerPage) - 1}
+                  disabled={
+                    safePage >=
+                    Math.ceil(sortedTickets.length / rowsPerPage) - 1
+                  }
                   style={{
                     padding: "6px 10px",
                     borderRadius: "6px",
                     border: "1px solid #d1d5db",
-                    background: safePage >= Math.ceil(sortedTickets.length / rowsPerPage) - 1 ? "#f3f4f6" : "white",
-                    cursor: safePage >= Math.ceil(sortedTickets.length / rowsPerPage) - 1 ? "default" : "pointer",
-                    color: safePage >= Math.ceil(sortedTickets.length / rowsPerPage) - 1 ? "#9ca3af" : "#333",
+                    background:
+                      safePage >=
+                      Math.ceil(sortedTickets.length / rowsPerPage) - 1
+                        ? "#f3f4f6"
+                        : "white",
+                    cursor:
+                      safePage >=
+                      Math.ceil(sortedTickets.length / rowsPerPage) - 1
+                        ? "default"
+                        : "pointer",
+                    color:
+                      safePage >=
+                      Math.ceil(sortedTickets.length / rowsPerPage) - 1
+                        ? "#9ca3af"
+                        : "#333",
                     fontSize: "12px",
                     fontWeight: "600",
                   }}
@@ -508,7 +591,7 @@ export default function CustomerTicketPage() {
         className="customer-ticket-fab"
         style={{
           position: "fixed",
-          bottom: "30px",
+          bottom: "68px",
           right: "30px",
           width: "60px",
           height: "60px",

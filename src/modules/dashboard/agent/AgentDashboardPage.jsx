@@ -28,7 +28,10 @@ export default function AgentDashboardPage() {
   const { t } = useTranslation();
   const { name } = useAuth();
   const [chatOpen, setChatOpen] = useState(false);
-  const [dateRange, setDateRange] = useState({ startDate: null, endDate: null });
+  const [dateRange, setDateRange] = useState({
+    startDate: null,
+    endDate: null,
+  });
   const navigate = useNavigate();
   const [previewFilters, setPreviewFilters] = useState(null);
   const [previewTitle, setPreviewTitle] = useState("");
@@ -94,7 +97,9 @@ export default function AgentDashboardPage() {
             >
               {t("pages.dashboard.welcome")}, {name ?? "#"}
             </div>
-            <div style={{ fontSize: "14px", color: "#6B7280", marginTop: "4px" }}>
+            <div
+              style={{ fontSize: "14px", color: "#6B7280", marginTop: "4px" }}
+            >
               Here&apos;s what&apos;s happening with your support operations.
             </div>
           </div>
@@ -200,7 +205,7 @@ export default function AgentDashboardPage() {
         onClick={() => setChatOpen(!chatOpen)}
         style={{
           position: "fixed",
-          bottom: "30px",
+          bottom: "68px",
           right: "30px",
           width: "60px",
           height: "60px",

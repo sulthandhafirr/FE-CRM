@@ -63,7 +63,13 @@ function toTimeMs(value) {
   return Number.isNaN(ts) ? null : ts;
 }
 
-function InlineDropdown({ value, options, onSelect, colorFn, disabled = false }) {
+function InlineDropdown({
+  value,
+  options,
+  onSelect,
+  colorFn,
+  disabled = false,
+}) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -233,7 +239,9 @@ function ConfirmDialog({ message, onConfirm, onCancel }) {
         >
           {message}
         </div>
-        <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end" }}>
+        <div
+          style={{ display: "flex", gap: "12px", justifyContent: "flex-end" }}
+        >
           <button
             onClick={onCancel}
             style={{
@@ -299,9 +307,13 @@ export function AdminTicketListPage({ mode = "active" }) {
 
   const selectedTicketId = selectedTicket?.id ?? null;
 
-  const navigateTo = useCallback((p) => setPageHistory((prev) => [...prev, p]), []);
+  const navigateTo = useCallback(
+    (p) => setPageHistory((prev) => [...prev, p]),
+    [],
+  );
   const navigateBack = useCallback(
-    () => setPageHistory((prev) => (prev.length > 1 ? prev.slice(0, -1) : prev)),
+    () =>
+      setPageHistory((prev) => (prev.length > 1 ? prev.slice(0, -1) : prev)),
     [],
   );
 
@@ -349,7 +361,9 @@ export function AdminTicketListPage({ mode = "active" }) {
   const { mutateAsync: submitComment } = useMutation({
     mutationFn: (message) => createTicketComment(selectedTicketId, message),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["ticket-comments", selectedTicketId] }),
+      queryClient.invalidateQueries({
+        queryKey: ["ticket-comments", selectedTicketId],
+      }),
   });
 
   const csAgentOptions = useMemo(
@@ -358,7 +372,10 @@ export function AdminTicketListPage({ mode = "active" }) {
   );
 
   const technicianOptions = useMemo(
-    () => ["Unassigned", ...technicians.map((item) => item.name).filter(Boolean)],
+    () => [
+      "Unassigned",
+      ...technicians.map((item) => item.name).filter(Boolean),
+    ],
     [technicians],
   );
 
@@ -370,13 +387,14 @@ export function AdminTicketListPage({ mode = "active" }) {
     const q = search.toLowerCase();
     if (!q) return base;
 
-    return base.filter((ticket) =>
-      String(ticket.id).toLowerCase().includes(q) ||
-      ticket.subject?.toLowerCase().includes(q) ||
-      ticket.status?.toLowerCase().includes(q) ||
-      ticket.priority?.toLowerCase().includes(q) ||
-      ticket.intent?.toLowerCase().includes(q) ||
-      ticket.solver?.toLowerCase().includes(q)
+    return base.filter(
+      (ticket) =>
+        String(ticket.id).toLowerCase().includes(q) ||
+        ticket.subject?.toLowerCase().includes(q) ||
+        ticket.status?.toLowerCase().includes(q) ||
+        ticket.priority?.toLowerCase().includes(q) ||
+        ticket.intent?.toLowerCase().includes(q) ||
+        ticket.solver?.toLowerCase().includes(q),
     );
   }, [tickets, isSolvedMode, search]);
 
@@ -386,7 +404,11 @@ export function AdminTicketListPage({ mode = "active" }) {
   );
 
   const safePage = useMemo(
-    () => Math.min(page, Math.max(0, Math.ceil(sortedTickets.length / rowsPerPage) - 1)),
+    () =>
+      Math.min(
+        page,
+        Math.max(0, Math.ceil(sortedTickets.length / rowsPerPage) - 1),
+      ),
     [page, rowsPerPage, sortedTickets.length],
   );
 
@@ -400,7 +422,8 @@ export function AdminTicketListPage({ mode = "active" }) {
   );
 
   const allPageSelected =
-    paginatedTickets.length > 0 && paginatedTickets.every((ticket) => selectedIds.has(ticket.id));
+    paginatedTickets.length > 0 &&
+    paginatedTickets.every((ticket) => selectedIds.has(ticket.id));
   const someSelected = selectedIds.size > 0;
 
   const toggleSelectAll = () => {
@@ -429,7 +452,9 @@ export function AdminTicketListPage({ mode = "active" }) {
 
   const handleDeleteSelected = () => {
     setConfirmDialog({
-      message: t("pages.agentTicket.confirmDeleteSelected", { count: selectedIds.size }),
+      message: t("pages.agentTicket.confirmDeleteSelected", {
+        count: selectedIds.size,
+      }),
       onConfirm: async () => {
         setConfirmDialog(null);
         try {
@@ -463,7 +488,9 @@ export function AdminTicketListPage({ mode = "active" }) {
 
   const handleRequestSort = useCallback(
     (property) => {
-      setOrder((prev) => (orderBy === property && prev === "asc" ? "desc" : "asc"));
+      setOrder((prev) =>
+        orderBy === property && prev === "asc" ? "desc" : "asc",
+      );
       setOrderBy(property);
       setPage(0);
     },
@@ -475,7 +502,10 @@ export function AdminTicketListPage({ mode = "active" }) {
 
     try {
       setDownloadingId(attachmentId);
-      const result = await getAttachmentDownloadUrl(selectedTicketId, attachmentId);
+      const result = await getAttachmentDownloadUrl(
+        selectedTicketId,
+        attachmentId,
+      );
       if (!result.signedUrl) throw new Error("No signed URL");
       window.open(result.signedUrl, "_blank");
     } catch {
@@ -543,13 +573,19 @@ export function AdminTicketListPage({ mode = "active" }) {
       }
 
       if (attachment) {
-        await uploadTicketAttachment(selectedTicketId, attachment, newCommentId);
+        await uploadTicketAttachment(
+          selectedTicketId,
+          attachment,
+          newCommentId,
+        );
         const updatedTickets = await queryClient.fetchQuery({
           queryKey: ["all-tickets"],
           queryFn: getAllTickets,
           staleTime: 0,
         });
-        const refreshed = updatedTickets.find((ticket) => ticket.id === selectedTicketId);
+        const refreshed = updatedTickets.find(
+          (ticket) => ticket.id === selectedTicketId,
+        );
         if (refreshed) setSelectedTicket(refreshed);
       }
 
@@ -582,7 +618,10 @@ export function AdminTicketListPage({ mode = "active" }) {
 
   const SavingBadge = ({ field }) =>
     savingField === field ? (
-      <span style={{ color: "#aaa", fontSize: "11px", fontWeight: "400" }}> (saving...)</span>
+      <span style={{ color: "#aaa", fontSize: "11px", fontWeight: "400" }}>
+        {" "}
+        (saving...)
+      </span>
     ) : null;
 
   const renderTableHead = () => (
@@ -627,7 +666,8 @@ export function AdminTicketListPage({ mode = "active" }) {
   const renderTicketRow = (ticket) => {
     const isChecked = selectedIds.has(ticket.id);
     const isAssignedToSelf = ticket.solver === "You";
-    const isDispatched = ticket.solver && ticket.solver !== "Not yet" && !isAssignedToSelf;
+    const isDispatched =
+      ticket.solver && ticket.solver !== "Not yet" && !isAssignedToSelf;
 
     return (
       <TableRow
@@ -645,24 +685,46 @@ export function AdminTicketListPage({ mode = "active" }) {
             sx={{ color: "#FF8040", "&.Mui-checked": { color: "#FF8040" } }}
           />
         </TableCell>
-        <TableCell sx={{ color: "#666", fontSize: "13px" }}>{ticket.id}</TableCell>
+        <TableCell sx={{ color: "#666", fontSize: "13px" }}>
+          {ticket.id}
+        </TableCell>
         <TableCell>{ticket.subject}</TableCell>
-        <TableCell sx={{ color: getPriorityColor(ticket.priority), fontWeight: 500 }}>
+        <TableCell
+          sx={{ color: getPriorityColor(ticket.priority), fontWeight: 500 }}
+        >
           {ticket.priority ?? "-"}
         </TableCell>
-        <TableCell sx={{ color: getIntentColor(ticket.intent), fontWeight: 500 }}>
+        <TableCell
+          sx={{ color: getIntentColor(ticket.intent), fontWeight: 500 }}
+        >
           {getIntentLabel(ticket.intent)}
         </TableCell>
-        <TableCell sx={{ color: getStatusColor(ticket.status), fontWeight: 600 }}>
+        <TableCell
+          sx={{ color: getStatusColor(ticket.status), fontWeight: 600 }}
+        >
           {ticket.status}
         </TableCell>
         <TableCell>
           {isDispatched ? (
-            <span style={{ display: "flex", alignItems: "center", gap: "5px", color: "#333" }}>
+            <span
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "5px",
+                color: "#333",
+              }}
+            >
               <MdPerson size={16} /> {ticket.solver}
             </span>
           ) : isAssignedToSelf ? (
-            <span style={{ display: "flex", alignItems: "center", gap: "5px", color: "#FF8040" }}>
+            <span
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "5px",
+                color: "#FF8040",
+              }}
+            >
               <MdSupportAgent size={16} /> You
             </span>
           ) : (
@@ -692,7 +754,12 @@ export function AdminTicketListPage({ mode = "active" }) {
   };
 
   return (
-    <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+    <div
+      style={{
+        fontFamily:
+          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      }}
+    >
       {confirmDialog && (
         <ConfirmDialog
           message={confirmDialog.message}
@@ -730,7 +797,7 @@ export function AdminTicketListPage({ mode = "active" }) {
             <MdArrowBack size={20} /> Back
           </button>
         ) : (
-          <SearchBar 
+          <SearchBar
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -753,7 +820,8 @@ export function AdminTicketListPage({ mode = "active" }) {
             >
               <div
                 style={{
-                  background: "linear-gradient(180deg, #FFF7F2 0%, #FFFFFF 100%)",
+                  background:
+                    "linear-gradient(180deg, #FFF7F2 0%, #FFFFFF 100%)",
                   padding: "16px 22px",
                   borderBottom: "1px solid #f1f5f9",
                   display: "flex",
@@ -761,7 +829,13 @@ export function AdminTicketListPage({ mode = "active" }) {
                   justifyContent: "space-between",
                 }}
               >
-                <div style={{ color: "#FF8040", fontWeight: "700", fontSize: "14px" }}>
+                <div
+                  style={{
+                    color: "#FF8040",
+                    fontWeight: "700",
+                    fontSize: "14px",
+                  }}
+                >
                   Ticket #{selectedTicket.id}
                 </div>
                 {!isResolvedStatus(selectedTicket.status) && (
@@ -842,7 +916,13 @@ export function AdminTicketListPage({ mode = "active" }) {
                       {selectedTicket.description || "No description provided."}
                     </p>
 
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "18px" }}>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        gap: "18px",
+                      }}
+                    >
                       <div>
                         <div
                           style={{
@@ -910,7 +990,12 @@ export function AdminTicketListPage({ mode = "active" }) {
                         >
                           Issue
                         </div>
-                        <div style={{ color: getIntentColor(selectedTicket.intent), fontWeight: 500 }}>
+                        <div
+                          style={{
+                            color: getIntentColor(selectedTicket.intent),
+                            fontWeight: 500,
+                          }}
+                        >
                           {getIntentLabel(selectedTicket.intent)}
                         </div>
                       </div>
@@ -926,7 +1011,14 @@ export function AdminTicketListPage({ mode = "active" }) {
                         >
                           Customer
                         </div>
-                        <div style={{ color: "#333", display: "flex", alignItems: "center", gap: "6px" }}>
+                        <div
+                          style={{
+                            color: "#333",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                          }}
+                        >
                           <MdAccountCircle size={16} color="#FF8040" />
                           {selectedTicket.customer ?? "-"}
                         </div>
@@ -946,7 +1038,12 @@ export function AdminTicketListPage({ mode = "active" }) {
                         <InlineDropdown
                           value={selectedTicket.solver || "Unassigned"}
                           options={csAgentOptions}
-                          onSelect={(v) => handleFieldUpdate("solver", v === "Unassigned" ? null : v)}
+                          onSelect={(v) =>
+                            handleFieldUpdate(
+                              "solver",
+                              v === "Unassigned" ? null : v,
+                            )
+                          }
                           disabled={isResolvedStatus(selectedTicket.status)}
                         />
                       </div>
@@ -967,7 +1064,10 @@ export function AdminTicketListPage({ mode = "active" }) {
                           value={selectedTicket.technician || "Unassigned"}
                           options={technicianOptions}
                           onSelect={(v) =>
-                            handleFieldUpdate("technician", v === "Unassigned" ? null : v)
+                            handleFieldUpdate(
+                              "technician",
+                              v === "Unassigned" ? null : v,
+                            )
                           }
                           disabled={isResolvedStatus(selectedTicket.status)}
                         />
@@ -1051,7 +1151,9 @@ export function AdminTicketListPage({ mode = "active" }) {
                               <input
                                 type="file"
                                 style={{ display: "none" }}
-                                onChange={(e) => setAttachment(e.target.files[0] ?? null)}
+                                onChange={(e) =>
+                                  setAttachment(e.target.files[0] ?? null)
+                                }
                               />
                             </label>
                             {attachment && (
@@ -1090,7 +1192,10 @@ export function AdminTicketListPage({ mode = "active" }) {
                           </div>
                           <button
                             type="submit"
-                            disabled={submitting || (!responseText.trim() && !attachment)}
+                            disabled={
+                              submitting ||
+                              (!responseText.trim() && !attachment)
+                            }
                             style={{
                               padding: "10px 30px",
                               borderRadius: "8px",
@@ -1099,11 +1204,13 @@ export function AdminTicketListPage({ mode = "active" }) {
                               color: "white",
                               fontWeight: "600",
                               cursor:
-                                submitting || (!responseText.trim() && !attachment)
+                                submitting ||
+                                (!responseText.trim() && !attachment)
                                   ? "not-allowed"
                                   : "pointer",
                               opacity:
-                                submitting || (!responseText.trim() && !attachment)
+                                submitting ||
+                                (!responseText.trim() && !attachment)
                                   ? 0.7
                                   : 1,
                               fontSize: "14px",
@@ -1143,19 +1250,29 @@ export function AdminTicketListPage({ mode = "active" }) {
                         Failed to load timeline.
                       </div>
                     ) : (
-                      <div style={{ position: "relative", paddingLeft: "30px" }}>
+                      <div
+                        style={{ position: "relative", paddingLeft: "30px" }}
+                      >
                         {(() => {
                           const attachments = selectedTicket?.attachments ?? [];
-                          const createdDate = new Date(selectedTicket?.createdAt);
-                          const ticketCreatedAtMs = toTimeMs(selectedTicket?.createdAt);
-                          const createdDateStr = Number.isNaN(createdDate.getTime())
+                          const createdDate = new Date(
+                            selectedTicket?.createdAt,
+                          );
+                          const ticketCreatedAtMs = toTimeMs(
+                            selectedTicket?.createdAt,
+                          );
+                          const createdDateStr = Number.isNaN(
+                            createdDate.getTime(),
+                          )
                             ? "-"
                             : createdDate.toLocaleDateString("en-GB", {
                                 day: "2-digit",
                                 month: "long",
                                 year: "numeric",
                               });
-                          const createdTimeStr = Number.isNaN(createdDate.getTime())
+                          const createdTimeStr = Number.isNaN(
+                            createdDate.getTime(),
+                          )
                             ? "-"
                             : createdDate.toLocaleTimeString("en-GB", {
                                 hour: "2-digit",
@@ -1173,8 +1290,12 @@ export function AdminTicketListPage({ mode = "active" }) {
                           attachments.forEach((attachment) => {
                             if (attachment.commentId != null) {
                               const commentKey = String(attachment.commentId);
-                              const current = attachmentsByCommentId.get(commentKey) ?? [];
-                              attachmentsByCommentId.set(commentKey, [...current, attachment]);
+                              const current =
+                                attachmentsByCommentId.get(commentKey) ?? [];
+                              attachmentsByCommentId.set(commentKey, [
+                                ...current,
+                                attachment,
+                              ]);
                               return;
                             }
                             orphanAttachments.push(attachment);
@@ -1182,13 +1303,16 @@ export function AdminTicketListPage({ mode = "active" }) {
 
                           orphanAttachments.forEach((attachment) => {
                             const attachmentAtMs = toTimeMs(
-                              attachment.createdAt ?? attachment.uploadedAt ?? attachment.updatedAt,
+                              attachment.createdAt ??
+                                attachment.uploadedAt ??
+                                attachment.updatedAt,
                             );
 
                             if (
                               attachmentAtMs != null &&
                               ticketCreatedAtMs != null &&
-                              Math.abs(attachmentAtMs - ticketCreatedAtMs) <= 2 * 60 * 1000
+                              Math.abs(attachmentAtMs - ticketCreatedAtMs) <=
+                                2 * 60 * 1000
                             ) {
                               ticketLevelAttachments.push(attachment);
                               return;
@@ -1201,7 +1325,9 @@ export function AdminTicketListPage({ mode = "active" }) {
                               comments.forEach((comment) => {
                                 const commentAtMs = toTimeMs(comment.createdAt);
                                 if (commentAtMs == null) return;
-                                const distance = Math.abs(commentAtMs - attachmentAtMs);
+                                const distance = Math.abs(
+                                  commentAtMs - attachmentAtMs,
+                                );
                                 if (distance < bestDistance) {
                                   bestDistance = distance;
                                   targetComment = comment;
@@ -1219,8 +1345,12 @@ export function AdminTicketListPage({ mode = "active" }) {
 
                             if (targetComment) {
                               const key = String(targetComment.id);
-                              const current = attachmentsByCommentId.get(key) ?? [];
-                              attachmentsByCommentId.set(key, [...current, attachment]);
+                              const current =
+                                attachmentsByCommentId.get(key) ?? [];
+                              attachmentsByCommentId.set(key, [
+                                ...current,
+                                attachment,
+                              ]);
                               return;
                             }
 
@@ -1229,8 +1359,12 @@ export function AdminTicketListPage({ mode = "active" }) {
 
                           const allItems = [
                             { _type: "created" },
-                            ...comments.map((c) => ({ _type: "comment", ...c })),
-                            ...(isResolvedStatus(selectedTicket.status) && selectedTicket.resolvedAt
+                            ...comments.map((c) => ({
+                              _type: "comment",
+                              ...c,
+                            })),
+                            ...(isResolvedStatus(selectedTicket.status) &&
+                            selectedTicket.resolvedAt
                               ? [{ _type: "resolved" }]
                               : []),
                           ];
@@ -1240,7 +1374,13 @@ export function AdminTicketListPage({ mode = "active" }) {
 
                             if (item._type === "created") {
                               return (
-                                <div key="ticket-created" style={{ position: "relative", marginBottom: "18px" }}>
+                                <div
+                                  key="ticket-created"
+                                  style={{
+                                    position: "relative",
+                                    marginBottom: "18px",
+                                  }}
+                                >
                                   {!isLast && (
                                     <div
                                       style={{
@@ -1305,7 +1445,13 @@ export function AdminTicketListPage({ mode = "active" }) {
                                         {createdDateStr} • {createdTimeStr}
                                       </div>
                                     </div>
-                                    <div style={{ fontSize: "13px", color: "#555", lineHeight: "1.5" }}>
+                                    <div
+                                      style={{
+                                        fontSize: "13px",
+                                        color: "#555",
+                                        lineHeight: "1.5",
+                                      }}
+                                    >
                                       Ticket created
                                     </div>
                                     {ticketLevelAttachments.length > 0 && (
@@ -1324,7 +1470,9 @@ export function AdminTicketListPage({ mode = "active" }) {
                                             key={file.id}
                                             file={file}
                                             downloadingId={downloadingId}
-                                            onView={() => handleViewAttachment(file.id)}
+                                            onView={() =>
+                                              handleViewAttachment(file.id)
+                                            }
                                           />
                                         ))}
                                       </div>
@@ -1350,7 +1498,13 @@ export function AdminTicketListPage({ mode = "active" }) {
                                     minute: "2-digit",
                                   });
                               return (
-                                <div key="ticket-resolved" style={{ position: "relative", marginBottom: "18px" }}>
+                                <div
+                                  key="ticket-resolved"
+                                  style={{
+                                    position: "relative",
+                                    marginBottom: "18px",
+                                  }}
+                                >
                                   <div
                                     style={{
                                       position: "absolute",
@@ -1435,10 +1589,17 @@ export function AdminTicketListPage({ mode = "active" }) {
                               selectedTicket?.solver &&
                               item.senderName &&
                               item.senderName === selectedTicket.solver;
-                            const commentAttachments = attachmentsByCommentId.get(String(item.id)) ?? [];
+                            const commentAttachments =
+                              attachmentsByCommentId.get(String(item.id)) ?? [];
 
                             return (
-                              <div key={item.id ?? index} style={{ position: "relative", marginBottom: "18px" }}>
+                              <div
+                                key={item.id ?? index}
+                                style={{
+                                  position: "relative",
+                                  marginBottom: "18px",
+                                }}
+                              >
                                 {!isLast && (
                                   <div
                                     style={{
@@ -1459,7 +1620,9 @@ export function AdminTicketListPage({ mode = "active" }) {
                                     width: "22px",
                                     height: "22px",
                                     borderRadius: "50%",
-                                    background: isAgentReply ? "#FF8040" : "white",
+                                    background: isAgentReply
+                                      ? "#FF8040"
+                                      : "white",
                                     border: "2px solid #FF8040",
                                     display: "flex",
                                     alignItems: "center",
@@ -1477,7 +1640,9 @@ export function AdminTicketListPage({ mode = "active" }) {
                                     border: "1px solid #fde4d4",
                                     borderRadius: "10px",
                                     padding: "10px 12px",
-                                    background: isAgentReply ? "#FF8040" : "#fffdfb",
+                                    background: isAgentReply
+                                      ? "#FF8040"
+                                      : "#fffdfb",
                                   }}
                                 >
                                   <div
@@ -1500,7 +1665,9 @@ export function AdminTicketListPage({ mode = "active" }) {
                                     <div
                                       style={{
                                         fontSize: "11px",
-                                        color: isAgentReply ? "rgba(255,255,255,0.75)" : "#9ca3af",
+                                        color: isAgentReply
+                                          ? "rgba(255,255,255,0.75)"
+                                          : "#9ca3af",
                                         whiteSpace: "nowrap",
                                       }}
                                     >
@@ -1523,7 +1690,9 @@ export function AdminTicketListPage({ mode = "active" }) {
                                         marginTop: "8px",
                                         paddingTop: "8px",
                                         borderTop: `1px solid ${
-                                          isAgentReply ? "rgba(255,255,255,0.3)" : "#fde4d4"
+                                          isAgentReply
+                                            ? "rgba(255,255,255,0.3)"
+                                            : "#fde4d4"
                                         }`,
                                         display: "flex",
                                         flexDirection: "column",
@@ -1535,7 +1704,9 @@ export function AdminTicketListPage({ mode = "active" }) {
                                           key={file.id}
                                           file={file}
                                           downloadingId={downloadingId}
-                                          onView={() => handleViewAttachment(file.id)}
+                                          onView={() =>
+                                            handleViewAttachment(file.id)
+                                          }
                                           isAgentReply={isAgentReply}
                                         />
                                       ))}
@@ -1567,8 +1738,13 @@ export function AdminTicketListPage({ mode = "active" }) {
                 flexWrap: "wrap",
               }}
             >
-              <div style={{ fontSize: "28px", fontWeight: "700", color: "#333" }}>
-                {pageTitle} <span style={{ color: "#FF8040" }}>• {sortedTickets.length}</span>
+              <div
+                style={{ fontSize: "28px", fontWeight: "700", color: "#333" }}
+              >
+                {pageTitle}{" "}
+                <span style={{ color: "#FF8040" }}>
+                  • {sortedTickets.length}
+                </span>
               </div>
 
               <button
@@ -1591,25 +1767,40 @@ export function AdminTicketListPage({ mode = "active" }) {
                 }}
               >
                 <MdDelete size={16} />
-                {t("pages.agentTicket.delete")} {someSelected ? `(${selectedIds.size})` : ""}
+                {t("pages.agentTicket.delete")}{" "}
+                {someSelected ? `(${selectedIds.size})` : ""}
               </button>
             </div>
 
-            <div style={{ background: "white", borderRadius: "12px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
+            <div
+              style={{
+                background: "white",
+                borderRadius: "12px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+              }}
+            >
               {loading ? (
                 <div style={{ textAlign: "center", padding: "20px" }}>
                   <LoadingSpinner />
                 </div>
               ) : (
-                <Paper elevation={0} sx={{ borderRadius: "12px", overflow: "hidden" }}>
+                <Paper
+                  elevation={0}
+                  sx={{ borderRadius: "12px", overflow: "hidden" }}
+                >
                   <TableContainer>
                     <Table>
                       {renderTableHead()}
                       <TableBody>
-                        {paginatedTickets.map((ticket) => renderTicketRow(ticket))}
+                        {paginatedTickets.map((ticket) =>
+                          renderTicketRow(ticket),
+                        )}
                         {sortedTickets.length === 0 && (
                           <TableRow>
-                            <TableCell colSpan={8} sx={{ textAlign: "center", py: 4, color: "#999" }}>
+                            <TableCell
+                              colSpan={8}
+                              sx={{ textAlign: "center", py: 4, color: "#999" }}
+                            >
                               {t("pages.agentTicket.empty")}
                             </TableCell>
                           </TableRow>
@@ -1640,7 +1831,7 @@ export function AdminTicketListPage({ mode = "active" }) {
         onClick={() => setChatOpen(!chatOpen)}
         style={{
           position: "fixed",
-          bottom: "30px",
+          bottom: "68px",
           right: "30px",
           width: "60px",
           height: "60px",
@@ -1666,7 +1857,12 @@ export default function ActiveTicketPage() {
   return <AdminTicketListPage mode="active" />;
 }
 
-function AttachmentButton({ file, downloadingId, onView, isAgentReply = false }) {
+function AttachmentButton({
+  file,
+  downloadingId,
+  onView,
+  isAgentReply = false,
+}) {
   return (
     <button
       type="button"

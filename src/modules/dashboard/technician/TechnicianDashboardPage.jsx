@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { MdChat, MdConfirmationNumber, MdCheckCircle, MdHourglassTop } from "react-icons/md";
+import {
+  MdChat,
+  MdConfirmationNumber,
+  MdCheckCircle,
+  MdHourglassTop,
+} from "react-icons/md";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import ChatBot from "../../../components/ui/ChatBot";
@@ -17,7 +22,10 @@ export default function TechnicianDashboardPage() {
   const { name } = useAuth();
   const navigate = useNavigate();
   const [chatOpen, setChatOpen] = useState(false);
-  const [dateRange, setDateRange] = useState({ startDate: null, endDate: null });
+  const [dateRange, setDateRange] = useState({
+    startDate: null,
+    endDate: null,
+  });
   const [previewFilters, setPreviewFilters] = useState(null);
   const [previewTitle, setPreviewTitle] = useState("");
 
@@ -75,7 +83,9 @@ export default function TechnicianDashboardPage() {
             >
               {t("pages.dashboard.welcome")}, {name ?? "#"}
             </div>
-            <div style={{ fontSize: "14px", color: "#6B7280", marginTop: "4px" }}>
+            <div
+              style={{ fontSize: "14px", color: "#6B7280", marginTop: "4px" }}
+            >
               Here&apos;s what&apos;s happening with your support operations.
             </div>
           </div>
@@ -125,7 +135,7 @@ export default function TechnicianDashboardPage() {
         onClick={() => setChatOpen(!chatOpen)}
         style={{
           position: "fixed",
-          bottom: "30px",
+          bottom: "68px",
           right: "30px",
           width: "60px",
           height: "60px",

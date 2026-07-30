@@ -1,7 +1,12 @@
 import { useMemo, useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { MdArrowBack, MdChat, MdOutlinePerson, MdPersonAdd } from "react-icons/md";
+import {
+  MdArrowBack,
+  MdChat,
+  MdOutlinePerson,
+  MdPersonAdd,
+} from "react-icons/md";
 import {
   Paper,
   Table,
@@ -75,7 +80,10 @@ function sortList(list, orderBy, order) {
 const getSkillNames = (user) => {
   if (!user.profile_skill?.length) return "-";
   return (
-    user.profile_skill.map((ps) => ps.skills?.skill).filter(Boolean).join(", ") || "-"
+    user.profile_skill
+      .map((ps) => ps.skills?.skill)
+      .filter(Boolean)
+      .join(", ") || "-"
   );
 };
 
@@ -110,7 +118,14 @@ const StatCard = ({ label, value, color = "#111827" }) => (
       boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)",
     }}
   >
-    <div style={{ fontSize: "13px", color: "#6B7280", fontWeight: "500", marginBottom: "6px" }}>
+    <div
+      style={{
+        fontSize: "13px",
+        color: "#6B7280",
+        fontWeight: "500",
+        marginBottom: "6px",
+      }}
+    >
       {label}
     </div>
     <div style={{ fontSize: "28px", fontWeight: "700", color }}>{value}</div>
@@ -149,7 +164,8 @@ const SortHead = ({ columns, orderBy, order, onSort, prefixCell }) => (
 // ── Tier badge chip shown in the dropdown trigger and MenuItems ───────────────
 const TierChip = ({ tierName, tierColor, style }) => {
   const s = getTierStyle(tierName, tierColor);
-  if (!s) return <span style={{ color: "#aaa", fontSize: "13px" }}>— No tier —</span>;
+  if (!s)
+    return <span style={{ color: "#aaa", fontSize: "13px" }}>— No tier —</span>;
   return (
     <span
       style={{
@@ -167,7 +183,15 @@ const TierChip = ({ tierName, tierColor, style }) => {
         ...style,
       }}
     >
-      <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: s.dot, flexShrink: 0 }} />
+      <span
+        style={{
+          width: "7px",
+          height: "7px",
+          borderRadius: "50%",
+          background: s.dot,
+          flexShrink: 0,
+        }}
+      />
       {s.label}
     </span>
   );
@@ -188,7 +212,9 @@ const TierDropdownCell = ({ user, tiers }) => {
   const { mutate, isPending } = useMutation({
     mutationFn: (tierId) => setProfileTier(user.id, tierId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["users-by-role", "customer"] });
+      queryClient.invalidateQueries({
+        queryKey: ["users-by-role", "customer"],
+      });
     },
     onError: () => {
       setValue(currentTierId);
@@ -213,10 +239,7 @@ const TierDropdownCell = ({ user, tiers }) => {
   }
 
   return (
-    <TableCell
-      onClick={(e) => e.stopPropagation()}
-      sx={{ minWidth: "160px" }}
-    >
+    <TableCell onClick={(e) => e.stopPropagation()} sx={{ minWidth: "160px" }}>
       {isPending ? (
         <CircularProgress size={18} sx={{ color: "#FF8040" }} />
       ) : (
@@ -227,16 +250,25 @@ const TierDropdownCell = ({ user, tiers }) => {
           size="small"
           renderValue={(val) =>
             val ? (
-              <TierChip tierName={selectedTier?.tierName} tierColor={selectedTier?.color} />
+              <TierChip
+                tierName={selectedTier?.tierName}
+                tierColor={selectedTier?.color}
+              />
             ) : (
-              <span style={{ color: "#aaa", fontSize: "13px" }}>— No tier —</span>
+              <span style={{ color: "#aaa", fontSize: "13px" }}>
+                — No tier —
+              </span>
             )
           }
           sx={{
             fontSize: "13px",
             "& .MuiOutlinedInput-notchedOutline": { borderColor: "#e5e7eb" },
-            "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#FF8040" },
-            "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "#FF8040" },
+            "&:hover .MuiOutlinedInput-notchedOutline": {
+              borderColor: "#FF8040",
+            },
+            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+              borderColor: "#FF8040",
+            },
             "& .MuiSelect-select": { padding: "5px 10px" },
             minWidth: "140px",
           }}
@@ -292,7 +324,8 @@ export default function AdminUserPerformancePage() {
     <div
       style={{
         padding: "40px",
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        fontFamily:
+          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
         minHeight: "100vh",
         background: "#f9fafb",
       }}
@@ -307,7 +340,10 @@ export default function AdminUserPerformancePage() {
           .admin-performance-selector-grid { grid-template-columns: 1fr; }
         }
       `}</style>
-      <div className="admin-performance-selector-grid" style={{ width: "100%" }}>
+      <div
+        className="admin-performance-selector-grid"
+        style={{ width: "100%" }}
+      >
         {cards.map((card) => (
           <PerformanceCard key={card.title} {...card} />
         ))}
@@ -318,7 +354,10 @@ export default function AdminUserPerformancePage() {
 
 // ─── view ────────────────────────────────────────────────────────────────────
 
-export function AdminUserPerformanceView({ initialTab = "cs_agent", showAdd = true }) {
+export function AdminUserPerformanceView({
+  initialTab = "cs_agent",
+  showAdd = true,
+}) {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -344,7 +383,10 @@ export function AdminUserPerformanceView({ initialTab = "cs_agent", showAdd = tr
 
   const tabs = [
     { key: "cs_agent", label: t("pages.adminUserPerformance.tabs.cs_agent") },
-    { key: "technician", label: t("pages.adminUserPerformance.tabs.technician") },
+    {
+      key: "technician",
+      label: t("pages.adminUserPerformance.tabs.technician"),
+    },
     { key: "customer", label: t("pages.adminUserPerformance.tabs.customer") },
   ];
 
@@ -393,49 +435,76 @@ export function AdminUserPerformanceView({ initialTab = "cs_agent", showAdd = tr
 
   const sortedUsers = useMemo(() => {
     const q = search.toLowerCase();
-    const filtered = users.filter((user) =>
-      user.name?.toLowerCase().includes(q) ||
-      user.email?.toLowerCase().includes(q) ||
-      user.position?.toLowerCase().includes(q)
+    const filtered = users.filter(
+      (user) =>
+        user.name?.toLowerCase().includes(q) ||
+        user.email?.toLowerCase().includes(q) ||
+        user.position?.toLowerCase().includes(q),
     );
     return sortList(filtered, listOrderBy, listOrder);
   }, [users, listOrderBy, listOrder, search]);
 
   const safeListPage = useMemo(
-    () => Math.min(listPage, Math.max(0, Math.ceil(sortedUsers.length / listRows) - 1)),
-    [listPage, listRows, sortedUsers.length]
+    () =>
+      Math.min(
+        listPage,
+        Math.max(0, Math.ceil(sortedUsers.length / listRows) - 1),
+      ),
+    [listPage, listRows, sortedUsers.length],
   );
   const paginatedUsers = useMemo(
-    () => sortedUsers.slice(safeListPage * listRows, safeListPage * listRows + listRows),
-    [sortedUsers, safeListPage, listRows]
+    () =>
+      sortedUsers.slice(
+        safeListPage * listRows,
+        safeListPage * listRows + listRows,
+      ),
+    [sortedUsers, safeListPage, listRows],
   );
 
   const userTickets = useMemo(() => {
     if (!selectedUser) return [];
     const { user, tab } = selectedUser;
-    if (tab === "cs_agent") return allTickets.filter((t) => t.solver === user.name);
-    if (tab === "technician") return allTickets.filter((t) => t.technician === user.name);
-    if (tab === "customer") return allTickets.filter((t) => t.customer === user.name);
+    if (tab === "cs_agent")
+      return allTickets.filter((t) => t.solver === user.name);
+    if (tab === "technician")
+      return allTickets.filter((t) => t.technician === user.name);
+    if (tab === "customer")
+      return allTickets.filter((t) => t.customer === user.name);
     return [];
   }, [allTickets, selectedUser]);
 
-  const sortedTickets = useMemo(() => sortList(userTickets, detOrderBy, detOrder), [userTickets, detOrderBy, detOrder]);
+  const sortedTickets = useMemo(
+    () => sortList(userTickets, detOrderBy, detOrder),
+    [userTickets, detOrderBy, detOrder],
+  );
   const safeDetPage = useMemo(
-    () => Math.min(detPage, Math.max(0, Math.ceil(sortedTickets.length / detRows) - 1)),
-    [detPage, detRows, sortedTickets.length]
+    () =>
+      Math.min(
+        detPage,
+        Math.max(0, Math.ceil(sortedTickets.length / detRows) - 1),
+      ),
+    [detPage, detRows, sortedTickets.length],
   );
   const paginatedTickets = useMemo(
-    () => sortedTickets.slice(safeDetPage * detRows, safeDetPage * detRows + detRows),
-    [sortedTickets, safeDetPage, detRows]
+    () =>
+      sortedTickets.slice(
+        safeDetPage * detRows,
+        safeDetPage * detRows + detRows,
+      ),
+    [sortedTickets, safeDetPage, detRows],
   );
 
   const handleListSort = (column) => {
-    setListOrder((prev) => (listOrderBy === column && prev === "asc" ? "desc" : "asc"));
+    setListOrder((prev) =>
+      listOrderBy === column && prev === "asc" ? "desc" : "asc",
+    );
     setListOrderBy(column);
     setListPage(0);
   };
   const handleDetSort = (column) => {
-    setDetOrder((prev) => (detOrderBy === column && prev === "asc" ? "desc" : "asc"));
+    setDetOrder((prev) =>
+      detOrderBy === column && prev === "asc" ? "desc" : "asc",
+    );
     setDetOrderBy(column);
     setDetPage(0);
   };
@@ -461,8 +530,15 @@ export function AdminUserPerformanceView({ initialTab = "cs_agent", showAdd = tr
     : [
         { id: "name", label: t("pages.adminUserPerformance.columns.name") },
         { id: "email", label: t("pages.adminUserPerformance.columns.email") },
-        { id: "position", label: t("pages.adminUserPerformance.columns.position") },
-        { id: "skill", label: t("pages.adminUserPerformance.columns.skill"), sortable: false },
+        {
+          id: "position",
+          label: t("pages.adminUserPerformance.columns.position"),
+        },
+        {
+          id: "skill",
+          label: t("pages.adminUserPerformance.columns.skill"),
+          sortable: false,
+        },
       ];
 
   const ticketColumns = [
@@ -471,13 +547,26 @@ export function AdminUserPerformanceView({ initialTab = "cs_agent", showAdd = tr
     { id: "priority", label: t("pages.adminUserPerformance.columns.priority") },
     { id: "status", label: t("pages.adminUserPerformance.columns.status") },
     ...(selectedUser?.tab !== "customer"
-      ? [{ id: "customer", label: t("pages.adminUserPerformance.columns.customer") }]
+      ? [
+          {
+            id: "customer",
+            label: t("pages.adminUserPerformance.columns.customer"),
+          },
+        ]
       : []),
-    { id: "createdAt", label: t("pages.adminUserPerformance.columns.createdAt") },
+    {
+      id: "createdAt",
+      label: t("pages.adminUserPerformance.columns.createdAt"),
+    },
   ];
 
   return (
-    <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+    <div
+      style={{
+        fontFamily:
+          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      }}
+    >
       <div
         style={{
           background: "white",
@@ -486,12 +575,14 @@ export function AdminUserPerformanceView({ initialTab = "cs_agent", showAdd = tr
           alignItems: "center",
           boxShadow: "0 2px 5px rgba(0,0,0,0.05)",
           height: "70px",
-          gap: "12px",   // ← tambah gap
+          gap: "12px", // ← tambah gap
         }}
       >
         {/* Tombol back ke selector — selalu tampil */}
         <button
-          onClick={() => selectedUser ? handleBack() : navigate(ROUTE.adminUserPerformance)}
+          onClick={() =>
+            selectedUser ? handleBack() : navigate(ROUTE.adminUserPerformance)
+          }
           style={{
             background: "transparent",
             border: "none",
@@ -538,16 +629,37 @@ export function AdminUserPerformanceView({ initialTab = "cs_agent", showAdd = tr
             >
               <AvatarIcon size={64} />
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: "22px", fontWeight: "700", color: "#333", marginBottom: "4px" }}>
+                <div
+                  style={{
+                    fontSize: "22px",
+                    fontWeight: "700",
+                    color: "#333",
+                    marginBottom: "4px",
+                  }}
+                >
                   {selectedUser.user.name}
                 </div>
-                <div style={{ fontSize: "14px", color: "#666", marginBottom: "2px" }}>
+                <div
+                  style={{
+                    fontSize: "14px",
+                    color: "#666",
+                    marginBottom: "2px",
+                  }}
+                >
                   {selectedUser.user.email}
                 </div>
                 {selectedUser.tab !== "customer" && (
-                  <div style={{ display: "flex", gap: "20px", marginTop: "6px" }}>
+                  <div
+                    style={{ display: "flex", gap: "20px", marginTop: "6px" }}
+                  >
                     {selectedUser.user.position && (
-                      <span style={{ fontSize: "13px", color: "#FF8040", fontWeight: "600" }}>
+                      <span
+                        style={{
+                          fontSize: "13px",
+                          color: "#FF8040",
+                          fontWeight: "600",
+                        }}
+                      >
                         📌 {selectedUser.user.position}
                       </span>
                     )}
@@ -573,42 +685,99 @@ export function AdminUserPerformanceView({ initialTab = "cs_agent", showAdd = tr
             </div>
 
             <div style={{ display: "flex", gap: "16px", marginBottom: "24px" }}>
-              <StatCard label={t("pages.adminUserPerformance.stats.total")} value={totalTickets} />
-              <StatCard label={t("pages.adminUserPerformance.stats.active")} value={activeTickets} color="#f59e0b" />
-              <StatCard label={t("pages.adminUserPerformance.stats.solved")} value={solvedTickets} color="#22c55e" />
-              <StatCard label={t("pages.adminUserPerformance.stats.highPriority")} value={highPriority} color="#ef4444" />
+              <StatCard
+                label={t("pages.adminUserPerformance.stats.total")}
+                value={totalTickets}
+              />
+              <StatCard
+                label={t("pages.adminUserPerformance.stats.active")}
+                value={activeTickets}
+                color="#f59e0b"
+              />
+              <StatCard
+                label={t("pages.adminUserPerformance.stats.solved")}
+                value={solvedTickets}
+                color="#22c55e"
+              />
+              <StatCard
+                label={t("pages.adminUserPerformance.stats.highPriority")}
+                value={highPriority}
+                color="#ef4444"
+              />
             </div>
 
-            <div style={{ fontSize: "20px", fontWeight: "700", color: "#333", marginBottom: "16px" }}>
+            <div
+              style={{
+                fontSize: "20px",
+                fontWeight: "700",
+                color: "#333",
+                marginBottom: "16px",
+              }}
+            >
               {selectedUser.tab === "customer"
                 ? t("pages.adminUserPerformance.ticketsCreated")
                 : t("pages.adminUserPerformance.ticketsHandled")}
               <span style={{ color: "#FF8040" }}>• {sortedTickets.length}</span>
             </div>
 
-            <div style={{ background: "white", borderRadius: "12px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
+            <div
+              style={{
+                background: "white",
+                borderRadius: "12px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+              }}
+            >
               {ticketsLoading ? (
                 <div style={{ textAlign: "center", padding: "40px" }}>
                   <LoadingSpinner />
                 </div>
               ) : (
-                <Paper elevation={0} sx={{ borderRadius: "12px", overflow: "hidden" }}>
+                <Paper
+                  elevation={0}
+                  sx={{ borderRadius: "12px", overflow: "hidden" }}
+                >
                   <TableContainer>
                     <Table>
-                      <SortHead columns={ticketColumns} orderBy={detOrderBy} order={detOrder} onSort={handleDetSort} />
+                      <SortHead
+                        columns={ticketColumns}
+                        orderBy={detOrderBy}
+                        order={detOrder}
+                        onSort={handleDetSort}
+                      />
                       <TableBody>
                         {paginatedTickets.map((ticket) => (
-                          <TableRow key={ticket.id} sx={{ borderBottom: "1px solid #f0f0f0" }}>
-                            <TableCell sx={{ color: "#666", fontSize: "13px" }}>{ticket.id}</TableCell>
-                            <TableCell sx={{ fontWeight: 500, color: "#333" }}>{ticket.subject}</TableCell>
-                            <TableCell sx={{ color: getPriorityColor(ticket.priority), fontWeight: 500 }}>
+                          <TableRow
+                            key={ticket.id}
+                            sx={{ borderBottom: "1px solid #f0f0f0" }}
+                          >
+                            <TableCell sx={{ color: "#666", fontSize: "13px" }}>
+                              {ticket.id}
+                            </TableCell>
+                            <TableCell sx={{ fontWeight: 500, color: "#333" }}>
+                              {ticket.subject}
+                            </TableCell>
+                            <TableCell
+                              sx={{
+                                color: getPriorityColor(ticket.priority),
+                                fontWeight: 500,
+                              }}
+                            >
                               {ticket.priority ?? "-"}
                             </TableCell>
-                            <TableCell sx={{ color: getStatusColor(ticket.status), fontWeight: 600 }}>
+                            <TableCell
+                              sx={{
+                                color: getStatusColor(ticket.status),
+                                fontWeight: 600,
+                              }}
+                            >
                               {ticket.status}
                             </TableCell>
                             {selectedUser.tab !== "customer" && (
-                              <TableCell sx={{ color: "#555", fontSize: "13px" }}>{ticket.customer ?? "-"}</TableCell>
+                              <TableCell
+                                sx={{ color: "#555", fontSize: "13px" }}
+                              >
+                                {ticket.customer ?? "-"}
+                              </TableCell>
                             )}
                             <TableCell sx={{ color: "#666", fontSize: "13px" }}>
                               {formatTicketDate(ticket.createdAt)}
@@ -617,7 +786,10 @@ export function AdminUserPerformanceView({ initialTab = "cs_agent", showAdd = tr
                         ))}
                         {sortedTickets.length === 0 && (
                           <TableRow>
-                            <TableCell colSpan={ticketColumns.length} sx={{ textAlign: "center", py: 4, color: "#999" }}>
+                            <TableCell
+                              colSpan={ticketColumns.length}
+                              sx={{ textAlign: "center", py: 4, color: "#999" }}
+                            >
                               {t("pages.adminUserPerformance.noTickets")}
                             </TableCell>
                           </TableRow>
@@ -631,7 +803,10 @@ export function AdminUserPerformanceView({ initialTab = "cs_agent", showAdd = tr
                     page={safeDetPage}
                     onPageChange={(_, nextPage) => setDetPage(nextPage)}
                     rowsPerPage={detRows}
-                    onRowsPerPageChange={(e) => { setDetRows(parseInt(e.target.value, 10)); setDetPage(0); }}
+                    onRowsPerPageChange={(e) => {
+                      setDetRows(parseInt(e.target.value, 10));
+                      setDetPage(0);
+                    }}
                     rowsPerPageOptions={[5, 10, 25, 50]}
                   />
                 </Paper>
@@ -649,7 +824,14 @@ export function AdminUserPerformanceView({ initialTab = "cs_agent", showAdd = tr
                 gap: "16px",
               }}
             >
-              <div style={{ fontSize: "28px", fontWeight: "700", color: "#333", flexShrink: 0 }}>
+              <div
+                style={{
+                  fontSize: "28px",
+                  fontWeight: "700",
+                  color: "#333",
+                  flexShrink: 0,
+                }}
+              >
                 {t(`pages.adminUserPerformance.title_${activeTab}`)}{" "}
                 <span style={{ color: "#FF8040" }}>• {sortedUsers.length}</span>
               </div>
@@ -671,21 +853,34 @@ export function AdminUserPerformanceView({ initialTab = "cs_agent", showAdd = tr
                     boxShadow: "0 2px 8px rgba(255,128,64,0.3)",
                     flexShrink: 0,
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = "#e6703a"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = "#FF8040"; }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = "#e6703a";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "#FF8040";
+                  }}
                 >
                   <MdPersonAdd size={18} /> Add {activeTabConfig.label}
                 </button>
               )}
             </div>
 
-            <div style={{ background: "white", borderRadius: "12px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
+            <div
+              style={{
+                background: "white",
+                borderRadius: "12px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+              }}
+            >
               {usersLoading ? (
                 <div style={{ textAlign: "center", padding: "40px" }}>
                   <LoadingSpinner />
                 </div>
               ) : (
-                <Paper elevation={0} sx={{ borderRadius: "12px", overflow: "hidden" }}>
+                <Paper
+                  elevation={0}
+                  sx={{ borderRadius: "12px", overflow: "hidden" }}
+                >
                   <TableContainer>
                     <Table>
                       <SortHead
@@ -707,23 +902,42 @@ export function AdminUserPerformanceView({ initialTab = "cs_agent", showAdd = tr
                               transition: "background 0.15s",
                             }}
                           >
-                            <TableCell><AvatarIcon size={38} /></TableCell>
-                            <TableCell sx={{ fontWeight: 600, color: "#333" }}>{user.name ?? "-"}</TableCell>
-                            <TableCell sx={{ color: "#666", fontSize: "13px" }}>{user.email ?? "-"}</TableCell>
+                            <TableCell>
+                              <AvatarIcon size={38} />
+                            </TableCell>
+                            <TableCell sx={{ fontWeight: 600, color: "#333" }}>
+                              {user.name ?? "-"}
+                            </TableCell>
+                            <TableCell sx={{ color: "#666", fontSize: "13px" }}>
+                              {user.email ?? "-"}
+                            </TableCell>
                             {isCustomer ? (
                               <TierDropdownCell user={user} tiers={tiers} />
                             ) : (
                               <>
-                                <TableCell sx={{ color: "#555", fontSize: "13px" }}>{user.position ?? "-"}</TableCell>
-                                <TableCell sx={{ color: "#555", fontSize: "13px" }}>{getSkillNames(user)}</TableCell>
+                                <TableCell
+                                  sx={{ color: "#555", fontSize: "13px" }}
+                                >
+                                  {user.position ?? "-"}
+                                </TableCell>
+                                <TableCell
+                                  sx={{ color: "#555", fontSize: "13px" }}
+                                >
+                                  {getSkillNames(user)}
+                                </TableCell>
                               </>
                             )}
                           </TableRow>
                         ))}
                         {sortedUsers.length === 0 && (
                           <TableRow>
-                            <TableCell colSpan={isCustomer ? 4 : 5} sx={{ textAlign: "center", py: 4, color: "#999" }}>
-                              {t("pages.adminUserPerformance.noUsers", { role: activeTabConfig.label })}
+                            <TableCell
+                              colSpan={isCustomer ? 4 : 5}
+                              sx={{ textAlign: "center", py: 4, color: "#999" }}
+                            >
+                              {t("pages.adminUserPerformance.noUsers", {
+                                role: activeTabConfig.label,
+                              })}
                             </TableCell>
                           </TableRow>
                         )}
@@ -736,7 +950,10 @@ export function AdminUserPerformanceView({ initialTab = "cs_agent", showAdd = tr
                     page={safeListPage}
                     onPageChange={(_, nextPage) => setListPage(nextPage)}
                     rowsPerPage={listRows}
-                    onRowsPerPageChange={(e) => { setListRows(parseInt(e.target.value, 10)); setListPage(0); }}
+                    onRowsPerPageChange={(e) => {
+                      setListRows(parseInt(e.target.value, 10));
+                      setListPage(0);
+                    }}
                     rowsPerPageOptions={[5, 10, 25, 50]}
                   />
                 </Paper>
@@ -756,7 +973,7 @@ export function AdminUserPerformanceView({ initialTab = "cs_agent", showAdd = tr
         onClick={() => setChatOpen((prev) => !prev)}
         style={{
           position: "fixed",
-          bottom: "30px",
+          bottom: "68px",
           right: "30px",
           width: "60px",
           height: "60px",

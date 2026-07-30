@@ -1,6 +1,18 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { MdChat, MdCheckCircle, MdConfirmationNumber, MdHourglassBottom, MdHourglassDisabled, MdHourglassEmpty, MdListAlt, MdPending, MdPeople, MdSupportAgent, MdTaskAlt } from "react-icons/md";
+import {
+  MdChat,
+  MdCheckCircle,
+  MdConfirmationNumber,
+  MdHourglassBottom,
+  MdHourglassDisabled,
+  MdHourglassEmpty,
+  MdListAlt,
+  MdPending,
+  MdPeople,
+  MdSupportAgent,
+  MdTaskAlt,
+} from "react-icons/md";
 import { useTranslation } from "react-i18next";
 import ChatBot from "../../../components/ui/ChatBot";
 import { getDashboardStats } from "../dashboard.service";
@@ -12,7 +24,10 @@ export default function CustomerDashboardPage() {
   const { t } = useTranslation();
   const { name } = useAuth();
   const [chatOpen, setChatOpen] = useState(false);
-  const [dateRange, setDateRange] = useState({ startDate: null, endDate: null });
+  const [dateRange, setDateRange] = useState({
+    startDate: null,
+    endDate: null,
+  });
 
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["dashboard-stats", dateRange.startDate, dateRange.endDate],
@@ -23,7 +38,7 @@ export default function CustomerDashboardPage() {
 
   const handleDateApply = (startDate, endDate) => {
     setDateRange({ startDate, endDate });
-  }
+  };
 
   return (
     <div>
@@ -51,12 +66,28 @@ export default function CustomerDashboardPage() {
         style={{ flex: 1, overflowY: "auto", padding: "24px 30px" }}
       >
         {/* Welcome Message */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "24px" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-end",
+            marginBottom: "24px",
+          }}
+        >
           <div>
-            <div style={{ fontSize: "24px", fontWeight: "700", color: "#111827", letterSpacing: "-0.025em" }}>
+            <div
+              style={{
+                fontSize: "24px",
+                fontWeight: "700",
+                color: "#111827",
+                letterSpacing: "-0.025em",
+              }}
+            >
               {t("pages.dashboard.welcome")}, {name ?? "#"}
             </div>
-            <div style={{ fontSize: "14px", color: "#6B7280", marginTop: "4px" }}>
+            <div
+              style={{ fontSize: "14px", color: "#6B7280", marginTop: "4px" }}
+            >
               Here&apos;s what&apos;s happening with your support operations.
             </div>
           </div>
@@ -64,7 +95,14 @@ export default function CustomerDashboardPage() {
         </div>
 
         {/* Top Cards Row */}
-        <div style={{ display: "grid", marginBottom: "24px", gap: "16px", gridTemplateColumns: "repeat(5, 1fr)" }}>
+        <div
+          style={{
+            display: "grid",
+            marginBottom: "24px",
+            gap: "16px",
+            gridTemplateColumns: "repeat(5, 1fr)",
+          }}
+        >
           <StatCard
             title={t("pages.dashboard.totalTechnician")}
             value={stats?.totalTechnician}
@@ -174,7 +212,7 @@ export default function CustomerDashboardPage() {
         onClick={() => setChatOpen(!chatOpen)}
         style={{
           position: "fixed",
-          bottom: "30px",
+          bottom: "68px",
           right: "30px",
           width: "60px",
           height: "60px",

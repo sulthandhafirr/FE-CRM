@@ -31,7 +31,10 @@ export default function AdminDashboardPage() {
   const { t } = useTranslation();
   const { name } = useAuth();
   const [chatOpen, setChatOpen] = useState(false);
-  const [dateRange, setDateRange] = useState({ startDate: null, endDate: null });
+  const [dateRange, setDateRange] = useState({
+    startDate: null,
+    endDate: null,
+  });
   const navigate = useNavigate();
   const [previewFilters, setPreviewFilters] = useState(null);
   const [previewTitle, setPreviewTitle] = useState("");
@@ -150,7 +153,9 @@ export default function AdminDashboardPage() {
             >
               {t("pages.dashboard.welcome")}, {name ?? "#"}
             </div>
-            <div style={{ fontSize: "14px", color: "#6B7280", marginTop: "4px" }}>
+            <div
+              style={{ fontSize: "14px", color: "#6B7280", marginTop: "4px" }}
+            >
               Here&apos;s what&apos;s happening with your support operations.
             </div>
           </div>
@@ -208,8 +213,8 @@ export default function AdminDashboardPage() {
           }}
         >
           <ChartPanel title={t("pages.dashboard.ticketTrend")}>
-            <TicketTrendChart 
-              trend={trend} 
+            <TicketTrendChart
+              trend={trend}
               loading={trendLoading}
               onPointClick={(range, label) =>
                 openPreview({ ...range }, `Tickets: ${label}`)
@@ -231,12 +236,16 @@ export default function AdminDashboardPage() {
           <TicketStatusDonutChart
             ticketByStatus={stats?.ticketByStatus}
             loading={statsLoading}
-            onSliceClick={(status) => openPreview({ status, ...dateRange }, `Tickets: ${status}`)}
+            onSliceClick={(status) =>
+              openPreview({ status, ...dateRange }, `Tickets: ${status}`)
+            }
           />
           <TicketPriorityDonutChart
             ticketByPriority={stats?.ticketByPriority}
             loading={statsLoading}
-            onSliceClick={(priority) => openPreview({ priority, ...dateRange }, `Tickets: ${priority}`)}
+            onSliceClick={(priority) =>
+              openPreview({ priority, ...dateRange }, `Tickets: ${priority}`)
+            }
           />
         </div>
 
@@ -251,7 +260,9 @@ export default function AdminDashboardPage() {
           <TicketIntentDonutChart
             ticketByIntent={stats?.ticketByIntent}
             loading={statsLoading}
-            onSliceClick={(intentKey) => openPreview({ intentKey, ...dateRange }, `Tickets: ${intentKey}`)}
+            onSliceClick={(intentKey) =>
+              openPreview({ intentKey, ...dateRange }, `Tickets: ${intentKey}`)
+            }
           />
           <AgentLeaderboard
             startDate={dateRange.startDate}
@@ -264,7 +275,7 @@ export default function AdminDashboardPage() {
         onClick={() => setChatOpen(!chatOpen)}
         style={{
           position: "fixed",
-          bottom: "30px",
+          bottom: "68px",
           right: "30px",
           width: "60px",
           height: "60px",
