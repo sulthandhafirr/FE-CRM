@@ -47,6 +47,17 @@ const fetchProfileData = async (userId) => {
   return data;
 };
 
+// Helper: Fetch the tier assigned to a customer profile
+const fetchProfileTier = async (userId) => {
+  if (!userId) return null;
+  try {
+    const { data } = await api.get(`/api/tiers/profile/${userId}`);
+    return data; // { profileId, tierId, tierName, tierColor } — semua null kalau belum ada tier
+  } catch {
+    return null;
+  }
+};
+
 export default function CustomerProfilePage() {
   const { t } = useTranslation();
   const { user, role, loading: authLoading } = useAuth();
@@ -70,6 +81,14 @@ export default function CustomerProfilePage() {
     queryKey: ["profile", user?.id],
     queryFn: () => fetchProfileData(user?.id),
     enabled: !!user?.id && !authLoading,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  // Fetch tier — hanya relevan untuk role customer
+  const { data: profileTier } = useQuery({
+    queryKey: ["profile-tier", user?.id],
+    queryFn: () => fetchProfileTier(user?.id),
+    enabled: !!user?.id && !authLoading && role === "customer",
     staleTime: 1000 * 60 * 5,
   });
 
@@ -277,18 +296,37 @@ export default function CustomerProfilePage() {
             <div style={{ fontSize: "13px", color: "#666", marginBottom: "4px" }}>
               {user?.email}
             </div>
-            <div
-              style={{
-                fontSize: "12px",
-                color: "#999",
-                background: "#FFF5EF",
-                display: "inline-block",
-                padding: "4px 10px",
-                borderRadius: "6px",
-                marginTop: "4px",
-              }}
-            >
-              {getRoleDisplayName(role)}
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap", marginTop: "4px" }}>
+              <div
+                style={{
+                  fontSize: "12px",
+                  color: "#999",
+                  background: "#FFF5EF",
+                  display: "inline-block",
+                  padding: "4px 10px",
+                  borderRadius: "6px",
+                }}
+              >
+                {getRoleDisplayName(role)}
+              </div>
+
+              {/* Tier badge — hanya muncul untuk customer yang sudah punya tier */}
+              {role === "customer" && profileTier?.tierName && (
+                <div
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: "700",
+                    display: "inline-block",
+                    padding: "4px 10px",
+                    borderRadius: "6px",
+                    background: `${profileTier.tierColor || "#6b7280"}20`,
+                    color: profileTier.tierColor || "#6b7280",
+                    border: `1.5px solid ${profileTier.tierColor || "#6b7280"}`,
+                  }}
+                >
+                  {profileTier.tierName}
+                </div>
+              )}
             </div>
           </div>
         </div>
