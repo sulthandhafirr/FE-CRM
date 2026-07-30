@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { MdAutoAwesome, MdInfoOutline } from "react-icons/md";
+import { MdAutoAwesome, MdInfoOutline, MdChevronLeft, MdChevronRight } from "react-icons/md";
 import { getTicketRecommendation } from "../ticket.service";
 import { getPriorityColor } from "../ticket.schema";
 
@@ -14,6 +15,15 @@ export default function TicketRecommendation({ onTakeAction, onDetail }) {
     refetchOnWindowFocus: false,
   });
 
+  const [page, setPage] = useState(0);
+  const itemsPerPage = 5;
+  const totalPages = Math.ceil(recommendations.length / itemsPerPage);
+  const safePage = page >= totalPages ? 0 : page;
+  const pageItems = recommendations.slice(
+    safePage * itemsPerPage,
+    safePage * itemsPerPage + itemsPerPage
+  );
+
   if (isLoading) {
   return (
     <div style={{ marginBottom: "30px" }}>
@@ -23,8 +33,8 @@ export default function TicketRecommendation({ onTakeAction, onDetail }) {
           {t("pages.agentTicket.recommended.title")}
         </span>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "14px" }}>
-        {[1, 2, 3].map((i) => (
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "14px" }}>
+        {[1, 2, 3, 4, 5].map((i) => (
           <div key={i} style={{ background: "white", borderRadius: "12px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", padding: "16px", height: "190px" }}>
             <div style={{ background: "#f0f0f0", borderRadius: "4px", height: "14px", width: "60%", marginBottom: "16px" }} />
             <div style={{ background: "#f0f0f0", borderRadius: "4px", height: "16px", width: "90%", marginBottom: "8px" }} />
@@ -54,19 +64,59 @@ if (recommendations.length === 0) return null;
             {t("pages.agentTicket.recommended.title")}
           </span>
         </div>
-        <span style={{ fontSize: "12px", color: "#999" }}>
-          {t("pages.agentTicket.recommended.subtitle")}
-        </span>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <span style={{ fontSize: "12px", color: "#999" }}>
+            {t("pages.agentTicket.recommended.subtitle")}
+          </span>
+          {totalPages > 1 && (
+            <div style={{ display: "flex", gap: "2px" }}>
+              <button
+                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                disabled={page === 0}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  cursor: page === 0 ? "default" : "pointer",
+                  color: page === 0 ? "#e0e0e0" : "#999",
+                  padding: "2px",
+                  borderRadius: "4px",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <MdChevronLeft size={18} />
+              </button>
+              <button
+                onClick={() =>
+                  setPage((p) => Math.min(totalPages - 1, p + 1))
+                }
+                disabled={page === totalPages - 1}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  cursor: page === totalPages - 1 ? "default" : "pointer",
+                  color: page === totalPages - 1 ? "#e0e0e0" : "#999",
+                  padding: "2px",
+                  borderRadius: "4px",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <MdChevronRight size={18} />
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+          gridTemplateColumns: "repeat(5, 1fr)",
           gap: "14px",
         }}
       >
-        {recommendations.map((ticket) => (
+        {pageItems.map((ticket) => (
           <div
             key={ticket.ticketId}
             style={{
