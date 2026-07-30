@@ -511,3 +511,9 @@ export async function updateTierApi(id, tierName, color) {
 export async function deleteTierApi(id) {
   await api.delete(`/api/tiers/${id}`);
 }
+
+/** Update the level of a tier by ID */
+export async function updateTierLevelApi(id, newLevel) {
+  const { data } = await api.put(`/api/tiers/${id}/level`, { newLevel });
+  return data; // array tiers hasil terbaru, sudah terurut descending
+}
