@@ -3,7 +3,7 @@ import { formatDate } from "../performance.schema";
 
 export default function UserPerformanceDetail({ user = {}, stats = {} }) {
   return (
-    <div style={{ background: "white", borderRadius: "14px", padding: "24px 28px", boxShadow: "0 2px 8px rgba(0,0,0,0.06)", marginBottom: "24px", display: "flex", alignItems: "center", gap: "22px", border: "2px solid #FF8040" }}>
+    <div style={{ background: "white", borderRadius: "16px", padding: "24px 28px", boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)", marginBottom: "24px", display: "flex", alignItems: "center", gap: "22px", border: "1px solid #E5E7EB" }}>
       <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#FFF5EF", border: "2px solid #FF8040", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
         <span style={{ fontWeight: 700, color: "#FF8040" }}>{(user.name || "?").slice(0,1).toUpperCase()}</span>
       </div>

@@ -99,18 +99,18 @@ const AvatarIcon = ({ size = 38 }) => (
   </div>
 );
 
-const StatCard = ({ label, value, color = "#FF8040" }) => (
+const StatCard = ({ label, value, color = "#111827" }) => (
   <div
     style={{
       flex: 1,
       background: "white",
       padding: "18px 22px",
-      borderRadius: "12px",
-      border: "2px solid #FF8040",
-      boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+      borderRadius: "16px",
+      border: "1px solid #E5E7EB",
+      boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)",
     }}
   >
-    <div style={{ fontSize: "13px", color: "#666", fontWeight: "500", marginBottom: "6px" }}>
+    <div style={{ fontSize: "13px", color: "#6B7280", fontWeight: "500", marginBottom: "6px" }}>
       {label}
     </div>
     <div style={{ fontSize: "28px", fontWeight: "700", color }}>{value}</div>
@@ -526,14 +526,14 @@ export function AdminUserPerformanceView({ initialTab = "cs_agent", showAdd = tr
             <div
               style={{
                 background: "white",
-                borderRadius: "14px",
+                borderRadius: "16px",
                 padding: "24px 28px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)",
                 marginBottom: "24px",
                 display: "flex",
                 alignItems: "center",
                 gap: "22px",
-                border: "2px solid #FF8040",
+                border: "1px solid #E5E7EB",
               }}
             >
               <AvatarIcon size={64} />
