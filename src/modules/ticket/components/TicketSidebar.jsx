@@ -1,0 +1,742 @@
+import { MdAutoAwesome, MdCheckCircle, MdOutlineFilterNone, MdEngineering, MdHourglassEmpty, MdAttachFile } from "react-icons/md";
+import { O } from "./ticketTheme";
+import { Badge, ProgressBar } from "./TicketShared";
+import { getIntentLabel, getIntentColor } from "../ticket.schema";
+
+export default function TicketSidebar({
+  ticket,
+  ticketId,
+  role,
+  duplicateCounts,
+  customerTier,
+  getTierStyle,
+  isAssignedToMe,
+  isTechnicianDispatched,
+  showDispatchPanel,
+  technicianSearch,
+  selectedTechnician,
+  technicians,
+  dispatchingTech,
+  stellaSummary,
+  summarizing,
+  loadingDots,
+  typewriterIndex,
+  typewriterDone,
+  downloadingId,
+  attachments,
+  onNavigate,
+  onViewAttachment,
+  onStellaSummary,
+  onShowDispatchPanel,
+  onHideDispatchPanel,
+  onTechnicianSearch,
+  onSelectTechnician,
+  onDispatchTechnician,
+}) {
+  return (
+    <div
+      className="mtd-sidebar"
+      style={{
+        width: "360px",
+        background: "white",
+        borderLeft: "1px solid #E5E7EB",
+        overflowY: "auto",
+        flexShrink: 0,
+        display: "flex",
+        flexDirection: "column",
+        boxShadow: "-4px 0 15px -3px rgba(0,0,0,0.03)",
+        zIndex: 10,
+      }}
+    >
+      {/* ── Stella Analysis (non-customer) ── */}
+      {role !== "customer" && (
+        <div
+          style={{
+            padding: "20px",
+            background: `linear-gradient(180deg, ${O[50]} 50%, white 100%)`,
+            borderBottom: "1px solid #F3F4F6",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              marginBottom: "16px",
+            }}
+          >
+            <div
+              style={{
+                padding: "6px",
+                background: `linear-gradient(135deg, ${O[500]}, ${O[700]})`,
+                color: "white",
+                borderRadius: "8px",
+                boxShadow: `0 1px 4px rgba(255,128,64,0.4)`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <MdAutoAwesome size={16} />
+            </div>
+            <h3
+              style={{
+                fontSize: "14px",
+                fontWeight: "700",
+                color: "#111827",
+                letterSpacing: "-0.01em",
+              }}
+            >
+              Stella Analysis
+            </h3>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            {/* Intent */}
+            <div
+              style={{
+                background: "white",
+                padding: "12px",
+                borderRadius: "12px",
+                border: `1px solid ${O[200]}`,
+                boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: "10px",
+                  fontWeight: "700",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em",
+                  color: "#9CA3AF",
+                  marginBottom: "8px",
+                }}
+              >
+                <span>Issue Detected</span>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <span
+                  style={{
+                    fontWeight: "600",
+                    fontSize: "14px",
+                    color: getIntentColor(ticket.intent),
+                  }}
+                >
+                  {getIntentLabel(ticket.intent)}
+                </span>
+                <MdCheckCircle size={16} color="#16A34A" />
+              </div>
+            </div>
+
+            {/* SLA Prediction */}
+            <div
+              style={{
+                background: "white",
+                padding: "12px",
+                borderRadius: "12px",
+                border: "1px solid #E5E7EB",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: "10px",
+                  fontWeight: "700",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em",
+                  color: "#9CA3AF",
+                  marginBottom: "8px",
+                }}
+              >
+                <span>SLA Prediction</span>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: "8px",
+                }}
+              >
+                <Badge type={ticket.priority}>{ticket.priority || "—"}</Badge>
+                <span style={{ fontSize: "12px", fontWeight: "500", color: "#DC2626" }}>
+                  Breach in 45m
+                </span>
+              </div>
+              <ProgressBar progress={85} color="#EF4444" />
+            </div>
+
+            {/* Duplicate Tickets */}
+            <DuplicateCard
+              duplicateCounts={duplicateCounts}
+              ticketId={ticket.id}
+              ticketIdParam={ticketId}
+              onNavigate={onNavigate}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* ── Actions / Handler ── */}
+      <div style={{ padding: role === "customer" ? "0px 20px 20px" : "20px", order: role === "customer" ? 2 : 1 }}>
+        <div style={{ paddingTop: "8px" }}>
+          {role === "technician" ? (
+            <HandlerSection ticket={ticket} />
+          ) : role === "customer" ? (
+            <CustomerHandlerSection ticket={ticket} />
+          ) : (
+            <AgentActionsSection
+              ticket={ticket}
+              isAssignedToMe={isAssignedToMe}
+              isTechnicianDispatched={isTechnicianDispatched}
+              onShowDispatchPanel={onShowDispatchPanel}
+            />
+          )}
+
+          {/* Dispatch Panel */}
+          {showDispatchPanel && isAssignedToMe && !isTechnicianDispatched && (
+            <DispatchPanel
+              technicians={technicians}
+              technicianSearch={technicianSearch}
+              selectedTechnician={selectedTechnician}
+              dispatchingTech={dispatchingTech}
+              onSearch={onTechnicianSearch}
+              onSelect={onSelectTechnician}
+              onDispatch={onDispatchTechnician}
+              onCancel={onHideDispatchPanel}
+            />
+          )}
+        </div>
+      </div>
+
+      {/* ── Stella Help (customer only) ── */}
+      {role === "customer" && (
+        <StellaHelpPanel
+          stellaSummary={stellaSummary}
+          summarizing={summarizing}
+          loadingDots={loadingDots}
+          typewriterIndex={typewriterIndex}
+          typewriterDone={typewriterDone}
+          onClick={onStellaSummary}
+        />
+      )}
+
+      {/* ── Customer Info ── */}
+      <CustomerInfoSection
+        role={role}
+        ticket={ticket}
+        customerTier={customerTier}
+        getTierStyle={getTierStyle}
+        downloadingId={downloadingId}
+        attachments={attachments}
+        onViewAttachment={onViewAttachment}
+      />
+    </div>
+  );
+}
+
+// ── Sub-components ─────────────────────────────────────────────────────────
+
+function DuplicateCard({ duplicateCounts, ticketId, ticketIdParam, onNavigate }) {
+  const dupCount = duplicateCounts[ticketId] ?? 0;
+  return (
+    <div
+      onClick={() => dupCount > 0 && onNavigate("/dashboard/csAgent/ticket", { state: { openDuplicatesForId: Number(ticketIdParam) } })}
+      style={{
+        background: "white",
+        padding: "12px",
+        borderRadius: "12px",
+        border: `1px solid ${dupCount > 0 ? "#FF8040" : "#E5E7EB"}`,
+        boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+        cursor: dupCount > 0 ? "pointer" : "default",
+        transition: "all 0.15s",
+      }}
+      onMouseEnter={(e) => {
+        if (dupCount === 0) return;
+        e.currentTarget.style.borderColor = "#E86A2C";
+        e.currentTarget.style.background = "#FFF7F2";
+        e.currentTarget.style.boxShadow = "0 2px 8px rgba(255,128,64,0.15)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = dupCount > 0 ? "#FF8040" : "#E5E7EB";
+        e.currentTarget.style.background = "white";
+        e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.03)";
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          fontSize: "10px",
+          fontWeight: "700",
+          textTransform: "uppercase",
+          letterSpacing: "0.05em",
+          color: "#9CA3AF",
+          marginBottom: "8px",
+        }}
+      >
+        <span>Duplicate Tickets</span>
+      </div>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <span
+          style={{
+            fontWeight: "600",
+            fontSize: "14px",
+            color: dupCount > 0 ? "#FF8040" : "#9CA3AF",
+          }}
+        >
+          {dupCount > 0 ? `${dupCount} duplicate${dupCount > 1 ? "s" : ""} found` : "No duplicates"}
+        </span>
+        {dupCount > 0 && <MdOutlineFilterNone size={16} color="#FF8040" />}
+      </div>
+      {dupCount > 0 && (
+        <p style={{ fontSize: "11px", color: "#6B7280", marginTop: "4px" }}>
+          Click to review duplicate tickets
+        </p>
+      )}
+    </div>
+  );
+}
+
+function HandlerSection({ ticket }) {
+  return (
+    <>
+      <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: "#9CA3AF", marginBottom: "8px" }}>
+        Handler
+      </p>
+      <div style={{ background: O[50], padding: "12px", borderRadius: "12px", border: `1px solid ${O[200]}`, boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
+        <p style={{ fontWeight: "600", fontSize: "14px", color: O[700] }}>
+          {ticket.solver || "—"}
+        </p>
+        <p style={{ fontSize: "12px", color: "#6B7280", marginTop: "2px" }}>
+          CS Agent
+        </p>
+      </div>
+    </>
+  );
+}
+
+function CustomerHandlerSection({ ticket }) {
+  return (
+    <>
+      <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: "#9CA3AF", marginBottom: "8px" }}>Handler</p>
+      <div style={{ background: O[50], padding: "12px", borderRadius: "12px", border: `1px solid ${O[200]}`, boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
+        {ticket.solver ? (
+          <>
+            <p style={{ fontWeight: "600", fontSize: "14px", color: O[700] }}>{ticket.solver}</p>
+            <p style={{ fontSize: "12px", color: "#6B7280", marginTop: "2px" }}>CS Agent</p>
+            {ticket.technician && (
+              <>
+                <div style={{ height: "1px", background: O[200], margin: "8px 0" }} />
+                <p style={{ fontWeight: "600", fontSize: "14px", color: O[700] }}>{ticket.technician}</p>
+                <p style={{ fontSize: "12px", color: "#6B7280", marginTop: "2px" }}>Technician</p>
+              </>
+            )}
+          </>
+        ) : (
+          <>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <MdHourglassEmpty size={16} color={O[500]} />
+              <p style={{ fontWeight: "600", fontSize: "14px", color: O[700] }}>Waiting for CS Agent</p>
+            </div>
+            <p style={{ fontSize: "12px", color: "#6B7280", marginTop: "4px" }}>A customer service agent will be assigned to handle your ticket shortly</p>
+          </>
+        )}
+      </div>
+    </>
+  );
+}
+
+function AgentActionsSection({ ticket, isAssignedToMe, isTechnicianDispatched, onShowDispatchPanel }) {
+  return (
+    <>
+      <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: "#9CA3AF", marginBottom: "8px" }}>
+        Actions
+      </p>
+      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+        <button
+          onClick={onShowDispatchPanel}
+          disabled={!isAssignedToMe || isTechnicianDispatched}
+          style={{
+            width: "100%",
+            textAlign: "left",
+            padding: "12px",
+            borderRadius: "12px",
+            border: "1px solid #E5E7EB",
+            background: "white",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+            cursor: isAssignedToMe && !isTechnicianDispatched ? "pointer" : "not-allowed",
+            transition: "all 0.15s",
+          }}
+          onMouseEnter={(e) => {
+            if (!isAssignedToMe || isTechnicianDispatched) return;
+            e.currentTarget.style.borderColor = O[300];
+            e.currentTarget.style.background = O[50];
+            e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.06)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = "#E5E7EB";
+            e.currentTarget.style.background = "white";
+            e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.03)";
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+            <p style={{ fontWeight: "600", fontSize: "14px", color: "#111827" }}>
+              {isTechnicianDispatched ? ticket.technician : "Dispatch Technician"}
+            </p>
+            <MdEngineering size={16} color="#9CA3AF" />
+          </div>
+          <p style={{ fontSize: "12px", color: "#6B7280" }}>
+            {isTechnicianDispatched ? "Technician assigned" : "Assign a field technician to this ticket"}
+          </p>
+        </button>
+      </div>
+    </>
+  );
+}
+
+function DispatchPanel({ technicians, technicianSearch, selectedTechnician, dispatchingTech, onSearch, onSelect, onDispatch, onCancel }) {
+  return (
+    <div
+      style={{
+        background: "white",
+        padding: "12px",
+        borderRadius: "12px",
+        border: `1px solid ${O[200]}`,
+        boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+      }}
+    >
+      <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: "#9CA3AF", marginBottom: "8px" }}>
+        Select Technician
+      </p>
+      <input
+        type="text"
+        placeholder="Search by name or email..."
+        value={technicianSearch}
+        onChange={(e) => onSearch(e.target.value)}
+        style={{
+          width: "100%",
+          padding: "8px 10px",
+          borderRadius: "8px",
+          border: `1px solid ${O[200]}`,
+          fontSize: "13px",
+          outline: "none",
+          boxSizing: "border-box",
+          marginBottom: "6px",
+        }}
+      />
+      <div
+        style={{
+          border: `1px solid ${O[200]}`,
+          borderRadius: "8px",
+          background: "white",
+          maxHeight: "120px",
+          overflowY: "auto",
+        }}
+      >
+        {technicians
+          .filter(
+            (tech) =>
+              !technicianSearch ||
+              tech.name?.toLowerCase().includes(technicianSearch.toLowerCase()) ||
+              tech.email?.toLowerCase().includes(technicianSearch.toLowerCase()),
+          )
+          .map((tech) => (
+            <div
+              key={tech.id}
+              onClick={() => onSelect(tech)}
+              style={{
+                padding: "8px 10px",
+                cursor: "pointer",
+                fontSize: "13px",
+                color: "#333",
+                borderBottom: "1px solid #F5F5F5",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = O[50])}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "white")}
+            >
+              <span style={{ fontWeight: "600" }}>{tech.name}</span>
+              <span style={{ color: "#999", marginLeft: "6px", fontSize: "11px" }}>{tech.email}</span>
+            </div>
+          ))}
+        {technicians.filter(
+          (tech) =>
+            !technicianSearch ||
+            tech.name?.toLowerCase().includes(technicianSearch.toLowerCase()) ||
+            tech.email?.toLowerCase().includes(technicianSearch.toLowerCase()),
+        ).length === 0 && (
+          <div style={{ padding: "8px 10px", color: "#9CA3AF", fontSize: "12px" }}>No technicians found</div>
+        )}
+      </div>
+      {selectedTechnician && (
+        <div
+          style={{
+            background: O[50],
+            border: `1px solid ${O[200]}`,
+            borderRadius: "8px",
+            padding: "8px 10px",
+            marginTop: "6px",
+            fontSize: "12px",
+          }}
+        >
+          <div style={{ display: "flex", gap: "8px", marginBottom: "2px" }}>
+            <span style={{ color: O[500], fontWeight: "600" }}>Selected:</span>
+            <span style={{ color: "#333", fontWeight: "600" }}>{selectedTechnician.name}</span>
+          </div>
+          {selectedTechnician.email && (
+            <span style={{ color: "#6B7280" }}>{selectedTechnician.email}</span>
+          )}
+        </div>
+      )}
+      <div style={{ display: "flex", gap: "6px", marginTop: "8px" }}>
+        <button
+          onClick={onCancel}
+          style={{
+            flex: 1,
+            padding: "8px",
+            borderRadius: "8px",
+            border: "1px solid #E5E7EB",
+            background: "white",
+            color: "#6B7280",
+            fontWeight: "500",
+            fontSize: "13px",
+            cursor: "pointer",
+          }}
+        >
+          Cancel
+        </button>
+        <button
+          onClick={onDispatch}
+          disabled={!selectedTechnician || dispatchingTech}
+          style={{
+            flex: 1,
+            padding: "8px",
+            borderRadius: "8px",
+            border: "none",
+            background: !selectedTechnician || dispatchingTech ? "#D1D5DB" : O[500],
+            color: "white",
+            fontWeight: "600",
+            fontSize: "13px",
+            cursor: !selectedTechnician || dispatchingTech ? "not-allowed" : "pointer",
+          }}
+        >
+          {dispatchingTech ? "Dispatching..." : "Dispatch"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function StellaHelpPanel({ stellaSummary, summarizing, loadingDots, typewriterIndex, typewriterDone, onClick }) {
+  return (
+    <div
+      onClick={!stellaSummary && !summarizing ? onClick : undefined}
+      style={{
+        padding: "18px 20px 16px",
+        background: `linear-gradient(135deg, ${O[50]} 0%, #FFF7F2 100%)`,
+        borderBottom: `2px solid ${O[200]}`,
+        borderLeft: stellaSummary ? `3px solid ${O[500]}` : "none",
+        order: 0,
+        cursor: !stellaSummary && !summarizing ? "pointer" : "default",
+        transition: "all 0.2s ease",
+        boxShadow: stellaSummary
+          ? `0 2px 8px rgba(255,128,64,0.08)`
+          : summarizing
+            ? "none"
+            : `0 2px 8px rgba(255,128,64,0.08)`,
+      }}
+      onMouseEnter={(e) => {
+        if (!stellaSummary && !summarizing) {
+          e.currentTarget.style.background = `linear-gradient(135deg, ${O[100]} 0%, #FFEDE0 100%)`;
+          e.currentTarget.style.boxShadow = `0 4px 12px rgba(255,128,64,0.15)`;
+          e.currentTarget.style.transform = "translateY(-1px)";
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!stellaSummary && !summarizing) {
+          e.currentTarget.style.background = `linear-gradient(135deg, ${O[50]} 0%, #FFF7F2 100%)`;
+          e.currentTarget.style.boxShadow = `0 2px 8px rgba(255,128,64,0.08)`;
+          e.currentTarget.style.transform = "translateY(0)";
+        }
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: stellaSummary || summarizing ? "10px" : "4px" }}>
+        <div style={{
+          padding: "6px",
+          background: `linear-gradient(135deg, ${O[500]}, ${O[700]})`,
+          color: "white",
+          borderRadius: "8px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          boxShadow: `0 2px 6px rgba(255,128,64,0.3)`,
+          transition: "all 0.2s",
+        }}>
+          <MdAutoAwesome size={14} />
+        </div>
+        <span style={{ fontWeight: "700", fontSize: "14px", color: "#111827", letterSpacing: "-0.01em", flex: 1 }}>
+          Stella Help
+        </span>
+        {!stellaSummary && !summarizing && (
+          <span style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: O[500], background: O[100], padding: "3px 8px", borderRadius: "4px" }}>
+            Tap
+          </span>
+        )}
+        {summarizing && (
+          <span style={{ fontSize: "11px", color: O[500], fontWeight: "600", display: "flex", alignItems: "center", gap: "4px" }}>
+            Generating{loadingDots}
+          </span>
+        )}
+      </div>
+      <div style={{ fontSize: "13px", color: stellaSummary ? "#374151" : "#6B7280", lineHeight: 1.6 }}>
+        {stellaSummary
+          ? <>{stellaSummary.slice(0, typewriterIndex)}{!typewriterDone && <span style={{ color: O[500], fontWeight: 700, animation: "mtd-blink 1s step-end infinite" }}>|</span>}</>
+          : summarizing
+            ? `Reading your conversation${loadingDots}`
+            : "Tap to get an AI summary of your conversation"}
+      </div>
+      {!stellaSummary && !summarizing && (
+        <div style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "8px" }}>
+          <div style={{ width: "4px", height: "4px", borderRadius: "50%", background: O[300] }} />
+          <div style={{ width: "4px", height: "4px", borderRadius: "50%", background: O[300] }} />
+          <div style={{ width: "4px", height: "4px", borderRadius: "50%", background: O[300] }} />
+          <span style={{ fontSize: "11px", color: "#9CA3AF", marginLeft: "4px" }}>Understand your ticket at a glance</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CustomerInfoSection({ role, ticket, customerTier, getTierStyle, downloadingId, attachments, onViewAttachment }) {
+  return (
+    <div style={{ padding: role === "customer" ? "25px 20px 20px" : "20px", flex: role === "customer" ? "none" : 1, order: role === "customer" ? 1 : 2 }}>
+      <h3 style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: "#9CA3AF", marginBottom: "16px" }}>
+        {role === "customer" ? "Ticket Info" : "Customer Info"}
+      </h3>
+
+      {role !== "customer" && (
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}>
+          <div
+            style={{
+              width: "48px",
+              height: "48px",
+              borderRadius: "12px",
+              background: "linear-gradient(135deg, #F3F4F6, #E5E7EB)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "18px",
+              fontWeight: "700",
+              color: "#6B7280",
+              border: "1px solid #D1D5DB",
+            }}
+          >
+            {(ticket.customer || "?").split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)}
+          </div>
+          <div>
+            <p style={{ fontWeight: "600", color: "#111827", fontSize: "14px" }}>
+              {ticket.customer || "-"}
+            </p>
+            {customerTier?.tierName ? (
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  padding: "3px 10px",
+                  borderRadius: "20px",
+                  background: getTierStyle(customerTier.tierName, customerTier.tierColor).bg,
+                  border: `1.5px solid ${getTierStyle(customerTier.tierName, customerTier.tierColor).border}`,
+                  color: getTierStyle(customerTier.tierName, customerTier.tierColor).color,
+                  fontSize: "12px",
+                  letterSpacing: "0.02em",
+                }}
+              >
+                <span
+                  style={{
+                    width: "7px",
+                    height: "7px",
+                    borderRadius: "50%",
+                    background: getTierStyle(customerTier.tierName, customerTier.tierColor).dot,
+                    flexShrink: 0,
+                  }}
+                />
+                {getTierStyle(customerTier.tierName, customerTier.tierColor).label}
+              </span>
+            ) : (
+              <p style={{ fontSize: "12px", color: O[500], fontWeight: "500" }}>— No tier —</p>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+        <div style={{ background: "#F9FAFB", padding: "12px", borderRadius: "12px", border: "1px solid #F3F4F6" }}>
+          <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", color: "#9CA3AF", marginBottom: "4px" }}>Subject</p>
+          <p style={{ fontSize: "13px", color: "#374151", fontWeight: "500" }}>{ticket.subject || "-"}</p>
+        </div>
+        <div style={{ background: "#F9FAFB", padding: "12px", borderRadius: "12px", border: "1px solid #F3F4F6" }}>
+          <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", color: "#9CA3AF", marginBottom: "4px" }}>Description</p>
+          <p style={{ fontSize: "13px", color: "#374151", lineHeight: 1.5, whiteSpace: "pre-wrap" }}>{ticket.description || "-"}</p>
+        </div>
+
+        <div style={{ background: "#F9FAFB", padding: "12px", borderRadius: "12px", border: "1px solid #F3F4F6" }}>
+          <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", color: "#9CA3AF", marginBottom: "6px" }}>Attachments</p>
+          {attachments.length === 0 ? (
+            <p style={{ fontSize: "13px", color: "#9CA3AF" }}>No files</p>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              {attachments.map((file) => (
+                <button
+                  key={file.id}
+                  type="button"
+                  onClick={() => onViewAttachment(file.id)}
+                  disabled={downloadingId === file.id}
+                  style={{
+                    width: "100%",
+                    textAlign: "left",
+                    border: `1px solid ${O[200]}`,
+                    borderRadius: "8px",
+                    background: "white",
+                    padding: "8px 10px",
+                    cursor: downloadingId === file.id ? "not-allowed" : "pointer",
+                    opacity: downloadingId === file.id ? 0.6 : 1,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
+                >
+                  <MdAttachFile size={14} color={O[500]} />
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ color: "#374151", fontWeight: "600", fontSize: "12px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {file.fileName ?? file.name ?? "Attachment"}
+                    </div>
+                    <div style={{ color: "#9CA3AF", fontSize: "11px", marginTop: "1px" }}>
+                      {downloadingId === file.id ? "Loading..." : "Click to view"}
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

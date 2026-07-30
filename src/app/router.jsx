@@ -8,7 +8,8 @@ import CustomerDashboardPage from "../modules/dashboard/customer/CustomerDashboa
 import AgentDashboardPage from "../modules/dashboard/agent/AgentDashboardPage";
 import AgentTicketPage from "../modules/ticket/pages/AgentTicketPage";
 import AgentHistoryPage from "../modules/history/AgentHistoryPage";
-import AgentTicketViewDetailPage from "../modules/ticket/components/AgentTicketViewDetailPage";
+// import AgentTicketViewDetailPage from "../modules/ticket/components/AgentTicketViewDetailPage";
+import ModernTicketViewDetailPage from "../modules/ticket/components/ModernTicketViewDetailPage";
 import TechnicianDashboardPage from "../modules/dashboard/technician/TechnicianDashboardPage";
 import TechnicianTicketPage from "../modules/ticket/pages/TechnicianTicketPage";
 import TechnicianHistoryPage from "../modules/history/TechnicianHistoryPage";
@@ -84,9 +85,13 @@ export default function Router() {
             element={<CustomerDashboardPage />}
           />
           <Route path={ROUTE.customerTicket} element={<CustomerTicketPage />} />
-          <Route
+          {/* <Route
             path={ROUTE.customerTicketDetail}
             element={<CustomerTicketViewDetailPage />}
+          /> */}
+          <Route
+            path={ROUTE.customerTicketDetail}
+            element={<ModernTicketViewDetailPage />}
           />
           <Route
             path={ROUTE.customerHistory}
@@ -106,7 +111,8 @@ export default function Router() {
           <Route path={ROUTE.agentTicket} element={<AgentTicketPage />} />
           <Route path={ROUTE.agentHistory} element={<AgentHistoryPage />}/>
           <Route path={ROUTE.agentProfile} element={<AgentProfilePage />}/>
-          <Route path={ROUTE.agentTicketDetail} element={<AgentTicketViewDetailPage />} />
+          <Route path={ROUTE.agentTicketDetail} element={<ModernTicketViewDetailPage />} />
+          {/* <Route path={ROUTE.agentTicketDetail} element={<AgentTicketViewDetailPage />} /> */}
         </Route>
       </Route>
 
@@ -186,9 +192,13 @@ export default function Router() {
             path={ROUTE.technicianTicket}
             element={<TechnicianTicketPage />}
           />
-          <Route
+          {/* <Route
             path={ROUTE.technicianTicketDetail}
             element={<CustomerTicketViewDetailPage />}
+          /> */}
+          <Route
+            path={ROUTE.technicianTicketDetail}
+            element={<ModernTicketViewDetailPage />}
           />
           <Route
             path={ROUTE.technicianHistory}
@@ -208,6 +218,10 @@ export default function Router() {
           <Route path={ROUTE.adminTicket} element={<AdminTicketSelectorPage />} />
           <Route path={ROUTE.adminTicketActive} element={<ActiveTicketPage />} />
           <Route path={ROUTE.adminTicketSolved} element={<SolvedTicketPage />} />
+          <Route
+            path={ROUTE.adminTicketDetail}
+            element={<ModernTicketViewDetailPage />}
+          />
           <Route path={ROUTE.adminUserPerformance} element={<AdminUserPerformancePage />} />
           <Route path={ROUTE.adminGeneralSetup} element={<GeneralSetupDashboardPage />} />
           <Route path={ROUTE.adminGeneralSetupIssuePriority} element={<IssueAndPriorityManagementPage />} />

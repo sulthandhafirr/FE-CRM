@@ -1,5 +1,5 @@
-import { useCallback, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
@@ -24,6 +24,7 @@ import { sortTickets, getPriorityColor, getStatusColor, formatTicketDate, getInt
 export default function AgentTicketPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
 
   const [chatOpen, setChatOpen] = useState(false);
@@ -49,7 +50,13 @@ export default function AgentTicketPage() {
 
   // ── Navigate helpers ──
   const navigateTo = useCallback((p) => setPageHistory((prev) => [...prev, p]), []);
-  const navigateBack = useCallback(() => setPageHistory((prev) => prev.length > 1 ? prev.slice(0, -1) : prev), []);
+  const navigateBack = useCallback(() => {
+    if (cameFromDetailRef.current && currentPage === "duplicates") {
+      navigate(`/dashboard/csAgent/ticket/${cameFromDetailRef.current}`);
+      return;
+    }
+    setPageHistory((prev) => prev.length > 1 ? prev.slice(0, -1) : prev);
+  }, [currentPage, navigate]);
 
   // ── Queries ──
   const { data: tickets = [], isLoading: loading } = useQuery({
@@ -57,7 +64,7 @@ export default function AgentTicketPage() {
     queryFn: getAllTickets,
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnMount: "always",
   });
 
   const { data: similarData, isLoading: loadingSimilar, isError: similarError } = useQuery({
@@ -203,6 +210,22 @@ export default function AgentTicketPage() {
     setSelectedIds(new Set());
     navigateTo("duplicates");
   }, [navigateTo]);
+
+  // ── Handle navigation from detail page to open duplicates ──
+  const processedNavRef = useRef(null);
+  const cameFromDetailRef = useRef(null);
+  useEffect(() => {
+    const targetId = location.state?.openDuplicatesForId;
+    if (!targetId || tickets.length === 0) return;
+    if (processedNavRef.current === targetId) return;
+    const targetTicket = tickets.find((t) => t.id === targetId);
+    if (targetTicket) {
+      processedNavRef.current = targetId;
+      cameFromDetailRef.current = targetId;
+      openDuplicates(targetTicket);
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state?.openDuplicatesForId, tickets, openDuplicates, navigate, location.pathname]);
 
   // ── Table columns ──
   const columns = [

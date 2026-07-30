@@ -13,13 +13,19 @@ export default function TicketRecommendation({ onTakeAction, onDetail }) {
     queryFn: getTicketRecommendation,
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
+    refetchOnMount: "always",
   });
+
+  const [takenIds, setTakenIds] = useState(() => new Set());
+  const activeRecommendations = recommendations.filter(
+    (t) => !takenIds.has(t.ticketId)
+  );
 
   const [page, setPage] = useState(0);
   const itemsPerPage = 5;
-  const totalPages = Math.ceil(recommendations.length / itemsPerPage);
+  const totalPages = Math.ceil(activeRecommendations.length / itemsPerPage);
   const safePage = page >= totalPages ? 0 : page;
-  const pageItems = recommendations.slice(
+  const pageItems = activeRecommendations.slice(
     safePage * itemsPerPage,
     safePage * itemsPerPage + itemsPerPage
   );
@@ -46,7 +52,7 @@ export default function TicketRecommendation({ onTakeAction, onDetail }) {
   );
 }
 
-if (recommendations.length === 0) return null;
+if (activeRecommendations.length === 0) return null;
 
   return (
     <div style={{ marginBottom: "30px" }}>
@@ -208,7 +214,10 @@ if (recommendations.length === 0) return null;
                 {t("pages.agentTicket.detail")}
               </button>
               <button
-                onClick={() => onTakeAction(ticket.ticketId)}
+                onClick={() => {
+                  setTakenIds((prev) => new Set(prev).add(ticket.ticketId));
+                  onTakeAction(ticket.ticketId);
+                }}
                 style={{
                   flex: 1,
                   background: "#FF8040",
