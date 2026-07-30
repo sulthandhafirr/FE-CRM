@@ -177,6 +177,7 @@ export function SectionFooter({
   saveLabel = "Save Changes",
   helperText,
   loading = false,
+  secondaryAction,
 }) {
   return (
     <Stack
@@ -187,21 +188,23 @@ export function SectionFooter({
       sx={{ mt: 2.5 }}
     >
       <Typography sx={{ color: theme.subtext, fontSize: 13 }}>{helperText}</Typography>
-      <Button
-        variant="contained"
-        onClick={onSave}
-        disabled={loading}
-        startIcon={<MdSave size={18} />}
-        sx={{
-          alignSelf: { xs: "stretch", sm: "auto" },
-          minHeight: 44,
-          ...ACCENT_BUTTON_SX(theme),
-          color: "white",
-          px: 2.5,
-        }}
-      >
-        {saveLabel}
-      </Button>
+      <Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ alignSelf: { xs: "stretch", sm: "auto" } }}>
+        {secondaryAction}
+        <Button
+          variant="contained"
+          onClick={onSave}
+          disabled={loading}
+          startIcon={<MdSave size={18} />}
+          sx={{
+            minHeight: 44,
+            ...ACCENT_BUTTON_SX(theme),
+            color: "white",
+            px: 2.5,
+          }}
+        >
+          {saveLabel}
+        </Button>
+      </Stack>
     </Stack>
   );
 }

@@ -11,9 +11,13 @@ import {
   TableHead,
   TableRow,
   TextField,
+  Button
 } from "@mui/material";
 import { MdGavel } from "react-icons/md";
-import GeneralSetupSectionPage, { SectionFooter, SettingsPanel } from "../GeneralSetupSectionPage";
+import GeneralSetupSectionPage, {
+  SectionFooter,
+  SettingsPanel,
+} from "../GeneralSetupSectionPage";
 import { saveSlaConfigToApi } from "../gsetup.service";
 import {
   SWITCH_SX,
@@ -21,11 +25,23 @@ import {
   TABLE_CONTAINER_SX,
   GRID_2_SX,
 } from "../components/gsetup.styles";
+import LoadingSpinner from "../../../components/ui/LoadingSpinner";
 
-function SlaRuleRow({ rule, onUpdate }) {
+  const DEFAULT_SLA_RULES = [
+    { priority: "Critical", firstResponseHours: 1, resolutionHours: 24 },
+    { priority: "High", firstResponseHours: 2, resolutionHours: 48 },
+    { priority: "Normal", firstResponseHours: 8, resolutionHours: 72 },
+    { priority: "Low", firstResponseHours: 24, resolutionHours: 96 },
+  ];
+
+function SlaRuleRow({ rule, onUpdate, disabled }) {
   const handleFieldChange = useCallback(
     (field) => (event) => {
-      onUpdate(rule.priority, field, Number(event.target.value) || 0);
+      const raw = event.target.value;
+
+      if (raw === "" || /^\d+$/.test(raw)) {
+        onUpdate(rule.priority, field, raw === "" ? 0 : Number(raw));
+      }
     },
     [rule.priority, onUpdate],
   );
@@ -35,18 +51,22 @@ function SlaRuleRow({ rule, onUpdate }) {
       <TableCell sx={{ fontWeight: 700 }}>{rule.priority}</TableCell>
       <TableCell sx={{ minWidth: 180 }}>
         <TextField
-          type="number"
+          type="text"
+          inputMode="numeric"
           size="small"
           fullWidth
+          disabled={disabled}
           value={rule.firstResponseHours}
           onChange={handleFieldChange("firstResponseHours")}
         />
       </TableCell>
       <TableCell sx={{ minWidth: 180 }}>
         <TextField
-          type="number"
+          type="text"
+          inputMode="numeric"
           size="small"
           fullWidth
+          disabled={disabled}
           value={rule.resolutionHours}
           onChange={handleFieldChange("resolutionHours")}
         />
@@ -55,7 +75,14 @@ function SlaRuleRow({ rule, onUpdate }) {
   );
 }
 
-function SlaRulesContent({ settings, updateSettings, saveSettings, showToast, theme }) {
+function SlaRulesContent({
+  settings,
+  updateSettings,
+  saveSettings,
+  showToast,
+  theme,
+  slaApiLoading,
+}) {
   const [saving, setSaving] = useState(false);
 
   const updateSlaRule = useCallback(
@@ -82,10 +109,13 @@ function SlaRulesContent({ settings, updateSettings, saveSettings, showToast, th
 
   const handleNotifyChange = useCallback(
     (event) => {
-      updateSettings("slaRules", (section) => ({
-        ...section,
-        notifyBeforeBreachedMinutes: Number(event.target.value) || 0,
-      }));
+      const raw = event.target.value;
+      if (raw === "" || /^\d+$/.test(raw)) {
+        updateSettings("slaRules", (section) => ({
+          ...section,
+          notifyBeforeBreachedMinutes: raw === "" ? 0 : Number(raw),
+        }));
+      }
     },
     [updateSettings],
   );
@@ -107,6 +137,19 @@ function SlaRulesContent({ settings, updateSettings, saveSettings, showToast, th
     }
   }, [settings, updateSettings, saveSettings, showToast]);
 
+  const handleResetToDefault = useCallback(() => {
+    updateSettings("slaRules", (section) => ({
+      ...section,
+      rules: DEFAULT_SLA_RULES.map((rule) => ({ ...rule })),
+      enableSlaMonitoring: true,
+      notifyBeforeBreachedMinutes: 30,
+    }));
+  }, [updateSettings]);
+
+  if (slaApiLoading) {
+    return <LoadingSpinner />;
+  }
+
   return (
     <Stack spacing={2.5}>
       <SettingsPanel
@@ -126,13 +169,15 @@ function SlaRulesContent({ settings, updateSettings, saveSettings, showToast, th
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  {["Priority", "First Response Time (hours)", "Resolution Time (hours)"].map(
-                    (header) => (
-                      <TableCell key={header} sx={TABLE_HEADER_CELL_SX(theme)}>
-                        {header}
-                      </TableCell>
-                    ),
-                  )}
+                  {[
+                    "Priority",
+                    "First Response Time (hours)",
+                    "Resolution Time (hours)",
+                  ].map((header) => (
+                    <TableCell key={header} sx={TABLE_HEADER_CELL_SX(theme)}>
+                      {header}
+                    </TableCell>
+                  ))}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -141,6 +186,7 @@ function SlaRulesContent({ settings, updateSettings, saveSettings, showToast, th
                     key={rule.priority}
                     rule={rule}
                     onUpdate={updateSlaRule}
+                    disabled={!settings.slaRules.enableSlaMonitoring}
                   />
                 ))}
               </TableBody>
@@ -159,11 +205,12 @@ function SlaRulesContent({ settings, updateSettings, saveSettings, showToast, th
               label="Enable SLA Monitoring"
             />
             <TextField
-              type="number"
+              type="text"
+              inputMode="numeric"
               label="Notify Before SLA Breach (minutes)"
               value={settings.slaRules.notifyBeforeBreachedMinutes}
               onChange={handleNotifyChange}
-              inputProps={{ min: 0 }}
+              disabled={!settings.slaRules.enableSlaMonitoring}
               fullWidth
             />
           </Stack>
@@ -173,6 +220,15 @@ function SlaRulesContent({ settings, updateSettings, saveSettings, showToast, th
             onSave={handleSave}
             loading={saving}
             helperText="SLA monitoring supports proactive breach warnings and priority-based targets."
+            secondaryAction={
+              <Button
+                variant="outlined"
+                onClick={handleResetToDefault}
+                sx={{ borderRadius: "12px", fontWeight: 800, minHeight: 44 }}
+              >
+                Reset to Default
+              </Button>
+            }
           />
         </Stack>
       </SettingsPanel>

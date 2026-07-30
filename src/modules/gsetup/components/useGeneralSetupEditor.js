@@ -122,6 +122,7 @@ export default function useGeneralSetupEditor() {
   return {
     settings,
     isLoading,
+    slaApiLoading,
     toast,
     fileInputRef,
     showToast,
