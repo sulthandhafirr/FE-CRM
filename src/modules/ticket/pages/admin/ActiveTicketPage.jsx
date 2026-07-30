@@ -49,7 +49,7 @@ import {
   isResolvedStatus,
   getResolvedStatusName,
 } from "../../ticket.schema";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const PRIORITY_OPTIONS = ["Low", "Normal", "High", "critical"];
 const CS_AGENT_ROLE_ID = 2;
@@ -510,11 +510,10 @@ export function AdminTicketListPage({ mode = "active" }) {
     });
   };
 
+  const navigate = useNavigate();
+
   const openTicketDetail = (ticket) => {
-    setSelectedTicket(ticket);
-    setResponseText("");
-    setAttachment(null);
-    navigateTo("detail");
+    navigate(`/admin/ticket/${ticket.id}`);
   };
 
   useEffect(() => {
