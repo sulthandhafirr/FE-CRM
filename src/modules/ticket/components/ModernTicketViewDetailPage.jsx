@@ -20,6 +20,8 @@ import {
   takeAction,
   getAttachmentDownloadUrl,
   getDuplicateCounts,
+  assignTicketToAgent,
+  changeTicketPriority,
 } from "../ticket.service";
 import {
   getTicketSummary,
@@ -50,6 +52,11 @@ export default function ModernTicketViewDetailPage() {
   const [resolvingTicket, setResolvingTicket] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [assigning, setAssigning] = useState(false);
+  const [assigningAgent, setAssigningAgent] = useState(false);
+  const [showAgentPanel, setShowAgentPanel] = useState(false);
+  const [agentSearch, setAgentSearch] = useState("");
+  const [selectedAgent, setSelectedAgent] = useState(null);
+  const [showPriorityMenu, setShowPriorityMenu] = useState(false);
   const [downloadingId, setDownloadingId] = useState(null);
   const [showDispatchPanel, setShowDispatchPanel] = useState(false);
   const [technicianSearch, setTechnicianSearch] = useState("");
@@ -89,6 +96,36 @@ export default function ModernTicketViewDetailPage() {
     queryFn: () => getDuplicateCounts(),
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
+  });
+
+  const CS_AGENT_ROLE_ID = 2;
+  const { data: csAgents = [] } = useQuery({
+    queryKey: ["cs-agents", user?.id],
+    queryFn: async () => {
+      if (!user?.id || role !== "admin") return [];
+      // 1. Get admin's company_id
+      const { data: profile } = await supabase
+        .from("profile")
+        .select("company_id")
+        .eq("id", user.id)
+        .single();
+      const companyId = profile?.company_id;
+      if (!companyId) return [];
+      // 2. Query CS agents directly from Supabase filtered by company + role
+      const { data: agents, error } = await supabase
+        .from("profile")
+        .select("id, name, email")
+        .eq("company_id", companyId)
+        .eq("role_id", CS_AGENT_ROLE_ID);
+      if (error) {
+        console.error("Failed to fetch company CS agents:", error);
+        return [];
+      }
+      return agents || [];
+    },
+    staleTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
+    enabled: role === "admin",
   });
 
   const { data: customerTier } = useQuery({
@@ -207,7 +244,9 @@ export default function ModernTicketViewDetailPage() {
   };
 
   const handleAssignToMe = async () => {
-    if (!ticket || isAssignedToMe) return;
+    if (!ticket) return;
+    // Untuk admin: izinkan re-assign meski sudah assigned
+    if (isAssignedToMe && role !== "admin") return;
     try {
       setAssigning(true);
       await takeAction(ticketId);
@@ -342,6 +381,62 @@ export default function ModernTicketViewDetailPage() {
   };
 
   const handleNavigate = (path, state) => navigate(path, state);
+
+  // ── Admin handlers ──
+
+  const handleShowAgentPanel = () => {
+    setShowAgentPanel(true);
+    setAgentSearch("");
+  };
+
+  const handleHideAgentPanel = () => {
+    setShowAgentPanel(false);
+    setAgentSearch("");
+  };
+
+  const handleAgentSearch = (value) => {
+    setAgentSearch(value);
+    setSelectedAgent(null);
+  };
+
+  const handleSelectAgent = (agent) => {
+    setSelectedAgent(agent);
+    setAgentSearch(agent.name);
+  };
+
+  const handleAssignToAgent = async () => {
+    if (!ticket || !selectedAgent?.name) return;
+    try {
+      setAssigningAgent(true);
+      const result = await assignTicketToAgent(ticketId, selectedAgent.name);
+      console.log("Assign result:", result);
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ["ticket-detail", ticketId] }),
+        queryClient.refetchQueries({ queryKey: ["all-tickets"] }),
+      ]);
+      setShowAgentPanel(false);
+      setSelectedAgent(null);
+      setAgentSearch("");
+    } catch (err) {
+      console.error("Assign error:", err);
+      alert(err?.response?.data?.message || err?.message || "Failed to assign ticket to agent.");
+    } finally {
+      setAssigningAgent(false);
+    }
+  };
+
+  const handleChangePriority = async (priority) => {
+    if (!ticket || priority === ticket.priority) return;
+    try {
+      await changeTicketPriority(ticketId, priority);
+      queryClient.invalidateQueries({ queryKey: ["ticket-detail", ticketId] });
+      queryClient.invalidateQueries({ queryKey: ["all-tickets"] });
+      setShowPriorityMenu(false);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to change ticket priority.");
+    }
+  };
 
   // ── Render: Loading / Error ──
   if (isLoading) {
@@ -538,6 +633,21 @@ export default function ModernTicketViewDetailPage() {
           onTechnicianSearch={handleTechnicianSearch}
           onSelectTechnician={handleSelectTechnician}
           onDispatchTechnician={handleDispatchTechnician}
+          // ── Admin props ──
+          resolved={resolved}
+          csAgents={csAgents}
+          showAgentPanel={showAgentPanel}
+          agentSearch={agentSearch}
+          selectedAgent={selectedAgent}
+          assigningAgent={assigningAgent}
+          showPriorityMenu={showPriorityMenu}
+          onShowAgentPanel={handleShowAgentPanel}
+          onHideAgentPanel={handleHideAgentPanel}
+          onAgentSearch={handleAgentSearch}
+          onSelectAgent={handleSelectAgent}
+          onAssignToAgent={handleAssignToAgent}
+          onChangePriority={handleChangePriority}
+          onTogglePriorityMenu={() => setShowPriorityMenu((p) => !p)}
         />
       </div>
     </div>

@@ -174,6 +174,22 @@ export const getTechnicians = async () => {
   return response.data;
 };
 
+// ─── Admin: Assign ticket to a specific CS agent ───────────────────────
+
+export const assignTicketToAgent = async (ticketId, solverName) => {
+  const { data } = await api.put(`/api/tickets/${ticketId}`, {
+    solver: solverName,
+  });
+  return data;
+};
+
+// ─── Admin: Change ticket priority ─────────────────────────────────────
+
+export const changeTicketPriority = async (ticketId, priority) => {
+  const { data } = await api.put(`/api/tickets/${ticketId}`, { priority });
+  return data;
+};
+
 // ticket recommendation AI
 export const getTicketRecommendation = async () => {
   const response = await api.get(`/api/recommendations`);

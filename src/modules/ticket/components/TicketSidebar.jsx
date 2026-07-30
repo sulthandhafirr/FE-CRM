@@ -1,7 +1,9 @@
-import { MdAutoAwesome, MdCheckCircle, MdOutlineFilterNone, MdEngineering, MdHourglassEmpty, MdAttachFile } from "react-icons/md";
+import { MdAutoAwesome, MdCheckCircle, MdOutlineFilterNone, MdEngineering, MdHourglassEmpty, MdAttachFile, MdPersonAdd, MdSwapVert, MdPerson } from "react-icons/md";
 import { O } from "./ticketTheme";
 import { Badge, ProgressBar } from "./TicketShared";
-import { getIntentLabel, getIntentColor } from "../ticket.schema";
+import { getIntentLabel, getIntentColor, getPriorityColor } from "../ticket.schema";
+
+const PRIORITY_OPTIONS = ["Low", "Normal", "High", "Critical"];
 
 export default function TicketSidebar({
   ticket,
@@ -32,6 +34,21 @@ export default function TicketSidebar({
   onTechnicianSearch,
   onSelectTechnician,
   onDispatchTechnician,
+  // ── Admin props ──
+  resolved,
+  csAgents,
+  showAgentPanel,
+  agentSearch,
+  selectedAgent,
+  assigningAgent,
+  showPriorityMenu,
+  onShowAgentPanel,
+  onHideAgentPanel,
+  onAgentSearch,
+  onSelectAgent,
+  onAssignToAgent,
+  onChangePriority,
+  onTogglePriorityMenu,
 }) {
   return (
     <div
@@ -194,6 +211,27 @@ export default function TicketSidebar({
             <HandlerSection ticket={ticket} />
           ) : role === "customer" ? (
             <CustomerHandlerSection ticket={ticket} />
+          ) : role === "admin" ? (
+            <AdminActionsSection
+              ticket={ticket}
+              isAssignedToMe={isAssignedToMe}
+              isTechnicianDispatched={isTechnicianDispatched}
+              resolved={resolved}
+              csAgents={csAgents}
+              showAgentPanel={showAgentPanel}
+              agentSearch={agentSearch}
+              selectedAgent={selectedAgent}
+              assigningAgent={assigningAgent}
+              showPriorityMenu={showPriorityMenu}
+              onShowAgentPanel={onShowAgentPanel}
+              onHideAgentPanel={onHideAgentPanel}
+              onAgentSearch={onAgentSearch}
+              onSelectAgent={onSelectAgent}
+              onAssignToAgent={onAssignToAgent}
+              onChangePriority={onChangePriority}
+              onTogglePriorityMenu={onTogglePriorityMenu}
+              onShowDispatchPanel={onShowDispatchPanel}
+            />
           ) : (
             <AgentActionsSection
               ticket={ticket}
@@ -204,12 +242,13 @@ export default function TicketSidebar({
           )}
 
           {/* Dispatch Panel */}
-          {showDispatchPanel && isAssignedToMe && !isTechnicianDispatched && (
+          {showDispatchPanel && isAssignedToMe && (role === "admin" || !isTechnicianDispatched) && (
             <DispatchPanel
               technicians={technicians}
               technicianSearch={technicianSearch}
               selectedTechnician={selectedTechnician}
               dispatchingTech={dispatchingTech}
+              currentTechnician={isTechnicianDispatched ? ticket.technician : null}
               onSearch={onTechnicianSearch}
               onSelect={onSelectTechnician}
               onDispatch={onDispatchTechnician}
@@ -411,7 +450,224 @@ function AgentActionsSection({ ticket, isAssignedToMe, isTechnicianDispatched, o
   );
 }
 
-function DispatchPanel({ technicians, technicianSearch, selectedTechnician, dispatchingTech, onSearch, onSelect, onDispatch, onCancel }) {
+function AdminActionsSection({
+  ticket,
+  isAssignedToMe,
+  isTechnicianDispatched,
+  resolved,
+  csAgents,
+  showAgentPanel,
+  agentSearch,
+  selectedAgent,
+  assigningAgent,
+  showPriorityMenu,
+  onShowAgentPanel,
+  onHideAgentPanel,
+  onAgentSearch,
+  onSelectAgent,
+  onAssignToAgent,
+  onChangePriority,
+  onTogglePriorityMenu,
+  onShowDispatchPanel,
+}) {
+  const currentPriority = ticket.priority || "Normal";
+  
+  return (
+    <>
+      <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: "#9CA3AF", marginBottom: "8px" }}>
+        Admin Actions
+      </p>
+      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+        {/* ── Assign to CS Agent ── */}
+        <button
+          onClick={showAgentPanel ? onHideAgentPanel : onShowAgentPanel}
+          disabled={resolved}
+          style={{
+            width: "100%",
+            textAlign: "left",
+            padding: "12px",
+            borderRadius: "12px",
+            border: "1px solid #E5E7EB",
+            background: showAgentPanel ? O[50] : "white",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+            cursor: resolved ? "not-allowed" : "pointer",
+            transition: "all 0.15s",
+          }}
+          onMouseEnter={(e) => {
+            if (resolved || showAgentPanel) return;
+            e.currentTarget.style.borderColor = O[300];
+            e.currentTarget.style.background = O[50];
+            e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.06)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = "#E5E7EB";
+            e.currentTarget.style.background = showAgentPanel ? O[50] : "white";
+            e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.03)";
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+            <p style={{ fontWeight: "600", fontSize: "14px", color: "#111827" }}>
+              {ticket.solver || "Assign to CS Agent"}
+            </p>
+            <MdPersonAdd size={16} color={ticket.solver ? O[500] : "#9CA3AF"} />
+          </div>
+          <p style={{ fontSize: "12px", color: "#6B7280" }}>
+            {ticket.solver ? `Currently: ${ticket.solver}` : "Assign a CS agent to handle this ticket"}
+          </p>
+        </button>
+
+        {/* Agent assign panel */}
+        {showAgentPanel && (
+          <AgentAssignPanel
+            csAgents={csAgents}
+            agentSearch={agentSearch}
+            selectedAgent={selectedAgent}
+            assigningAgent={assigningAgent}
+            onSearch={onAgentSearch}
+            onSelect={onSelectAgent}
+            onAssign={onAssignToAgent}
+            onCancel={onHideAgentPanel}
+          />
+        )}
+
+        {/* ── Change Priority ── */}
+        <div style={{ position: "relative" }}>
+          <button
+            onClick={resolved ? null : onTogglePriorityMenu}
+            disabled={resolved}
+            style={{
+              width: "100%",
+              textAlign: "left",
+              padding: "12px",
+              borderRadius: "12px",
+              border: "1px solid #E5E7EB",
+              background: "white",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+              cursor: resolved ? "not-allowed" : "pointer",
+              transition: "all 0.15s",
+            }}
+            onMouseEnter={(e) => {
+              if (resolved) return;
+              e.currentTarget.style.borderColor = O[300];
+              e.currentTarget.style.background = O[50];
+              e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.06)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "#E5E7EB";
+              e.currentTarget.style.background = "white";
+              e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.03)";
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+              <p style={{ fontWeight: "600", fontSize: "14px", color: "#111827" }}>
+                {currentPriority}
+              </p>
+              <MdSwapVert size={16} color="#9CA3AF" />
+            </div>
+            <p style={{ fontSize: "12px", color: "#6B7280" }}>
+              Ticket Priority
+            </p>
+          </button>
+
+          {/* Priority dropdown */}
+          {showPriorityMenu && (
+            <div
+              style={{
+                position: "absolute",
+                top: "calc(100% + 4px)",
+                left: 0,
+                right: 0,
+                zIndex: 1000,
+                background: "white",
+                border: `1px solid ${O[200]}`,
+                borderRadius: "12px",
+                boxShadow: "0 4px 16px rgba(0,0,0,0.14)",
+                overflow: "hidden",
+              }}
+            >
+              {PRIORITY_OPTIONS.map((opt) => (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => onChangePriority(opt)}
+                  style={{
+                    display: "block",
+                    width: "100%",
+                    textAlign: "left",
+                    padding: "10px 14px",
+                    border: "none",
+                    background: opt === currentPriority ? "#FFF5EF" : "transparent",
+                    color: getPriorityColor(opt),
+                    fontWeight: opt === currentPriority ? "700" : "500",
+                    fontSize: "13px",
+                    cursor: "pointer",
+                    borderBottom: "1px solid #F5F5F5",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = "#FFF5EF";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background =
+                      opt === currentPriority ? "#FFF5EF" : "transparent";
+                  }}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* ── Dispatch / Change Technician ── */}
+        <button
+          onClick={onShowDispatchPanel}
+          disabled={!isAssignedToMe}
+          style={{
+            width: "100%",
+            textAlign: "left",
+            padding: "12px",
+            borderRadius: "12px",
+            border: "1px solid #E5E7EB",
+            background: "white",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+            cursor: isAssignedToMe ? "pointer" : "not-allowed",
+            transition: "all 0.15s",
+          }}
+          onMouseEnter={(e) => {
+            if (!isAssignedToMe) return;
+            e.currentTarget.style.borderColor = O[300];
+            e.currentTarget.style.background = O[50];
+            e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.06)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = "#E5E7EB";
+            e.currentTarget.style.background = "white";
+            e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.03)";
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+            <p style={{ fontWeight: "600", fontSize: "14px", color: "#111827" }}>
+              {isTechnicianDispatched ? `Technician: ${ticket.technician}` : "Dispatch Technician"}
+            </p>
+            <MdEngineering size={16} color={isTechnicianDispatched ? O[500] : "#9CA3AF"} />
+          </div>
+          <p style={{ fontSize: "12px", color: "#6B7280" }}>
+            {isTechnicianDispatched ? "Click to change technician" : "Assign a field technician to this ticket"}
+          </p>
+        </button>
+      </div>
+    </>
+  );
+}
+
+function AgentAssignPanel({ csAgents, agentSearch, selectedAgent, assigningAgent, onSearch, onSelect, onAssign, onCancel }) {
+  const filtered = csAgents.filter(
+    (agent) =>
+      !agentSearch ||
+      agent.name?.toLowerCase().includes(agentSearch.toLowerCase()) ||
+      agent.email?.toLowerCase().includes(agentSearch.toLowerCase()),
+  );
+
   return (
     <div
       style={{
@@ -423,8 +679,134 @@ function DispatchPanel({ technicians, technicianSearch, selectedTechnician, disp
       }}
     >
       <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: "#9CA3AF", marginBottom: "8px" }}>
-        Select Technician
+        Select CS Agent
       </p>
+      <input
+        type="text"
+        placeholder="Search by name or email..."
+        value={agentSearch}
+        onChange={(e) => onSearch(e.target.value)}
+        style={{
+          width: "100%",
+          padding: "8px 10px",
+          borderRadius: "8px",
+          border: `1px solid ${O[200]}`,
+          fontSize: "13px",
+          outline: "none",
+          boxSizing: "border-box",
+          marginBottom: "6px",
+        }}
+      />
+      <div
+        style={{
+          border: `1px solid ${O[200]}`,
+          borderRadius: "8px",
+          background: "white",
+          maxHeight: "120px",
+          overflowY: "auto",
+        }}
+      >
+        {filtered.map((agent) => (
+          <div
+            key={agent.id}
+            onClick={() => onSelect(agent)}
+            style={{
+              padding: "8px 10px",
+              cursor: "pointer",
+              fontSize: "13px",
+              color: "#333",
+              borderBottom: "1px solid #F5F5F5",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = O[50])}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "white")}
+          >
+            <span style={{ fontWeight: "600" }}>{agent.name}</span>
+            <span style={{ color: "#999", marginLeft: "6px", fontSize: "11px" }}>{agent.email}</span>
+          </div>
+        ))}
+        {filtered.length === 0 && (
+          <div style={{ padding: "8px 10px", color: "#9CA3AF", fontSize: "12px" }}>No CS agents found</div>
+        )}
+      </div>
+      {selectedAgent && (
+        <div
+          style={{
+            background: O[50],
+            border: `1px solid ${O[200]}`,
+            borderRadius: "8px",
+            padding: "8px 10px",
+            marginTop: "6px",
+            fontSize: "12px",
+          }}
+        >
+          <div style={{ display: "flex", gap: "8px", marginBottom: "2px" }}>
+            <span style={{ color: O[500], fontWeight: "600" }}>Selected:</span>
+            <span style={{ color: "#333", fontWeight: "600" }}>{selectedAgent.name}</span>
+          </div>
+          {selectedAgent.email && (
+            <span style={{ color: "#6B7280" }}>{selectedAgent.email}</span>
+          )}
+        </div>
+      )}
+      <div style={{ display: "flex", gap: "6px", marginTop: "8px" }}>
+        <button
+          onClick={onCancel}
+          style={{
+            flex: 1,
+            padding: "8px",
+            borderRadius: "8px",
+            border: "1px solid #E5E7EB",
+            background: "white",
+            color: "#6B7280",
+            fontWeight: "500",
+            fontSize: "13px",
+            cursor: "pointer",
+          }}
+        >
+          Cancel
+        </button>
+        <button
+          onClick={onAssign}
+          disabled={!selectedAgent || assigningAgent}
+          style={{
+            flex: 1,
+            padding: "8px",
+            borderRadius: "8px",
+            border: "none",
+            background: !selectedAgent || assigningAgent ? "#D1D5DB" : O[500],
+            color: "white",
+            fontWeight: "600",
+            fontSize: "13px",
+            cursor: !selectedAgent || assigningAgent ? "not-allowed" : "pointer",
+          }}
+        >
+          {assigningAgent ? "Assigning..." : "Assign"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function DispatchPanel({ technicians, technicianSearch, selectedTechnician, dispatchingTech, currentTechnician, onSearch, onSelect, onDispatch, onCancel }) {
+  const isReplacing = Boolean(currentTechnician);
+  return (
+    <div
+      style={{
+        background: "white",
+        padding: "12px",
+        borderRadius: "12px",
+        border: `1px solid ${O[200]}`,
+        boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+      }}
+    >
+      <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: "#9CA3AF", marginBottom: "8px" }}>
+        {isReplacing ? "Change Technician" : "Select Technician"}
+      </p>
+      {isReplacing && (
+        <div style={{ background: O[50], padding: "8px 10px", borderRadius: "8px", marginBottom: "8px", fontSize: "12px", color: "#6B7280" }}>
+          Current: <strong style={{ color: O[700] }}>{currentTechnician}</strong>
+        </div>
+      )}
       <input
         type="text"
         placeholder="Search by name or email..."
@@ -536,7 +918,7 @@ function DispatchPanel({ technicians, technicianSearch, selectedTechnician, disp
             cursor: !selectedTechnician || dispatchingTech ? "not-allowed" : "pointer",
           }}
         >
-          {dispatchingTech ? "Dispatching..." : "Dispatch"}
+          {dispatchingTech ? "Dispatching..." : isReplacing ? "Change" : "Dispatch"}
         </button>
       </div>
     </div>

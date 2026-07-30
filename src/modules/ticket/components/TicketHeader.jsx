@@ -82,37 +82,121 @@ export default function TicketHeader({
       <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
         {role !== "customer" && (
           <>
-            <button
-              onClick={onAssignToMe}
-              disabled={isAssignedToMe || isAssignedToOther || resolved || assigning}
-              style={{
-                padding: "5px 12px",
-                background: isAssignedToMe || isAssignedToOther || resolved ? "#D1D5DB" : O[500],
-                border: "none",
-                color: "white",
-                borderRadius: "10px",
-                fontSize: "13px",
-                fontWeight: "500",
-                whiteSpace: "nowrap",
-                maxWidth: "180px",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                cursor: isAssignedToMe || isAssignedToOther || resolved || assigning ? "not-allowed" : "pointer",
-                boxShadow:
-                  isAssignedToMe || isAssignedToOther || resolved
-                    ? "none"
-                    : "0 1px 3px rgba(255,128,64,0.3)",
-                transition: "all 0.15s",
-              }}
-            >
-              {assigning
-                ? "Assigning..."
-                : isAssignedToMe
-                  ? "Assigned to you"
-                  : isAssignedToOther
-                    ? `Assigned to ${role === "technician" ? ticket.technician : ticket.solver}`
-                    : "Assign to me"}
-            </button>
+            {role === "admin" ? (
+              /* ── Admin buttons ── */
+              !ticket.solver ? (
+                <button
+                  onClick={onAssignToMe}
+                  disabled={assigning}
+                  style={{
+                    padding: "5px 12px",
+                    background: O[500],
+                    border: "none",
+                    color: "white",
+                    borderRadius: "10px",
+                    fontSize: "13px",
+                    fontWeight: "500",
+                    whiteSpace: "nowrap",
+                    cursor: assigning ? "not-allowed" : "pointer",
+                    boxShadow: "0 1px 3px rgba(255,128,64,0.3)",
+                    transition: "all 0.15s",
+                  }}
+                >
+                  {assigning ? "Assigning..." : "Assign to me"}
+                </button>
+              ) : ticket.solver && !isAssignedToMe ? (
+                <>
+                  <button
+                    onClick={onAssignToMe}
+                    disabled={assigning}
+                    style={{
+                      padding: "5px 12px",
+                      background: O[500],
+                      border: "none",
+                      color: "white",
+                      borderRadius: "10px",
+                      fontSize: "13px",
+                      fontWeight: "600",
+                      whiteSpace: "nowrap",
+                      cursor: assigning ? "not-allowed" : "pointer",
+                      boxShadow: "0 1px 3px rgba(255,128,64,0.3)",
+                      transition: "all 0.15s",
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = O[600]; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = O[500]; }}
+                  >
+                    {assigning ? "Taking over..." : "Take Over"}
+                  </button>
+                  <div style={{ height: "24px", width: "1px", background: "#E5E7EB", flexShrink: 0 }} />
+                  <button
+                    disabled
+                    style={{
+                      padding: "5px 12px",
+                      background: "#F3F4F6",
+                      border: "1px solid #E5E7EB",
+                      color: "#6B7280",
+                      borderRadius: "10px",
+                      fontSize: "13px",
+                      fontWeight: "500",
+                      whiteSpace: "nowrap",
+                      cursor: "default",
+                    }}
+                  >
+                    Assigned to {ticket.solver}
+                  </button>
+                </>
+              ) : (
+                <button
+                  disabled
+                  style={{
+                    padding: "5px 12px",
+                    background: "#F3F4F6",
+                    border: "1px solid #E5E7EB",
+                    color: "#6B7280",
+                    borderRadius: "10px",
+                    fontSize: "13px",
+                    fontWeight: "500",
+                    whiteSpace: "nowrap",
+                    cursor: "default",
+                  }}
+                >
+                  Assigned to you
+                </button>
+              )
+            ) : (
+              /* ── Non-admin buttons ── */
+              <button
+                onClick={onAssignToMe}
+                disabled={isAssignedToMe || isAssignedToOther || resolved || assigning}
+                style={{
+                  padding: "5px 12px",
+                  background: isAssignedToMe || isAssignedToOther || resolved ? "#D1D5DB" : O[500],
+                  border: "none",
+                  color: "white",
+                  borderRadius: "10px",
+                  fontSize: "13px",
+                  fontWeight: "500",
+                  whiteSpace: "nowrap",
+                  maxWidth: "180px",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  cursor: isAssignedToMe || isAssignedToOther || resolved || assigning ? "not-allowed" : "pointer",
+                  boxShadow:
+                    isAssignedToMe || isAssignedToOther || resolved
+                      ? "none"
+                      : "0 1px 3px rgba(255,128,64,0.3)",
+                  transition: "all 0.15s",
+                }}
+              >
+                {assigning
+                  ? "Assigning..."
+                  : isAssignedToMe
+                    ? "Assigned to you"
+                    : isAssignedToOther
+                      ? `Assigned to ${role === "technician" ? ticket.technician : ticket.solver}`
+                      : "Assign to me"}
+              </button>
+            )}
             <div style={{ height: "24px", width: "1px", background: "#E5E7EB" }} />
             <button
               onClick={onResolveTicket}
