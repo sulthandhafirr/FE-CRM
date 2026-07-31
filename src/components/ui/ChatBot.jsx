@@ -4,7 +4,7 @@ import { FaRobot, FaUser } from 'react-icons/fa';
 import { api } from '../../lib/api/apiClient';
 
 
-export default function ChatBot({ isOpen, onClose }) {
+export default function ChatBot({ isOpen, onClose, position }) {
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -92,8 +92,8 @@ export default function ChatBot({ isOpen, onClose }) {
       className="chatbot-container"
       style={{
         position: 'fixed',
-        bottom: '100px',
-        right: '30px',
+        bottom: position?.bottom ?? 100,
+        right: position?.right ?? 30,
         width: '380px',
         height: '550px',
         background: 'white',

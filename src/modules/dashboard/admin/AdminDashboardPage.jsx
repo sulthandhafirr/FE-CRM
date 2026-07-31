@@ -1,7 +1,6 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  MdChat,
   MdPeople,
   MdSupportAgent,
   MdConfirmationNumber,
@@ -9,7 +8,7 @@ import {
   MdHourglassTop,
 } from "react-icons/md";
 import { useTranslation } from "react-i18next";
-import ChatBot from "../../../components/ui/ChatBot";
+import ChatFab from "../../../components/ui/ChatFab";
 import { getDashboardStats, getTicketTrend } from "../dashboard.service";
 import { useAuth } from "../../../hooks/useAuth";
 import TicketStatusDonutChart from "../chart/TicketStatusDonutChart";
@@ -30,7 +29,6 @@ import { ChartPanel } from "../components/ChartPanel";
 export default function AdminDashboardPage() {
   const { t } = useTranslation();
   const { name } = useAuth();
-  const [chatOpen, setChatOpen] = useState(false);
   const [dateRange, setDateRange] = useState({
     startDate: null,
     endDate: null,
@@ -276,29 +274,7 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      <button
-        onClick={() => setChatOpen(!chatOpen)}
-        style={{
-          position: "fixed",
-          bottom: "68px",
-          right: "30px",
-          width: "60px",
-          height: "60px",
-          borderRadius: "50%",
-          background: "#FF8040",
-          border: "none",
-          color: "white",
-          cursor: "pointer",
-          boxShadow: "0 4px 12px rgba(255, 128, 64, 0.4)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <MdChat size={28} />
-      </button>
-
-      <ChatBot isOpen={chatOpen} onClose={() => setChatOpen(false)} />
+      <ChatFab />
       <TicketPreviewModal
         open={!!previewFilters}
         onClose={() => setPreviewFilters(null)}

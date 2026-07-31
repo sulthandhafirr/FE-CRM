@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { MdChat } from "react-icons/md";
 import { useTranslation } from "react-i18next";
 import {
   Paper,
@@ -14,7 +13,7 @@ import {
   TableRow,
   TableSortLabel,
 } from "@mui/material";
-import ChatBot from "../../../components/ui/ChatBot";
+import ChatFab from "../../../components/ui/ChatFab";
 import TicketForm from "../components/TicketForm";
 import SearchBar from "../../../components/ui/SearchBar";
 import LoadingSpinner from "../../../components/ui/LoadingSpinner";
@@ -24,7 +23,6 @@ import { getStatusColor, formatTicketDate } from "../ticket.schema";
 export default function TechnicianTicketPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [chatOpen, setChatOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [orderBy, setOrderBy] = useState("createdAt");
   const [order, setOrder] = useState("desc");
@@ -287,28 +285,7 @@ export default function TechnicianTicketPage() {
       />
 
       {/* Floating Chat */}
-      <button
-        onClick={() => setChatOpen(!chatOpen)}
-        style={{
-          position: "fixed",
-          bottom: "68px",
-          right: "30px",
-          width: "60px",
-          height: "60px",
-          borderRadius: "50%",
-          background: "#FF8040",
-          border: "none",
-          color: "white",
-          cursor: "pointer",
-          boxShadow: "0 4px 12px rgba(255, 128, 64, 0.4)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <MdChat size={28} />
-      </button>
-      <ChatBot isOpen={chatOpen} onClose={() => setChatOpen(false)} />
+      <ChatFab />
     </div>
   );
 }

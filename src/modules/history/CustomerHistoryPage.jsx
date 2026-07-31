@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "react-router-dom";
-import { MdChat } from "react-icons/md";
 import { useTranslation } from "react-i18next";
 import {
   Paper,
@@ -14,7 +13,7 @@ import {
   TableRow,
   TableSortLabel,
 } from "@mui/material";
-import ChatBot from "../../components/ui/ChatBot";
+import ChatFab from "../../components/ui/ChatFab";
 import SearchBar from "../../components/ui/SearchBar";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import { getTicketHistory } from "../ticket/ticket.service";
@@ -25,7 +24,6 @@ export default function CustomerHistoryPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  const [chatOpen, setChatOpen] = useState(false);
   const [orderBy, setOrderBy] = useState("resolvedAt");
   const [order, setOrder] = useState("desc");
   const [page, setPage] = useState(0);
@@ -140,9 +138,6 @@ export default function CustomerHistoryPage() {
           .customer-history-cards-wrapper {
             display: block;
           }
-          .customer-history-fab {
-            bottom: 100px !important;
-          }
         }
         @media (min-width: 768px) {
           .customer-history-table-wrapper {
@@ -150,9 +145,6 @@ export default function CustomerHistoryPage() {
           }
           .customer-history-cards-wrapper {
             display: none;
-          }
-          .customer-history-fab {
-            bottom: 30px !important;
           }
         }
       `}</style>
@@ -538,32 +530,7 @@ export default function CustomerHistoryPage() {
       </div>
 
       {/* Floating Chat Button */}
-      <button
-        onClick={() => setChatOpen(!chatOpen)}
-        className="customer-history-fab"
-        style={{
-          position: "fixed",
-          bottom: "68px",
-          right: "30px",
-          width: "60px",
-          height: "60px",
-          borderRadius: "50%",
-          background: "#FF8040",
-          border: "none",
-          color: "white",
-          fontSize: "28px",
-          cursor: "pointer",
-          boxShadow: "0 4px 12px rgba(255, 128, 64, 0.4)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 35,
-        }}
-      >
-        <MdChat size={28} />
-      </button>
-
-      <ChatBot isOpen={chatOpen} onClose={() => setChatOpen(false)} />
+      <ChatFab />
     </div>
   );
 }

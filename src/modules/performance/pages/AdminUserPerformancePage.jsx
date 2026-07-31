@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
   MdArrowBack,
-  MdChat,
   MdOutlinePerson,
   MdPersonAdd,
 } from "react-icons/md";
@@ -26,7 +25,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../hooks/useAuth";
 import PerformanceCard from "../components/PerformanceCard";
 import { getUsersByRole } from "../../profile/profile.service";
-import ChatBot from "../../../components/ui/ChatBot";
+import ChatFab from "../../../components/ui/ChatFab";
 import SearchBar from "../../../components/ui/SearchBar";
 import LoadingSpinner from "../../../components/ui/LoadingSpinner";
 import { getAllTickets } from "../../ticket/ticket.service";
@@ -361,7 +360,6 @@ export function AdminUserPerformanceView({
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { user } = useAuth();
-  const [chatOpen, setChatOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [addUserOpen, setAddUserOpen] = useState(false);
 
@@ -969,28 +967,7 @@ export function AdminUserPerformanceView({
         )}
       </div>
 
-      <button
-        onClick={() => setChatOpen((prev) => !prev)}
-        style={{
-          position: "fixed",
-          bottom: "68px",
-          right: "30px",
-          width: "60px",
-          height: "60px",
-          borderRadius: "50%",
-          background: "#FF8040",
-          border: "none",
-          color: "white",
-          cursor: "pointer",
-          boxShadow: "0 4px 12px rgba(255,128,64,0.4)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <MdChat size={28} />
-      </button>
-      <ChatBot isOpen={chatOpen} onClose={() => setChatOpen(false)} />
+      <ChatFab />
     </div>
   );
 }

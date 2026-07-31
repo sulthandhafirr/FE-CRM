@@ -2,7 +2,6 @@ import { useCallback, useMemo, useState, useRef, useEffect } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
-  MdChat,
   MdArrowBack,
   MdAttachFile,
   MdAccountCircle,
@@ -24,7 +23,7 @@ import {
   TableSortLabel,
   Checkbox,
 } from "@mui/material";
-import ChatBot from "../../../../components/ui/ChatBot";
+import ChatFab from "../../../../components/ui/ChatFab";
 import SearchBar from "../../../../components/ui/SearchBar";
 import LoadingSpinner from "../../../../components/ui/LoadingSpinner";
 import {
@@ -283,7 +282,6 @@ export function AdminTicketListPage({ mode = "active" }) {
   const queryClient = useQueryClient();
   const isSolvedMode = mode === "solved";
 
-  const [chatOpen, setChatOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [responseText, setResponseText] = useState("");
   const [attachment, setAttachment] = useState(null);
@@ -1827,28 +1825,7 @@ export function AdminTicketListPage({ mode = "active" }) {
         )}
       </div>
 
-      <button
-        onClick={() => setChatOpen(!chatOpen)}
-        style={{
-          position: "fixed",
-          bottom: "68px",
-          right: "30px",
-          width: "60px",
-          height: "60px",
-          borderRadius: "50%",
-          background: "#FF8040",
-          border: "none",
-          color: "white",
-          cursor: "pointer",
-          boxShadow: "0 4px 12px rgba(255, 128, 64, 0.4)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <MdChat size={28} />
-      </button>
-      <ChatBot isOpen={chatOpen} onClose={() => setChatOpen(false)} />
+      <ChatFab />
     </div>
   );
 }

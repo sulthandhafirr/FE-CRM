@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
-  MdChat,
   MdArrowBack,
   MdSupportAgent,
   MdPerson,
@@ -23,7 +22,7 @@ import {
   TableRow,
   TableSortLabel,
 } from "@mui/material";
-import ChatBot from "../../../components/ui/ChatBot";
+import ChatFab from "../../../components/ui/ChatFab";
 import SearchBar from "../../../components/ui/SearchBar";
 import LoadingSpinner from "../../../components/ui/LoadingSpinner";
 import TicketRecommendation from "../components/TicketRecommendation";
@@ -49,7 +48,6 @@ export default function AgentTicketPage() {
   const location = useLocation();
   const queryClient = useQueryClient();
 
-  const [chatOpen, setChatOpen] = useState(false);
   const [pageHistory, setPageHistory] = useState(["list"]);
   const currentPage = pageHistory[pageHistory.length - 1];
 
@@ -971,28 +969,7 @@ export default function AgentTicketPage() {
       </div>
 
       {/* ── ChatBot FAB ── */}
-      <button
-        onClick={() => setChatOpen(!chatOpen)}
-        style={{
-          position: "fixed",
-          bottom: "68px",
-          right: "30px",
-          width: "60px",
-          height: "60px",
-          borderRadius: "50%",
-          background: "#FF8040",
-          border: "none",
-          color: "white",
-          cursor: "pointer",
-          boxShadow: "0 4px 12px rgba(255, 128, 64, 0.4)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <MdChat size={28} />
-      </button>
-      <ChatBot isOpen={chatOpen} onClose={() => setChatOpen(false)} />
+      <ChatFab />
     </div>
   );
 }
