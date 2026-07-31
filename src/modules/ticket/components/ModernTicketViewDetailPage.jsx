@@ -246,6 +246,9 @@ export default function ModernTicketViewDetailPage() {
       ? ticket.solverId === user?.id
       : false;
   const canReply = isAssignedToMe || role === "technician" || role === "admin" || role === "customer";
+  // Guard AI assist hanya untuk cs_agent (agent): wajib tiket sudah diambilnya.
+  // Technician & admin tidak terpengaruh.
+  const canGenerateDraft = role !== "cs_agent" || isAssignedToMe;
   const isAssignedToOther = role === "technician"
     ? Boolean(ticket?.technician) && norm(ticket.technician) !== norm(user?.name)
     : !isAssignedToMe && Boolean(ticket?.solver);
@@ -375,7 +378,7 @@ export default function ModernTicketViewDetailPage() {
   };
 
   const handleGenerateDraft = async () => {
-    if (!isAssignedToMe) return;
+    if (role === "cs_agent" && !isAssignedToMe) return;
     setIsGenerating(true);
     try {
       const data = await getTicketDraft(ticketId);
@@ -645,7 +648,7 @@ export default function ModernTicketViewDetailPage() {
               selectedFile={selectedFile}
               setSelectedFile={setSelectedFile}
               canReply={canReply}
-              canGenerateDraft={isAssignedToMe}
+              canGenerateDraft={canGenerateDraft}
               submitting={submitting}
               isGenerating={isGenerating}
               role={role}
