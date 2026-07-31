@@ -28,7 +28,7 @@ import {
   SWITCH_SX,
   TABLE_HEADER_CELL_SX,
   TABLE_CONTAINER_SX,
-  GRID_2_SX,
+  // GRID_2_SX,
 } from "../components/gsetup.styles";
 import CrudDialog from "../components/CrudDialog";
 
@@ -243,6 +243,7 @@ function TicketStatusContent({ settings, updateSettings, saveSettings, theme, sh
             </Table>
           </TableContainer>
 
+          {/* Hide allow reopen & auto close until further notice
           <Stack sx={GRID_2_SX}>
             <FormControlLabel
               control={
@@ -273,6 +274,7 @@ function TicketStatusContent({ settings, updateSettings, saveSettings, theme, sh
               fullWidth
             />
           </Stack>
+          */}
 
           <SectionFooter
             theme={theme}
