@@ -49,7 +49,8 @@ function SlaRuleRow({ rule, onUpdate, disabled }) {
   return (
     <TableRow hover>
       <TableCell sx={{ fontWeight: 700 }}>{rule.priority}</TableCell>
-      <TableCell sx={{ minWidth: 180 }}>
+      {/* ── First Response Time (hours) — hidden column ── */}
+      {/* <TableCell sx={{ minWidth: 180 }}>
         <TextField
           type="text"
           inputMode="numeric"
@@ -59,7 +60,7 @@ function SlaRuleRow({ rule, onUpdate, disabled }) {
           value={rule.firstResponseHours}
           onChange={handleFieldChange("firstResponseHours")}
         />
-      </TableCell>
+      </TableCell> */}
       <TableCell sx={{ minWidth: 180 }}>
         <TextField
           type="text"
@@ -171,7 +172,7 @@ function SlaRulesContent({
                 <TableRow>
                   {[
                     "Priority",
-                    "First Response Time (hours)",
+                    // "First Response Time (hours)", // hidden column
                     "Resolution Time (hours)",
                   ].map((header) => (
                     <TableCell key={header} sx={TABLE_HEADER_CELL_SX(theme)}>
