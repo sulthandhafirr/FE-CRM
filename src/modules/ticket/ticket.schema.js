@@ -248,6 +248,43 @@ export const getIntentColor = (intent) => {
   }
 };
 
+/**
+ * Get the list of active intent names from General Setup config.
+ * Falls back to a hardcoded list if no config found.
+ */
+export const getActiveIntentNames = () => {
+  try {
+    if (typeof window === "undefined") return [];
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    const intents = parsed?.intentManagement?.intents;
+    if (Array.isArray(intents) && intents.length) {
+      return intents
+        .filter((i) => i.enabled !== false)
+        .map((i) => i.intentName || i.displayName)
+        .filter(Boolean);
+    }
+  } catch {
+    /* ignore */
+  }
+  // Legacy fallback
+  return [
+    "Technical Issue",
+    "Billing Issue",
+    "Security Incident",
+    "Account Management",
+    "Order Inquiry",
+    "Service Request",
+    "Complaint",
+    "Feature Request",
+    "Information Request",
+    "Refund Request",
+    "Cancellation Request",
+    "Other",
+  ];
+};
+
 export const getUrgencyColor = (urgency) => {
   switch (urgency?.toLowerCase()) {
     case "critical":

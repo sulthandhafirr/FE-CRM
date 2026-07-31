@@ -1,7 +1,12 @@
 import { MdAutoAwesome, MdCheckCircle, MdOutlineFilterNone, MdEngineering, MdHourglassEmpty, MdAttachFile, MdPersonAdd, MdSwapVert, MdPerson } from "react-icons/md";
 import { O } from "./ticketTheme";
 import { Badge, ProgressBar } from "./TicketShared";
-import { getIntentLabel, getIntentColor, getPriorityColor } from "../ticket.schema";
+import {
+  getIntentLabel,
+  getIntentColor,
+  getPriorityColor,
+  getActiveIntentNames,
+} from "../ticket.schema";
 
 const PRIORITY_OPTIONS = ["Low", "Normal", "High", "Critical"];
 
@@ -42,6 +47,7 @@ export default function TicketSidebar({
   selectedAgent,
   assigningAgent,
   showPriorityMenu,
+  showIntentMenu,
   onShowAgentPanel,
   onHideAgentPanel,
   onAgentSearch,
@@ -49,6 +55,8 @@ export default function TicketSidebar({
   onAssignToAgent,
   onChangePriority,
   onTogglePriorityMenu,
+  onChangeIntent,
+  onToggleIntentMenu,
 }) {
   return (
     <div
@@ -214,7 +222,6 @@ export default function TicketSidebar({
           ) : role === "admin" ? (
             <AdminActionsSection
               ticket={ticket}
-              isAssignedToMe={isAssignedToMe}
               isTechnicianDispatched={isTechnicianDispatched}
               resolved={resolved}
               csAgents={csAgents}
@@ -223,6 +230,8 @@ export default function TicketSidebar({
               selectedAgent={selectedAgent}
               assigningAgent={assigningAgent}
               showPriorityMenu={showPriorityMenu}
+              showIntentMenu={showIntentMenu}
+              showDispatchPanel={showDispatchPanel}
               onShowAgentPanel={onShowAgentPanel}
               onHideAgentPanel={onHideAgentPanel}
               onAgentSearch={onAgentSearch}
@@ -230,6 +239,8 @@ export default function TicketSidebar({
               onAssignToAgent={onAssignToAgent}
               onChangePriority={onChangePriority}
               onTogglePriorityMenu={onTogglePriorityMenu}
+              onChangeIntent={onChangeIntent}
+              onToggleIntentMenu={onToggleIntentMenu}
               onShowDispatchPanel={onShowDispatchPanel}
             />
           ) : (
@@ -242,7 +253,7 @@ export default function TicketSidebar({
           )}
 
           {/* Dispatch Panel */}
-          {showDispatchPanel && isAssignedToMe && (role === "admin" || !isTechnicianDispatched) && (
+          {showDispatchPanel && (role === "admin" || (isAssignedToMe && !isTechnicianDispatched)) && (
             <DispatchPanel
               technicians={technicians}
               technicianSearch={technicianSearch}
@@ -452,7 +463,6 @@ function AgentActionsSection({ ticket, isAssignedToMe, isTechnicianDispatched, o
 
 function AdminActionsSection({
   ticket,
-  isAssignedToMe,
   isTechnicianDispatched,
   resolved,
   csAgents,
@@ -461,6 +471,8 @@ function AdminActionsSection({
   selectedAgent,
   assigningAgent,
   showPriorityMenu,
+  showIntentMenu,
+  showDispatchPanel,
   onShowAgentPanel,
   onHideAgentPanel,
   onAgentSearch,
@@ -468,9 +480,13 @@ function AdminActionsSection({
   onAssignToAgent,
   onChangePriority,
   onTogglePriorityMenu,
+  onChangeIntent,
+  onToggleIntentMenu,
   onShowDispatchPanel,
 }) {
   const currentPriority = ticket.priority || "Normal";
+  const currentIntent = getIntentLabel(ticket.intent) || "Unclassified";
+  const intentOptions = getActiveIntentNames();
   
   return (
     <>
@@ -529,6 +545,44 @@ function AdminActionsSection({
             onCancel={onHideAgentPanel}
           />
         )}
+
+        {/* ── Dispatch / Change Technician ── */}
+        <button
+          onClick={onShowDispatchPanel}
+          disabled={resolved}
+          style={{
+            width: "100%",
+            textAlign: "left",
+            padding: "12px",
+            borderRadius: "12px",
+            border: "1px solid #E5E7EB",
+            background: showDispatchPanel ? O[50] : "white",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+            cursor: resolved ? "not-allowed" : "pointer",
+            transition: "all 0.15s",
+          }}
+          onMouseEnter={(e) => {
+            if (resolved || showDispatchPanel) return;
+            e.currentTarget.style.borderColor = O[300];
+            e.currentTarget.style.background = O[50];
+            e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.06)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = "#E5E7EB";
+            e.currentTarget.style.background = showDispatchPanel ? O[50] : "white";
+            e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.03)";
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+            <p style={{ fontWeight: "600", fontSize: "14px", color: "#111827" }}>
+              {isTechnicianDispatched ? `Technician: ${ticket.technician}` : "Dispatch Technician"}
+            </p>
+            <MdEngineering size={16} color={isTechnicianDispatched ? O[500] : "#9CA3AF"} />
+          </div>
+          <p style={{ fontSize: "12px", color: "#6B7280" }}>
+            {isTechnicianDispatched ? "Click to change technician" : "Assign a field technician to this ticket"}
+          </p>
+        </button>
 
         {/* ── Change Priority ── */}
         <div style={{ position: "relative" }}>
@@ -618,43 +672,93 @@ function AdminActionsSection({
           )}
         </div>
 
-        {/* ── Dispatch / Change Technician ── */}
-        <button
-          onClick={onShowDispatchPanel}
-          disabled={!isAssignedToMe}
-          style={{
-            width: "100%",
-            textAlign: "left",
-            padding: "12px",
-            borderRadius: "12px",
-            border: "1px solid #E5E7EB",
-            background: "white",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
-            cursor: isAssignedToMe ? "pointer" : "not-allowed",
-            transition: "all 0.15s",
-          }}
-          onMouseEnter={(e) => {
-            if (!isAssignedToMe) return;
-            e.currentTarget.style.borderColor = O[300];
-            e.currentTarget.style.background = O[50];
-            e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.06)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = "#E5E7EB";
-            e.currentTarget.style.background = "white";
-            e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.03)";
-          }}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
-            <p style={{ fontWeight: "600", fontSize: "14px", color: "#111827" }}>
-              {isTechnicianDispatched ? `Technician: ${ticket.technician}` : "Dispatch Technician"}
+        {/* ── Change Issue Detected (Intent) ── */}
+        <div style={{ position: "relative" }}>
+          <button
+            onClick={resolved ? null : onToggleIntentMenu}
+            disabled={resolved}
+            style={{
+              width: "100%",
+              textAlign: "left",
+              padding: "12px",
+              borderRadius: "12px",
+              border: "1px solid #E5E7EB",
+              background: "white",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+              cursor: resolved ? "not-allowed" : "pointer",
+              transition: "all 0.15s",
+            }}
+            onMouseEnter={(e) => {
+              if (resolved) return;
+              e.currentTarget.style.borderColor = O[300];
+              e.currentTarget.style.background = O[50];
+              e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.06)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "#E5E7EB";
+              e.currentTarget.style.background = "white";
+              e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.03)";
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+              <p style={{ fontWeight: "600", fontSize: "14px", color: getIntentColor(ticket.intent) }}>
+                {currentIntent}
+              </p>
+              <MdSwapVert size={16} color="#9CA3AF" />
+            </div>
+            <p style={{ fontSize: "12px", color: "#6B7280" }}>
+              Issue Detected
             </p>
-            <MdEngineering size={16} color={isTechnicianDispatched ? O[500] : "#9CA3AF"} />
-          </div>
-          <p style={{ fontSize: "12px", color: "#6B7280" }}>
-            {isTechnicianDispatched ? "Click to change technician" : "Assign a field technician to this ticket"}
-          </p>
-        </button>
+          </button>
+
+          {/* Intent dropdown */}
+          {showIntentMenu && (
+            <div
+              style={{
+                position: "absolute",
+                top: "calc(100% + 4px)",
+                left: 0,
+                right: 0,
+                zIndex: 1000,
+                background: "white",
+                border: `1px solid ${O[200]}`,
+                borderRadius: "12px",
+                boxShadow: "0 4px 16px rgba(0,0,0,0.14)",
+                overflow: "hidden",
+              }}
+            >
+              {intentOptions.map((opt) => (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => onChangeIntent(opt)}
+                  style={{
+                    display: "block",
+                    width: "100%",
+                    textAlign: "left",
+                    padding: "10px 14px",
+                    border: "none",
+                    background: opt === currentIntent ? "#FFF5EF" : "transparent",
+                    color: getIntentColor(opt),
+                    fontWeight: opt === currentIntent ? "700" : "500",
+                    fontSize: "13px",
+                    cursor: "pointer",
+                    borderBottom: "1px solid #F5F5F5",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = "#FFF5EF";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background =
+                      opt === currentIntent ? "#FFF5EF" : "transparent";
+                  }}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </>
   );

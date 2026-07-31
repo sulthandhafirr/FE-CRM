@@ -1,10 +1,15 @@
 import { O } from "./ticketTheme";
 
-export default function TicketChatMessage({ comment, user, role, ticket, norm, formatTicketDateTime, t }) {
+export default function TicketChatMessage({ comment, user, role, ticket, norm, formatTicketDateTime, t, csAgents = [] }) {
   const isMine = comment.senderId && user?.id && comment.senderId === user.id;
 
+  // Deteksi CS agent: cocokkan senderId dengan daftar agent (fallback: nama vs ticket.solver)
+  const isKnownAgent =
+    comment.senderId &&
+    csAgents?.some((a) => a.id && a.id === comment.senderId);
   const isAgentSender =
-    norm(ticket?.solver) && norm(comment.senderName) === norm(ticket?.solver);
+    isKnownAgent ||
+    (norm(ticket?.solver) && norm(comment.senderName) === norm(ticket?.solver));
   const isTechSender =
     !isAgentSender &&
     norm(ticket?.technician) &&
@@ -18,7 +23,21 @@ export default function TicketChatMessage({ comment, user, role, ticket, norm, f
   const techBlue = "#2563EB";
   const techBlueBg = "#EFF6FF";
   const techBlueBorder = "#BFDBFE";
-  const myColor = role === "technician" ? techBlue : role === "customer" ? "white" : O[500];
+  // Gaya soft ala technician (biru muda) tapi untuk customer (hijau muda)
+  const customerGreen = "#16A34A";
+  const customerGreenBg = "#F0FDF4";
+  const customerGreenBorder = "#BBF7D0";
+  // Oranye muda (soft) untuk CS agent / admin
+  const agentOrange = O[500];
+  const agentOrangeBg = O[50];
+  const agentOrangeBorder = O[200];
+  const isAdminOrAgent = role === "cs_agent" || role === "admin";
+  const isOwnTechMsg = isMine && role === "technician";
+  const isOwnCustomerMsg = isMine && role === "customer";
+  const isOwnAgentMsg = isMine && isAdminOrAgent;
+  const isAgentBubble = isAgentSender || isOwnAgentMsg;
+  const myColor =
+    isOwnTechMsg ? techBlue : isOwnCustomerMsg ? customerGreenBg : agentOrangeBg;
 
   return (
     <div
@@ -33,13 +52,33 @@ export default function TicketChatMessage({ comment, user, role, ticket, norm, f
             width: "32px",
             height: "32px",
             borderRadius: "9999px",
-            background: isTechSender ? techBlueBg : "#E5E7EB",
+            background: isTechSender
+              ? techBlueBg
+              : isCustomerSender
+                ? customerGreenBg
+                : isAgentSender
+                  ? agentOrangeBg
+                  : "#E5E7EB",
+            border: isTechSender
+              ? `1px solid ${techBlueBorder}`
+              : isCustomerSender
+                ? `1px solid ${customerGreenBorder}`
+                : isAgentSender
+                  ? `1px solid ${agentOrangeBorder}`
+                  : "1px solid #E5E7EB",
+            boxShadow: isTechSender
+              ? `0 1px 3px rgba(37,99,235,0.25)`
+              : isCustomerSender
+                ? `0 1px 3px rgba(22,163,74,0.25)`
+                : isAgentSender
+                  ? `0 1px 3px rgba(255,128,64,0.25)`
+                  : "none",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             fontSize: "12px",
             fontWeight: "700",
-            color: isTechSender ? techBlue : "#6B7280",
+            color: isTechSender ? techBlue : isCustomerSender ? customerGreen : isAgentSender ? agentOrange : "#6B7280",
             flexShrink: 0,
             marginRight: "12px",
             marginTop: "4px",
@@ -65,17 +104,19 @@ export default function TicketChatMessage({ comment, user, role, ticket, norm, f
           background: isMine
             ? myColor
             : isAgentSender
-              ? O[500]
+              ? agentOrangeBg
               : isTechSender
                 ? techBlueBg
-                : "white",
-          border: isMine && role === "customer"
-            ? "1px solid #E5E7EB"
-            : isMine || isAgentSender
-              ? "none"
-              : isTechSender
-                ? `1px solid ${techBlueBorder}`
-                : "1px solid #E5E7EB",
+                : customerGreenBg,
+          border: isOwnTechMsg
+            ? "none"
+            : isOwnAgentMsg || isAgentSender
+              ? `1px solid ${agentOrangeBorder}`
+              : isOwnCustomerMsg || isCustomerSender
+                ? `1px solid ${customerGreenBorder}`
+                : isTechSender
+                  ? `1px solid ${techBlueBorder}`
+                  : `1px solid ${customerGreenBorder}`,
         }}
       >
         <div
@@ -90,13 +131,13 @@ export default function TicketChatMessage({ comment, user, role, ticket, norm, f
             style={{
               fontWeight: "600",
               fontSize: "14px",
-              color: isMine && role === "customer"
-                ? "#111827"
-                : isMine || isAgentSender
-                  ? "rgba(255,255,255,0.9)"
+              color: isOwnTechMsg
+                ? "rgba(255,255,255,0.9)"
+                : isAgentBubble
+                  ? agentOrange
                   : isTechSender
                     ? techBlue
-                    : "#111827",
+                    : customerGreen,
             }}
           >
             {comment.senderName || t("pages.ticketDetail.unknownSender")}
@@ -127,9 +168,9 @@ export default function TicketChatMessage({ comment, user, role, ticket, norm, f
                 letterSpacing: "0.05em",
                 padding: "2px 6px",
                 borderRadius: "4px",
-                background: O[50],
-                color: O[500],
-                border: `1px solid ${O[200]}`,
+                background: agentOrangeBg,
+                color: agentOrange,
+                border: `1px solid ${agentOrangeBorder}`,
               }}
             >
               CS Agent
@@ -144,9 +185,9 @@ export default function TicketChatMessage({ comment, user, role, ticket, norm, f
                 letterSpacing: "0.05em",
                 padding: "2px 6px",
                 borderRadius: "4px",
-                background: "#F3F4F6",
-                color: "#6B7280",
-                border: "1px solid #E5E7EB",
+                background: customerGreenBg,
+                color: customerGreen,
+                border: `1px solid ${customerGreenBorder}`,
               }}
             >
               Customer
@@ -155,13 +196,11 @@ export default function TicketChatMessage({ comment, user, role, ticket, norm, f
           <span
             style={{
               fontSize: "12px",
-              color: isMine && role === "customer"
-                ? "#9CA3AF"
-                : isMine || isAgentSender
-                  ? "rgba(255,255,255,0.65)"
-                  : isTechSender
-                    ? "#6B7280"
-                    : "#9CA3AF",
+              color: isOwnTechMsg
+                ? "rgba(255,255,255,0.65)"
+                : isAgentBubble || isTechSender || isCustomerSender
+                  ? "#6B7280"
+                  : "#9CA3AF",
             }}
           >
             {formatTicketDateTime(comment.createdAt)}
@@ -170,7 +209,7 @@ export default function TicketChatMessage({ comment, user, role, ticket, norm, f
         <p
           style={{
             fontSize: "14px",
-            color: isMine && role === "customer" ? "#374151" : isMine || isAgentSender ? "white" : "#374151",
+            color: isOwnTechMsg ? "white" : "#374151",
             lineHeight: 1.65,
             whiteSpace: "pre-wrap",
           }}

@@ -46,6 +46,7 @@ export default function ModernTicketViewDetailPage() {
 
   // ── State ──
   const replyRef = useRef(null);
+  const chatRef = useRef(null);
   const [replyText, setReplyText] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -57,6 +58,7 @@ export default function ModernTicketViewDetailPage() {
   const [agentSearch, setAgentSearch] = useState("");
   const [selectedAgent, setSelectedAgent] = useState(null);
   const [showPriorityMenu, setShowPriorityMenu] = useState(false);
+  const [showIntentMenu, setShowIntentMenu] = useState(false);
   const [downloadingId, setDownloadingId] = useState(null);
   const [showDispatchPanel, setShowDispatchPanel] = useState(false);
   const [technicianSearch, setTechnicianSearch] = useState("");
@@ -189,6 +191,12 @@ export default function ModernTicketViewDetailPage() {
     return () => clearInterval(interval);
   }, [stellaSummary]);
 
+  // Auto-scroll ke paling bawah seperti WhatsApp (saat masuk chat / ada pesan baru)
+  useEffect(() => {
+    const el = chatRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [comments, ticket]);
+
   // Realtime subscription
   useEffect(() => {
     if (!ticketId) return;
@@ -277,7 +285,9 @@ export default function ModernTicketViewDetailPage() {
   };
 
   const handleDispatchTechnician = async () => {
-    if (!selectedTechnician || !ticket || !isAssignedToMe) return;
+    // Admin boleh dispatch teknisi walau tiket belum/tidak diassign ke dirinya
+    if (!selectedTechnician || !ticket) return;
+    if (!isAssignedToMe && role !== "admin") return;
     try {
       setDispatchingTech(true);
       await updateTicket(ticketId, { technicianId: selectedTechnician.id, status: "Progress" });
@@ -359,9 +369,14 @@ export default function ModernTicketViewDetailPage() {
   };
 
   const handleShowDispatchPanel = () => {
-    setShowDispatchPanel(true);
-    setSelectedTechnician(null);
-    setTechnicianSearch("");
+    // Toggle: klik lagi untuk menutup panel
+    if (showDispatchPanel) {
+      setShowDispatchPanel(false);
+    } else {
+      setShowDispatchPanel(true);
+      setSelectedTechnician(null);
+      setTechnicianSearch("");
+    }
   };
 
   const handleHideDispatchPanel = () => {
@@ -435,6 +450,19 @@ export default function ModernTicketViewDetailPage() {
     } catch (err) {
       console.error(err);
       alert("Failed to change ticket priority.");
+    }
+  };
+
+  const handleChangeIntent = async (intent) => {
+    if (!ticket || intent === ticket.intent) return;
+    try {
+      await updateTicket(ticketId, { intent });
+      queryClient.invalidateQueries({ queryKey: ["ticket-detail", ticketId] });
+      queryClient.invalidateQueries({ queryKey: ["all-tickets"] });
+      setShowIntentMenu(false);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to change issue detected.");
     }
   };
 
@@ -524,9 +552,10 @@ export default function ModernTicketViewDetailPage() {
         >
           {/* Messages */}
           <div
+            ref={chatRef}
             className="mtd-chat"
             style={{
-              padding: "32px",
+              padding: "32px 32px 20px",
               flex: 1,
               overflowY: "auto",
               display: "flex",
@@ -551,6 +580,7 @@ export default function ModernTicketViewDetailPage() {
                 norm={norm}
                 formatTicketDateTime={formatTicketDateTime}
                 t={t}
+                csAgents={csAgents}
               />
             ))}
 
@@ -641,6 +671,7 @@ export default function ModernTicketViewDetailPage() {
           selectedAgent={selectedAgent}
           assigningAgent={assigningAgent}
           showPriorityMenu={showPriorityMenu}
+          showIntentMenu={showIntentMenu}
           onShowAgentPanel={handleShowAgentPanel}
           onHideAgentPanel={handleHideAgentPanel}
           onAgentSearch={handleAgentSearch}
@@ -648,6 +679,8 @@ export default function ModernTicketViewDetailPage() {
           onAssignToAgent={handleAssignToAgent}
           onChangePriority={handleChangePriority}
           onTogglePriorityMenu={() => setShowPriorityMenu((p) => !p)}
+          onChangeIntent={handleChangeIntent}
+          onToggleIntentMenu={() => setShowIntentMenu((p) => !p)}
         />
       </div>
     </div>
@@ -687,8 +720,8 @@ function TicketCreatedMessage({ ticket, role, formatTicketDateTime, t }) {
           borderBottomRightRadius: role === "customer" ? "4px" : "16px",
           padding: "20px",
           boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
-          background: "#FFF7F2",
-          border: "1px solid #FDE4D4",
+          background: "#FEF2F2",
+          border: "1px solid #FECACA",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
@@ -703,9 +736,9 @@ function TicketCreatedMessage({ ticket, role, formatTicketDateTime, t }) {
               letterSpacing: "0.05em",
               padding: "2px 6px",
               borderRadius: "4px",
-              background: "#FFEDE0",
-              color: "#E86A2C",
-              border: "1px solid #FCCBA8",
+              background: "#FEE2E2",
+              color: "#DC2626",
+              border: "1px solid #FECACA",
             }}
           >
             Issue Description
