@@ -2,17 +2,18 @@ import { MdBusiness, MdChecklist, MdGavel, MdGroup, MdLayers, MdPsychology } fro
 import { ROUTE } from "../../app/routes";
 
 export const GENERAL_SETUP_MODULES = [
-  {
-    key: "issueAndPriority",
-    badge: "AI",
-    title: "Issue and Priority Management",
-    description: "Configure AI labels, priority thresholds, priority defaults, and keyword boosts in one place.",
-    icon: MdPsychology,
-    accent: "#ff8040",
-    accentBg: "#fff4ee",
-    accentBorder: "#fcd9bc",
-    to: ROUTE.adminGeneralSetupIssuePriority,
-  },
+  // ── Issue and Priority Management (hidden from menu, keep for later) ──
+  // {
+  //   key: "issueAndPriority",
+  //   badge: "AI",
+  //   title: "Issue and Priority Management",
+  //   description: "Configure AI labels, priority thresholds, priority defaults, and keyword boosts in one place.",
+  //   icon: MdPsychology,
+  //   accent: "#ff8040",
+  //   accentBg: "#fff4ee",
+  //   accentBorder: "#fcd9bc",
+  //   to: ROUTE.adminGeneralSetupIssuePriority,
+  // },
   {
     key: "ticketStatus",
     badge: "Workflow",
