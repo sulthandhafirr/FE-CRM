@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { MdLogout, MdPerson, MdKeyboardArrowDown } from "react-icons/md";
 import { supabase } from "../../lib/supabase";
 import { ROUTE } from "../../app/routes";
 import { useAuth } from "../../hooks/useAuth";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
+import { fetchProfileData } from "../../modules/profile/profile.service";
 
 const ROLE_CONFIG = {
   admin: { label: "Administrator", color: "#FF8040", bg: "#FFF3ED" },
@@ -64,6 +66,15 @@ export default function UserMenu() {
   const roleConfig = ROLE_CONFIG[role] || ROLE_CONFIG.customer;
   const initials = getInitials(name);
   const gradient = getGradient(name);
+
+  // Fetch profile (query key sama dengan halaman profil → cache & invalidasi bersama)
+  const { data: profileData } = useQuery({
+    queryKey: ["profile", user?.id],
+    queryFn: () => fetchProfileData(user?.id),
+    enabled: !!user?.id,
+    staleTime: 1000 * 60 * 5,
+  });
+  const avatarUrl = profileData?.avatar_url || null;
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -124,18 +135,31 @@ export default function UserMenu() {
             alignItems: "center",
             justifyContent: "center",
             flexShrink: 0,
+            overflow: "hidden",
           }}
         >
-          <span
-            style={{
-              fontSize: "13px",
-              fontWeight: 700,
-              color: "#fff",
-              lineHeight: 1,
-            }}
-          >
-            {initials}
-          </span>
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt={name || "User"}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+          ) : (
+            <span
+              style={{
+                fontSize: "13px",
+                fontWeight: 700,
+                color: "#fff",
+                lineHeight: 1,
+              }}
+            >
+              {initials}
+            </span>
+          )}
         </div>
 
         {/* Name + Role */}
@@ -219,11 +243,20 @@ export default function UserMenu() {
                 alignItems: "center",
                 justifyContent: "center",
                 flexShrink: 0,
+                overflow: "hidden",
               }}
             >
-              <span style={{ fontSize: "12px", fontWeight: 700, color: "#fff" }}>
-                {initials}
-              </span>
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={name || "User"}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              ) : (
+                <span style={{ fontSize: "12px", fontWeight: 700, color: "#fff" }}>
+                  {initials}
+                </span>
+              )}
             </div>
             <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.3 }}>
               <span style={{ fontSize: "13px", fontWeight: 700, color: "#1F2937" }}>

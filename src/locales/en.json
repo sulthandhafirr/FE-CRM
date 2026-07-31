@@ -528,6 +528,8 @@
       "userInformation": "User Information",
       "editProfile": "Edit Profile",
       "edit": "Edit",
+      "changeAvatar": "Change Photo",
+      "avatarUpdatedSuccess": "Profile photo updated successfully",
       "changePassword": "Change Password",
       "password": "Password",
       "passwordDescription": "We recommend updating your password regularly.",
@@ -554,7 +556,10 @@
       "passwordTooShort": "New password must be at least 6 characters",
       "errors": {
         "updateProfile": "Failed to update profile",
-        "changePassword": "Failed to change password"
+        "changePassword": "Failed to change password",
+        "avatarUpload": "Failed to upload profile photo",
+        "invalidImageType": "Please choose a JPG, PNG, or WebP image",
+        "imageTooLarge": "Image must be less than 5 MB"
       }
     },
     "dateFilter": {

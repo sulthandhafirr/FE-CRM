@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useAuth } from "../../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -18,6 +18,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { supabase } from "../../../lib/supabase";
 import { api } from "../../../lib/api/apiClient";
+import { fetchProfileData } from "../profile.service";
 import { ROUTE } from "../../../app/routes";
 
 // Helper: Generate initials from name
@@ -69,20 +70,13 @@ const getGradient = (name) => {
 // Warna aksen tag (teks/border) diambil dari warna avatar, bukan dari role
 const getAvatarAccent = (name) => GRADIENT_MAP[getGradientIndex(name)][0];
 
-// Helper: Fetch profile data from Supabase profile table
-const fetchProfileData = async (userId) => {
-  if (!userId) return null;
-  const { data, error } = await supabase
-    .from("profile")
-    .select("*")
-    .eq("id", userId)
-    .single();
-
-  if (error) {
-    console.error("Error fetching profile:", error);
-    return null;
-  }
-  return data;
+// Ambil path file (folder + nama) dari URL publik avatar
+const getStoragePathFromUrl = (url) => {
+  if (!url) return null;
+  const marker = "/avatars/";
+  const idx = url.indexOf(marker);
+  if (idx === -1) return null;
+  return decodeURIComponent(url.slice(idx + marker.length));
 };
 
 /**
@@ -117,6 +111,8 @@ export default function ProfilePageLayout({ tier = null, showPosition = false })
   const [messageAnchor, setMessageAnchor] = useState("top"); // "top" | "security"
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInputRef = useRef(null);
 
   // Fetch profile data
   const { data: profileData, isLoading: profileLoading } = useQuery({
@@ -177,6 +173,63 @@ export default function ProfilePageLayout({ tier = null, showPosition = false })
       );
     } finally {
       setSavingProfile(false);
+    }
+  };
+
+  // Handle avatar photo upload (upload ke Supabase Storage, lalu simpan URL via API)
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // biar file yang sama bisa dipilih lagi
+    if (!file || !user?.id) return;
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      showMessage("error", t("pages.profile.errors.invalidImageType"));
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      showMessage("error", t("pages.profile.errors.imageTooLarge"));
+      return;
+    }
+
+    setUploadingAvatar(true);
+    try {
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+      const filePath = `${user.id}/avatar-${Date.now()}.${ext}`;
+      const oldPath = getStoragePathFromUrl(profileData?.avatar_url);
+
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          contentType: file.type,
+          upsert: false,
+        });
+      if (uploadError) throw uploadError;
+
+      const publicUrl = supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath).data.publicUrl;
+
+      const response = await api.put(`/api/profile/${user.id}`, {
+        avatarUrl: publicUrl,
+      });
+
+      if (response.status === 200 || response.status === 204) {
+        // Hapus foto lama setelah foto baru berhasil disimpan
+        if (oldPath) {
+          await supabase.storage.from("avatars").remove([oldPath]);
+        }
+        showMessage("success", t("pages.profile.avatarUpdatedSuccess"));
+        queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
+      }
+    } catch (error) {
+      showMessage(
+        "error",
+        error.message || t("pages.profile.errors.avatarUpload")
+      );
+    } finally {
+      setUploadingAvatar(false);
     }
   };
 
@@ -638,6 +691,15 @@ export default function ProfilePageLayout({ tier = null, showPosition = false })
             >
               <div
                 className="profile-avatar"
+                onClick={() => fileInputRef.current?.click()}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    fileInputRef.current?.click();
+                  }
+                }}
                 style={{
                   width: 96,
                   height: 96,
@@ -650,13 +712,37 @@ export default function ProfilePageLayout({ tier = null, showPosition = false })
                   fontSize: 30,
                   fontWeight: 700,
                   boxShadow: "0 4px 12px rgba(0, 0, 0, 0.12)",
+                  overflow: "hidden",
                 }}
               >
-                {getInitials(displayName)}
+                {profileData?.avatar_url ? (
+                  <img
+                    src={profileData.avatar_url}
+                    alt={displayName}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                ) : (
+                  getInitials(displayName)
+                )}
                 <div className="profile-avatar-overlay">
-                  {t("pages.profile.edit")}
+                  {uploadingAvatar ? (
+                    <span className="profile-spinner" />
+                  ) : (
+                    t("pages.profile.changeAvatar")
+                  )}
                 </div>
               </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                style={{ display: "none" }}
+                onChange={handleAvatarChange}
+              />
 
               <div
                 style={{

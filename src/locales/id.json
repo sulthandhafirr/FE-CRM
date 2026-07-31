@@ -527,6 +527,8 @@
       "userInformation": "Informasi Pengguna",
       "editProfile": "Ubah Profil",
       "edit": "Ubah",
+      "changeAvatar": "Ganti Foto",
+      "avatarUpdatedSuccess": "Foto profil berhasil diperbarui",
       "changePassword": "Ubah Password",
       "password": "Password",
       "passwordDescription": "Kami menyarankan untuk memperbarui password Anda secara berkala.",
@@ -553,7 +555,10 @@
       "passwordTooShort": "Password baru harus minimal 6 karakter",
       "errors": {
         "updateProfile": "Gagal memperbarui profil",
-        "changePassword": "Gagal mengubah password"
+        "changePassword": "Gagal mengubah password",
+        "avatarUpload": "Gagal mengunggah foto profil",
+        "invalidImageType": "Pilih gambar JPG, PNG, atau WebP",
+        "imageTooLarge": "Ukuran gambar maksimal 5 MB"
       }
     },
     "dateFilter": {
