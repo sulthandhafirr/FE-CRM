@@ -108,12 +108,17 @@ export default function AdminDashboardPage() {
       });
     }
 
+    const breachedCount = stats?.slaBreachedCount ?? 0;
+    const almostBreachedCount = stats?.slaAlmostBreachedCount ?? 0;
+    const isHealthy = breachedCount === 0 && almostBreachedCount === 0;
+
     result.push({
       title: "System Health",
-      badge: "All Good",
-      badgeColor: "rgba(16,185,129,0.2)",
-      content:
-        "All systems operational. No SLA breaches detected. No duplicate tickets found.",
+      badge: isHealthy ? "All Good" : "Attention",
+      badgeColor: isHealthy ? "rgba(16,185,129,0.2)" : "rgba(239,68,68,0.2)",
+      content: isHealthy
+        ? "All systems operational. No SLA breaches detected."
+        : `${breachedCount} ticket(s) have breached SLA. ${almostBreachedCount} approaching deadline.`,
     });
 
     return result;

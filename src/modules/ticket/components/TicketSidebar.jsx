@@ -1,11 +1,13 @@
 import { MdAutoAwesome, MdCheckCircle, MdOutlineFilterNone, MdEngineering, MdHourglassEmpty, MdAttachFile, MdPersonAdd, MdSwapVert, MdPerson } from "react-icons/md";
 import { O } from "./ticketTheme";
+import { useState, useEffect } from "react";
 import { Badge, ProgressBar } from "./TicketShared";
 import {
   getIntentLabel,
   getIntentColor,
   getPriorityColor,
   getActiveIntentNames,
+  formatTicketDateTime
 } from "../ticket.schema";
 
 const PRIORITY_OPTIONS = ["Low", "Normal", "High", "Critical"];
@@ -194,11 +196,12 @@ export default function TicketSidebar({
                 }}
               >
                 <Badge type={ticket.priority}>{ticket.priority || "—"}</Badge>
-                <span style={{ fontSize: "12px", fontWeight: "500", color: "#DC2626" }}>
+                {/* <span style={{ fontSize: "12px", fontWeight: "500", color: "#DC2626" }}>
                   Breach in 45m
-                </span>
+                </span> */}
+                <SlaCountdown slaDeadline={ticket.slaDeadline} formatTicketDateTime={formatTicketDateTime} />
               </div>
-              <ProgressBar progress={85} color="#EF4444" />
+              {/* <ProgressBar progress={85} color="#EF4444" /> */}
             </div>
 
             {/* Duplicate Tickets */}
@@ -1222,6 +1225,49 @@ function CustomerInfoSection({ role, ticket, customerTier, getTierStyle, downloa
             </div>
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function formatCountdown(ms) {
+  const totalSeconds = Math.floor(ms / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+}
+
+function SlaCountdown({ slaDeadline, formatTicketDateTime }) {
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (!slaDeadline) return;
+    const interval = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(interval);
+  }, [slaDeadline]);
+
+  if (!slaDeadline) {
+    return <span style={{ fontSize: "12px", fontWeight: "500", color: "#9CA3AF" }}>No SLA</span>;
+  }
+
+  const remainingMs = new Date(slaDeadline).getTime() - now;
+
+  if (remainingMs <= 0) {
+    return <span style={{ fontSize: "12px", fontWeight: "600", color: "#DC2626" }}>SLA Breached</span>;
+  }
+
+  const remainingMinutes = remainingMs / 60000;
+  const color = remainingMinutes <= 30 ? "#DC2626" : remainingMinutes <= 120 ? "#D97706" : "#16A34A"; // green, orange, red
+
+  return (
+    <div style={{ textAlign: "right" }}>
+      <div style={{ fontSize: "15px", fontWeight: "600", color, fontVariantNumeric: "tabular-nums" }}>
+        {formatCountdown(remainingMs)}
+      </div>
+      <div style={{ fontSize: "11px", color: "#9CA3AF", marginTop: "2px" }}>
+        Due {formatTicketDateTime(slaDeadline)}
       </div>
     </div>
   );
