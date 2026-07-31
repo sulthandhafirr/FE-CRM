@@ -2,6 +2,17 @@ import { MdBusiness, MdChecklist, MdGavel, MdGroup, MdLayers, MdPsychology } fro
 import { ROUTE } from "../../app/routes";
 
 export const GENERAL_SETUP_MODULES = [
+  {
+    key: "companySettings",
+    badge: "Org",
+    title: "Company Settings",
+    description: "Configure company profile, locale defaults, working days, and ticket numbering.",
+    icon: MdBusiness,
+    accent: "#0891b2",
+    accentBg: "#cffafe",
+    accentBorder: "#a5f3fc",
+    to: ROUTE.adminGeneralSetupCompany,
+  },
   // ── Issue and Priority Management (hidden from menu, keep for later) ──
   // {
   //   key: "issueAndPriority",
@@ -36,28 +47,17 @@ export const GENERAL_SETUP_MODULES = [
     accentBorder: "#ddd6fe",
     to: ROUTE.adminGeneralSetupSla,
   },
-  {
-    key: "roleManagement",
-    badge: "Access",
-    title: "Role Management",
-    description: "Create roles and manage permissions for ticket, AI, administration, and reports.",
-    icon: MdGroup,
-    accent: "#16a34a",
-    accentBg: "#dcfce7",
-    accentBorder: "#bbf7d0",
-    to: ROUTE.adminGeneralSetupRoles,
-  },
-  {
-    key: "companySettings",
-    badge: "Org",
-    title: "Company Settings",
-    description: "Configure company profile, locale defaults, working days, and ticket numbering.",
-    icon: MdBusiness,
-    accent: "#0891b2",
-    accentBg: "#cffafe",
-    accentBorder: "#a5f3fc",
-    to: ROUTE.adminGeneralSetupCompany,
-  },
+  // {
+  //   key: "roleManagement",
+  //   badge: "Access",
+  //   title: "Role Management",
+  //   description: "Create roles and manage permissions for ticket, AI, administration, and reports.",
+  //   icon: MdGroup,
+  //   accent: "#16a34a",
+  //   accentBg: "#dcfce7",
+  //   accentBorder: "#bbf7d0",
+  //   to: ROUTE.adminGeneralSetupRoles,
+  // },
   {
     key: "tierSettings",
     badge: "Loyalty",
