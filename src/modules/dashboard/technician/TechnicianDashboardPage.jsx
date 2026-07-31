@@ -11,6 +11,8 @@ import { useNavigate } from "react-router-dom";
 import ChatBot from "../../../components/ui/ChatBot";
 import { getDashboardStats } from "../dashboard.service";
 import { useAuth } from "../../../hooks/useAuth";
+import TicketStatusDonutChart from "../chart/TicketStatusDonutChart";
+import TicketIntentDonutChart from "../chart/TicketIntentDonutChart";
 import TicketPriorityDonutChart from "../chart/TicketPriorityDonutChart";
 import DateRangeFilter from "../components/DateRangeFilter";
 import { StatCard } from "../components/StatCard";
@@ -122,13 +124,35 @@ export default function TechnicianDashboardPage() {
           />
         </div>
 
-        <TicketPriorityDonutChart
-          ticketByPriority={stats?.ticketByPriority}
-          loading={statsLoading}
-          onSliceClick={(priority) =>
-            openPreview({ priority, ...dateRange }, `Tickets: ${priority}`)
-          }
-        />
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+            gap: "16px",
+          }}
+        >
+          <TicketPriorityDonutChart
+            ticketByPriority={stats?.ticketByPriority}
+            loading={statsLoading}
+            onSliceClick={(priority) =>
+              openPreview({ priority, ...dateRange }, `Tickets: ${priority}`)
+            }
+          />
+          <TicketStatusDonutChart
+            ticketByStatus={stats?.ticketByStatus}
+            loading={statsLoading}
+            onSliceClick={(status) =>
+              openPreview({ status, ...dateRange }, `Tickets: ${status}`)
+            }
+          />
+          <TicketIntentDonutChart
+            ticketByIntent={stats?.ticketByIntent}
+            loading={statsLoading}
+            onSliceClick={(intentKey) =>
+              openPreview({ intentKey, ...dateRange }, `Tickets: ${intentKey}`)
+            }
+          />
+        </div>
       </div>
 
       <button
