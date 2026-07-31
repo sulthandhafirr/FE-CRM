@@ -375,6 +375,7 @@ export default function ModernTicketViewDetailPage() {
   };
 
   const handleGenerateDraft = async () => {
+    if (!isAssignedToMe) return;
     setIsGenerating(true);
     try {
       const data = await getTicketDraft(ticketId);
@@ -644,6 +645,7 @@ export default function ModernTicketViewDetailPage() {
               selectedFile={selectedFile}
               setSelectedFile={setSelectedFile}
               canReply={canReply}
+              canGenerateDraft={isAssignedToMe}
               submitting={submitting}
               isGenerating={isGenerating}
               role={role}

@@ -8,6 +8,7 @@ export default function TicketReplyComposer({
   selectedFile,
   setSelectedFile,
   canReply,
+  canGenerateDraft,
   submitting,
   isGenerating,
   role,
@@ -173,7 +174,7 @@ export default function TicketReplyComposer({
                     onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
                   />
                 </label>
-                {role !== "customer" && (
+                {role !== "customer" && canGenerateDraft && (
                   <button
                     type="button"
                     onClick={onGenerateDraft}
