@@ -27,6 +27,7 @@ import {
   getTicketSummary,
   getTicketDraft,
 } from "../ticket.ai";
+import { getUsersByRole } from "../../profile/profile.service";
 import {
   isResolvedStatus,
   formatTicketDate,
@@ -104,30 +105,50 @@ export default function ModernTicketViewDetailPage() {
   const { data: csAgents = [] } = useQuery({
     queryKey: ["cs-agents", user?.id],
     queryFn: async () => {
-      if (!user?.id || role !== "admin") return [];
-      // 1. Get admin's company_id
+      if (!user?.id) return [];
+      // 1. Get user's company_id
       const { data: profile } = await supabase
         .from("profile")
         .select("company_id")
         .eq("id", user.id)
         .single();
       const companyId = profile?.company_id;
-      if (!companyId) return [];
-      // 2. Query CS agents directly from Supabase filtered by company + role
-      const { data: agents, error } = await supabase
-        .from("profile")
-        .select("id, name, email")
-        .eq("company_id", companyId)
-        .eq("role_id", CS_AGENT_ROLE_ID);
-      if (error) {
-        console.error("Failed to fetch company CS agents:", error);
+      // 2. Resolve role IDs untuk cs_agent + admin (role dinamis per company)
+      let agentRoleIds = [];
+      if (companyId) {
+        const { data: roles } = await supabase
+          .from("roles")
+          .select("id, role")
+          .eq("company_id", companyId);
+        agentRoleIds = (roles || [])
+          .filter((r) => r.role === "cs_agent" || r.role === "admin")
+          .map((r) => r.id);
+      }
+      // 3. Query CS agents + admin via Supabase (company + role filtered)
+      if (companyId && agentRoleIds.length) {
+        const { data: agents, error } = await supabase
+          .from("profile")
+          .select("id, name, email")
+          .eq("company_id", companyId)
+          .in("role_id", agentRoleIds);
+        if (!error && agents?.length) return agents;
+        console.warn("Supabase agent query returned empty, falling back to API:", error);
+      }
+      // 4. Fallback: ambil semua CS agent via backend API
+      try {
+        const all = await getUsersByRole(CS_AGENT_ROLE_ID);
+        if (companyId) {
+          const inCompany = all.filter((a) => a.company_id === companyId);
+          if (inCompany.length) return inCompany;
+        }
+        return all;
+      } catch (err) {
+        console.error("Failed to fetch CS agents via API:", err);
         return [];
       }
-      return agents || [];
     },
     staleTime: 1000 * 60 * 10,
     refetchOnWindowFocus: false,
-    enabled: role === "admin",
   });
 
   const { data: customerTier } = useQuery({
