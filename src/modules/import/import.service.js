@@ -80,6 +80,7 @@ export const normalizeRows = (rows) =>
     email: getCellValue(row, ["email", "Email", "e-mail", "mail"]),
     role: getCellValue(row, ["role", "Role", "jabatan", "posisi", "position"]),
     position: getCellValue(row, ["position", "Position", "jabatan", "posisi"]),
+    skill: getCellValue(row, ["skill", "Skill", "skills", "Skills"]),
   }));
 
 export const validateRow = (row, roleMap) => {
@@ -100,8 +101,9 @@ export const validateRow = (row, roleMap) => {
 
 export const downloadTemplate = () => {
   const worksheet = XLSX.utils.aoa_to_sheet([
-    ["Name", "Email", "Role", "Position"],
-    ["Jane Doe", "jane@example.com", "cs_agent", "Support Agent"],
+    ["Name", "Email", "Role", "Position", "Skill"],
+    ["Jane Doe", "jane@example.com", "cs_agent", "Support Agent", ""],
+    ["John Tech", "john@example.com", "technician", "Field Tech", "Word;Excel"],
   ]);
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
@@ -158,9 +160,9 @@ export const createSingleUser = async ({ name, email, password, roleId, position
 
 // ─── Public: bulk user (default password) ───────────────────────────────
 
-export const createBulkUser = async ({ name, email, roleId, position, password }) => {
+export const createBulkUser = async ({ name, email, roleId, position, password, skillIds }) => {
   const authUserId = await createAuthUser(email, password || BULK_DEFAULT_PASSWORD);
-  return addUserProfile({ authUserId, name, email, roleId, position });
+  return addUserProfile({ authUserId, name, email, roleId, position, skillIds });
 };
 
 // ─── Skills (technician tag input) ───────────────────────────────────────
@@ -191,4 +193,34 @@ export const addProfileSkill = async (profileId, skillId) => {
 
 export const removeProfileSkill = async (profileId, skillId) => {
   await api.delete(`/api/usermanagement/${profileId}/skills/${skillId}`);
+};
+
+/** "Word;Excel" -> ["Word", "Excel"]; trims each name, drops empty entries. */
+export const parseSkillNames = (raw) =>
+  String(raw ?? "")
+    .split(";")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+/**
+ * Resolve a list of skill names into their DB ids, creating any that don't
+ * exist yet (createSkill is idempotent server-side). `cache` is a Map shared
+ * across the whole bulk-import batch so a name like "Hardware Expert" that
+ * appears on many rows is only created once, not once per row.
+ */
+export const resolveSkillNames = async (skillNames, cache) => {
+  const ids = [];
+  for (const rawName of skillNames) {
+    const name = rawName.trim();
+    if (!name) continue;
+    const key = name.toLowerCase();
+    if (cache.has(key)) {
+      ids.push(cache.get(key));
+      continue;
+    }
+    const created = await createSkill(name); // get-or-create, idempotent
+    cache.set(key, created.id);
+    ids.push(created.id);
+  }
+  return ids;
 };

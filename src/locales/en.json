@@ -89,11 +89,12 @@
         "addNUsers": "Add {{count}} Users",
         "addingProgress": "Adding {{done}}/{{total}}…",
         "tableHeaders": {
-          "no": "#",
+          "no": "No",
           "name": "Name",
           "email": "Email",
           "role": "Role",
           "position": "Position",
+          "skill": "Skill",
           "status": "Status"
         }
       },

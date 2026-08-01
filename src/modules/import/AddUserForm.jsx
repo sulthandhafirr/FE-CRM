@@ -11,7 +11,8 @@ import * as XLSX from "xlsx";
 import { useAuth } from "../../hooks/useAuth";
 import {
   createBulkUser, createSingleUser, createSkill, downloadTemplate,
-  getRoleId, normalizeRows, searchSkills, validateRow,
+  getRoleId, normalizeRows, parseSkillNames, resolveSkillNames,
+  searchSkills, validateRow,
 } from "./import.service";
 import { useCompanyRoles } from "./useCompanyRoles";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
@@ -331,13 +332,27 @@ export default function AddUserForm({ isOpen, onClose, defaultRoleName = "cs_age
 
     const nextErrors = [...bulkErrors];
     let successCount = 0;
+    const skillCache = new Map(); // normalized skill name -> id, shared across the whole batch
 
     for (let i = 0; i < bulkRows.length; i++) {
       try {
+        const row = bulkRows[i];
+        const roleId = getRoleId(row.role, roleMap);
+        const isTechnicianRow = roleId === roleMap[TECHNICIAN_ROLE_KEY];
+
+        let skillIds;
+        if (isTechnicianRow && row.skill) {
+          const skillNames = parseSkillNames(row.skill);
+          if (skillNames.length) {
+            skillIds = await resolveSkillNames(skillNames, skillCache);
+          }
+        }
+
         await createBulkUser({
-          ...bulkRows[i],
-          roleId: getRoleId(bulkRows[i].role, roleMap),
+          ...row,
+          roleId,
           password: bulkPassword,
+          skillIds,
         });
         nextErrors[i] = [];
         successCount++;
@@ -583,7 +598,7 @@ export default function AddUserForm({ isOpen, onClose, defaultRoleName = "cs_age
                         <Table size="small" stickyHeader>
                           <TableHead>
                             <TableRow>
-                              {["no", "name", "email", "role", "position", "status"].map((h) => (
+                              {["no", "name", "email", "role", "position", "skill", "status"].map((h) => (
                                 <TableCell key={h} sx={{ background: "#FFF9F5", color: "#FF8040", fontWeight: 700, fontSize: 12, whiteSpace: "nowrap" }}>
                                   {t(`pages.addUserForm.bulk.tableHeaders.${h}`)}
                                 </TableCell>
@@ -601,6 +616,7 @@ export default function AddUserForm({ isOpen, onClose, defaultRoleName = "cs_age
                                   <TableCell sx={{ fontSize: 13 }}>{row.email || <span style={{ color: "#dc2626" }}>—</span>}</TableCell>
                                   <TableCell sx={{ fontSize: 13 }}>{row.role || <span style={{ color: "#dc2626" }}>—</span>}</TableCell>
                                   <TableCell sx={{ fontSize: 13, color: "#667085" }}>{row.position || "-"}</TableCell>
+                                  <TableCell sx={{ fontSize: 13, color: "#667085" }}>{row.skill || "-"}</TableCell>
                                   <TableCell>
                                     {hasErrors ? (
                                       <Typography sx={{ fontSize: 11, color: "#dc2626" }}>{rowErrors.join("; ")}</Typography>

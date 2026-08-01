@@ -404,12 +404,12 @@ const TierDropdownCell = ({ user, tiers }) => {
           }
           sx={{
             fontSize: "13px",
-            "& .MuiOutlinedInput-notchedOutline": { borderColor: "#e5e7eb" },
+            "& .MuiOutlinedInput-notchedOutline": { borderColor: "#e5e7eb00" },
             "&:hover .MuiOutlinedInput-notchedOutline": {
-              borderColor: "#FF8040",
+              borderColor: "#ff804000",
             },
             "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-              borderColor: "#FF8040",
+              borderColor: "#ff804000",
             },
             "& .MuiSelect-select": { padding: "5px 10px" },
             minWidth: "140px",

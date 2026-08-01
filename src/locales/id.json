@@ -89,11 +89,12 @@
         "addNUsers": "Tambah {{count}} Pengguna",
         "addingProgress": "Menambahkan {{done}}/{{total}}…",
         "tableHeaders": {
-          "no": "#",
+          "no": "No",
           "name": "Nama",
           "email": "Email",
           "role": "Peran",
           "position": "Posisi",
+          "skill": "Keahlian",
           "status": "Status"
         }
       },
