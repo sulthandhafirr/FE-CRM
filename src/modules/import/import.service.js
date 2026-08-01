@@ -3,11 +3,11 @@ import { api } from "../../lib/api/apiClient";
 import { supabase } from "../../lib/supabase";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SERVICE_KEY  = import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY;
+const SERVICE_KEY = import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY;
 
 const BULK_DEFAULT_PASSWORD = "12345678";
 
-// ─── Dynamic roles per company ─────────────────────────────────────────────────
+// ─── Dynamic roles per company ─────────────────────────────────────────────
 
 /** Build a role-name → role-id map from a roles array (fetched per company) */
 export const buildRoleMap = (roles) => {
@@ -20,10 +20,10 @@ export const buildRoleMap = (roles) => {
     }
   }
   // Common aliases
-  map["user"]     = map["customer"] ?? null;
+  map["user"] = map["customer"] ?? null;
   map["cs agent"] = map["cs_agent"] ?? null;
-  map["agent"]    = map["cs_agent"] ?? null;
-  map["teknisi"]  = map["technician"] ?? null;
+  map["agent"] = map["cs_agent"] ?? null;
+  map["teknisi"] = map["technician"] ?? null;
   return map;
 };
 
@@ -54,7 +54,7 @@ export const getCompanyRoles = async (userId) => {
   return roles;
 };
 
-// ─── Helpers ───────────────────────────────────────────────────────────────────
+// ─── Helpers ─────────────────────────────────────────────────────────────
 
 const normalizeText = (value) => String(value ?? "").trim().toLowerCase();
 
@@ -71,8 +71,7 @@ const getCellValue = (row, keys) => {
 export const getRoleId = (role, roleMap) => {
   const normalized = normalizeText(role);
   if (!normalized) return null;
-  if (roleMap && roleMap[normalized]) return roleMap[normalized];
-  return null;
+  return roleMap?.[normalized] ?? null;
 };
 
 export const normalizeRows = (rows) =>
@@ -109,47 +108,87 @@ export const downloadTemplate = () => {
   XLSX.writeFile(workbook, "user-import-template.xlsx");
 };
 
-// ─── Supabase Admin ───────────────────────────────────────────────────────────
+// ─── Supabase Admin ─────────────────────────────────────────────────────
 
 const createAuthUser = async (email, password) => {
   const res = await fetch(`${SUPABASE_URL}/auth/v1/admin/users`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${SERVICE_KEY}`,
-      "apikey": SERVICE_KEY,
+      Authorization: `Bearer ${SERVICE_KEY}`,
+      apikey: SERVICE_KEY,
     },
     body: JSON.stringify({ email, password, email_confirm: true }),
   });
 
   const data = await res.json();
-  if (!res.ok) throw new Error(data.message ?? "Failed to create auth user");
-  return data.id; // authUserId
+  if (!res.ok) {
+    const reason = data.msg ?? data.message ?? data.error_description ?? data.error ?? `HTTP ${res.status}`;
+    throw new Error(reason);
+  }
+  return data.id;
 };
 
-// ─── Profile (C# backend) ─────────────────────────────────────────────────────
+// ─── Profile (C# backend) ────────────────────────────────────────────────
 
-const addUserProfile = async ({ authUserId, name, email, roleId, position }) => {
+/**
+ * `skillIds` is optional — only technicians get a skills picker in the UI.
+ * The backend is expected to insert the corresponding `profile_skill` rows
+ * as part of this same call. See backend/NOTES.md for the wiring needed
+ * on the UserManagementController side.
+ */
+const addUserProfile = async ({ authUserId, name, email, roleId, position, skillIds }) => {
   const { data } = await api.post("/api/usermanagement/add", {
     authUserId,
     name,
     email,
     roleId,
     position: position || null,
+    skillIds: skillIds?.length ? skillIds : undefined,
   });
   return data;
 };
 
-// ─── Public: single user ──────────────────────────────────────────────────────
+// ─── Public: single user ────────────────────────────────────────────────
 
-export const createSingleUser = async ({ name, email, password, roleId, position }) => {
+export const createSingleUser = async ({ name, email, password, roleId, position, skillIds }) => {
   const authUserId = await createAuthUser(email, password);
-  return addUserProfile({ authUserId, name, email, roleId, position });
+  return addUserProfile({ authUserId, name, email, roleId, position, skillIds });
 };
 
-// ─── Public: bulk user (default password) ────────────────────────────────────
+// ─── Public: bulk user (default password) ───────────────────────────────
 
 export const createBulkUser = async ({ name, email, roleId, position, password }) => {
   const authUserId = await createAuthUser(email, password || BULK_DEFAULT_PASSWORD);
   return addUserProfile({ authUserId, name, email, roleId, position });
+};
+
+// ─── Skills (technician tag input) ───────────────────────────────────────
+
+/**
+ * Search skills whose name contains `query` (case-insensitive).
+ * Backend: GET /api/skill/search?query=...
+ */
+export const searchSkills = async (query) => {
+  const { data } = await api.get("/api/skill/search", { params: { query } });
+  return data ?? []; // [{ id, skill }]
+};
+
+/**
+ * Persist a brand-new skill. Only called at form-submit time, for any
+ * skill tags the user typed that didn't already exist in the database.
+ * Backend: POST /api/skill  { skill: string }
+ */
+export const createSkill = async (name) => {
+  const { data } = await api.post("/api/skill", { skill: name });
+  return data; // { id, skill }
+};
+
+export const addProfileSkill = async (profileId, skillId) => {
+  const { data } = await api.post(`/api/usermanagement/${profileId}/skills`, { skillId });
+  return data;
+};
+
+export const removeProfileSkill = async (profileId, skillId) => {
+  await api.delete(`/api/usermanagement/${profileId}/skills/${skillId}`);
 };

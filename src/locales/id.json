@@ -55,9 +55,10 @@
         "emailPlaceholder": "email@example.com",
         "password": "Password",
         "passwordPlaceholder": "Min 6 karakter",
-        "position": "Posisi",
+        "position": "Posisi (Opsional)",
         "positionPlaceholder": "contoh: Teknisi Senior",
-        "positionHint": "Opsional"
+        "skills": "Keahlian (Opsional)",
+        "skillsPlaceholder": "contoh: JavaScript"
       },
       "errors": {
         "nameRequired": "Nama harus diisi",
@@ -128,8 +129,15 @@
       "ticketsHandled": "Tiket Ditangani",
       "ticketsCreated": "Tiket Dibuat",
       "noTickets": "Tidak ada tiket untuk pengguna ini.",
+      "skillSearchLabel": "Cari keahlian atau ketik keahlian baru",
       "noUsers": "Tidak ada {{role}} ditemukan.",
-      "back": "Kembali"
+      "back": "Kembali",
+      "add": "Tambah",
+      "editPosition": "Ubah Posisi",
+      "addSkill": "Tambah Keahlian",
+      "save": "Simpan",
+      "saving": "Menyimpan...",
+      "cancel": "Batal"
     },
     "notFound": {
       "title": "Ups!",

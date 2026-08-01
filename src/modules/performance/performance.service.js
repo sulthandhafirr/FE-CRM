@@ -45,3 +45,34 @@ export const setProfileTier = async (profileId, tierId) => {
 export const removeProfileTier = async (profileId) => {
   await api.delete(`/api/tiers/profile/${profileId}`);
 };
+
+export async function getAllSkills() {
+  const { data } = await api.get("/api/Skill");
+  return data;
+}
+
+export async function addSkill(profileId, skillId) {
+  const { data } = await api.post(`/api/usermanagement/${profileId}/skills`, { skillId });
+  return data;
+}
+
+export async function removeSkill(profileId, skillId) {
+  return api.delete(`/api/usermanagement/${profileId}/skills/${skillId}`);
+}
+
+export async function searchSkills(query) {
+  const { data } = await api.get("/api/skill/search", { params: { query } });
+  return data ?? []; // [{ id, skill }]
+}
+
+export async function createSkill(name) {
+  const { data } = await api.post("/api/skill", { skill: name });
+  return data; // { id, skill }
+}
+
+export const updatePosition = async (profileId, position) => {
+  const { data } = await api.put(`/api/usermanagement/${profileId}/position`, {
+    position: position || null,
+  });
+  return data; // { profileId, position }
+};

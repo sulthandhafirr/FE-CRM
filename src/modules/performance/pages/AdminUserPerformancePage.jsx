@@ -1,10 +1,17 @@
-import { useMemo, useState, useEffect, useRef } from "react";
+import React, { useMemo, useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
   MdArrowBack,
   MdOutlinePerson,
   MdPersonAdd,
+  MdClose,
+  MdAdd,
+  MdEdit,
+  MdConfirmationNumber,
+  MdHourglassEmpty,
+  MdCheckCircle,
+  MdPriorityHigh,
 } from "react-icons/md";
 import {
   Paper,
@@ -35,8 +42,16 @@ import {
   getStatusColor,
 } from "../../ticket/ticket.schema";
 import AddUserForm from "../../import/AddUserForm";
-import { getCompanyRoles } from "../../import/import.service";
-import { getAllTiers, setProfileTier } from "../performance.service";
+import { getCompanyRoles, createSkill } from "../../import/import.service";
+import {
+  getAllTiers,
+  setProfileTier,
+  addSkill,
+  removeSkill,
+  updatePosition,
+} from "../performance.service";
+import AddSkillModal from "../components/AddSkillModal";
+import EditPositionModal from "../components/EditPositionModal";
 
 // ─── tier colors ─────────────────────────────────────────────────────────────
 
@@ -76,58 +91,96 @@ function sortList(list, orderBy, order) {
   });
 }
 
-const getSkillNames = (user) => {
-  if (!user.profile_skill?.length) return "-";
-  return (
-    user.profile_skill
-      .map((ps) => ps.skills?.skill)
-      .filter(Boolean)
-      .join(", ") || "-"
-  );
+const getSkillList = (user) => {
+  const raw = user.profile_skill ?? user.profileSkills ?? user.skills ?? [];
+  return raw
+    .map((ps) => {
+      const s = ps.skills ?? ps.skill;
+      if (!s) return null;
+      return { id: s.id ?? ps.skillId ?? ps.skill_id, skill: s.skill ?? s.skillName };
+    })
+    .filter((s) => s && s.id != null && s.skill);
 };
 
 // ─── sub-components ──────────────────────────────────────────────────────────
 
-const AvatarIcon = ({ size = 38 }) => (
-  <div
-    style={{
-      width: `${size}px`,
-      height: `${size}px`,
-      borderRadius: "50%",
-      background: "#FFF5EF",
-      border: "2px solid #FF8040",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      flexShrink: 0,
-    }}
-  >
-    <MdOutlinePerson size={size * 0.58} color="#FF8040" />
-  </div>
-);
+const AvatarIcon = ({ size = 38, avatarUrl, name }) => {
+  const [imgError, setImgError] = useState(false);
+  const showImage = avatarUrl && !imgError;
 
-const StatCard = ({ label, value, color = "#111827" }) => (
+  return showImage ? (
+    <img
+      src={avatarUrl}
+      alt={name ?? "avatar"}
+      onError={() => setImgError(true)}
+      style={{
+        width: `${size}px`,
+        height: `${size}px`,
+        borderRadius: "50%",
+        objectFit: "cover",
+        boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.46)",
+        flexShrink: 0,
+      }}
+    />
+  ) : (
+    <div
+      style={{
+        width: `${size}px`,
+        height: `${size}px`,
+        borderRadius: "50%",
+        background: "#FFF5EF",
+        border: "2px solid #FF8040",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexShrink: 0,
+      }}
+    >
+      <MdOutlinePerson size={size * 0.58} color="#FF8040" />
+    </div>
+  );
+};
+
+const StatCard = ({ label, value, icon, color = "#111827", iconColor = "#FF8040", iconBg = "#FFF5EF" }) => (
   <div
     style={{
       flex: 1,
       background: "white",
-      padding: "18px 22px",
+      padding: "20px 22px",
       borderRadius: "16px",
-      border: "1px solid #E5E7EB",
-      boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)",
+      border: "1px solid #F0F0F0",
+      boxShadow: "0 1px 3px 0 rgba(0,0,0,0.04)",
     }}
   >
     <div
       style={{
-        fontSize: "13px",
-        color: "#6B7280",
-        fontWeight: "500",
-        marginBottom: "6px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginBottom: "10px",
       }}
     >
-      {label}
+      <div style={{ fontSize: "13px", color: "#6B7280", fontWeight: "500" }}>
+        {label}
+      </div>
+      {icon && (
+        <div
+          style={{
+            width: 32,
+            height: 32,
+            borderRadius: "50%",
+            background: iconBg,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
+          {React.cloneElement(icon, { size: 16, color: iconColor })}
+        </div>
+      )}
     </div>
-    <div style={{ fontSize: "28px", fontWeight: "700", color }}>{value}</div>
+    <div style={{ fontSize: "26px", fontWeight: "700", color }}>{value}</div>
   </div>
 );
 
@@ -193,6 +246,96 @@ const TierChip = ({ tierName, tierColor, style }) => {
       />
       {s.label}
     </span>
+  );
+};
+
+const SkillTags = ({
+  user,
+  onAdd,
+  onRemove,
+}) => {
+  const skills = getSkillList(user);
+  const { t } = useTranslation();
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "6px",
+        flexWrap: "wrap",
+      }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      {skills.map((skill) => (
+        <div
+          key={skill.id}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            padding: "8px 15px",
+            borderRadius: "10px",
+            background: "#ffffff",
+            color: "#555",
+            border: "1px solid #dddddd",
+            boxShadow: "0 2px 4px 0 rgba(0,0,0,0.05)",
+            fontSize: "12px",
+          }}
+        >
+          {skill.skill}
+
+          <MdClose
+            size={10}
+            style={{
+              cursor: "pointer",
+            }}
+            onClick={() => onRemove(user, skill)}
+          />
+        </div>
+      ))}
+
+      <button
+        onClick={() => onAdd(user)}
+        style={{
+          width: 20,
+          height: 20,
+          borderRadius: "50%",
+          border: "1px solid #ff80408a",
+          background: "#ffffff7e",
+          color: "#ff80407e",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+        title={t("pages.adminUserPerformance.addSkill")}
+      >
+        <MdAdd size={18} />
+      </button>
+    </div>
+  );
+};
+
+// ── Position cell: text + pencil icon that opens EditPositionModal ────────────
+const PositionCell = ({ user, onEdit }) => {
+  const { t } = useTranslation();
+
+  return (
+    <TableCell
+      sx={{ color: "#555", fontSize: "12px" }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <span>{user.position ?? "-"}</span>
+        <MdEdit
+          size={12}
+          style={{ cursor: "pointer", color: "#ff80403e", flexShrink: 0 }}
+          onClick={() => onEdit(user)}
+          title={t("pages.adminUserPerformance.editPosition")}
+        />
+      </div>
+    </TableCell>
   );
 };
 
@@ -360,8 +503,13 @@ export function AdminUserPerformanceView({
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [selectedUser, setSelectedUser] = useState(null);
   const [addUserOpen, setAddUserOpen] = useState(false);
+  const [skillModalOpen, setSkillModalOpen] = useState(false);
+  const [selectedProfile, setSelectedProfile] = useState(null);
+  const [positionModalOpen, setPositionModalOpen] = useState(false);
+  const [positionProfile, setPositionProfile] = useState(null);
 
   // Dynamically resolve role IDs from the admin's company
   const [roleIdMap, setRoleIdMap] = useState({});
@@ -512,6 +660,35 @@ export function AdminUserPerformanceView({
     setDetOrderBy("createdAt");
     setDetOrder("desc");
   };
+
+  const handleAddSkill = (user) => {
+      setSelectedProfile(user);
+      setSkillModalOpen(true);
+  };
+
+  const handleRemoveSkill = async (user, skill) => {
+    try {
+      await removeSkill(user.id, skill.id);
+      await queryClient.invalidateQueries({
+        queryKey: ["users-by-role", activeTab, activeRoleId],
+      });
+    } catch (err) {
+      console.error("Failed to remove skill", err);
+    }
+  };
+
+  const handleEditPosition = (user) => {
+    setPositionProfile(user);
+    setPositionModalOpen(true);
+  };
+
+  const handleSavePosition = async (profileId, position) => {
+    await updatePosition(profileId, position);
+    await queryClient.invalidateQueries({
+      queryKey: ["users-by-role", activeTab, activeRoleId],
+    });
+  };
+
   const handleBack = () => setSelectedUser(null);
 
   const totalTickets = userTickets.length;
@@ -519,11 +696,27 @@ export function AdminUserPerformanceView({
   const activeTickets = userTickets.filter((t) => t.status !== "Solved").length;
   const highPriority = userTickets.filter((t) => t.priority === "High").length;
 
-  const userColumns = isCustomer
+  const userColumns =
+  activeTab === "customer"
     ? [
         { id: "name", label: t("pages.adminUserPerformance.columns.name") },
         { id: "email", label: t("pages.adminUserPerformance.columns.email") },
         { id: "tier", label: "Tier", sortable: false },
+      ]
+    : activeTab === "technician"
+    ? [
+        { id: "name", label: t("pages.adminUserPerformance.columns.name") },
+        { id: "email", label: t("pages.adminUserPerformance.columns.email") },
+        {
+          id: "position",
+          label: t("pages.adminUserPerformance.columns.position"),
+          sortable: false,
+        },
+        {
+          id: "skill",
+          label: t("pages.adminUserPerformance.columns.skill"),
+          sortable: false,
+        },
       ]
     : [
         { id: "name", label: t("pages.adminUserPerformance.columns.name") },
@@ -531,10 +724,6 @@ export function AdminUserPerformanceView({
         {
           id: "position",
           label: t("pages.adminUserPerformance.columns.position"),
-        },
-        {
-          id: "skill",
-          label: t("pages.adminUserPerformance.columns.skill"),
           sortable: false,
         },
       ];
@@ -595,7 +784,6 @@ export function AdminUserPerformanceView({
           }}
         >
           <MdArrowBack size={20} />
-          {selectedUser ? t("pages.adminUserPerformance.back") : "Back"}
         </button>
 
         {!selectedUser && (
@@ -609,7 +797,7 @@ export function AdminUserPerformanceView({
         )}
       </div>
 
-      <div style={{ padding: "30px" }}>
+      <div style={{ padding: "24px 30px" }}>
         {selectedUser ? (
           <>
             <div
@@ -625,7 +813,7 @@ export function AdminUserPerformanceView({
                 border: "1px solid #E5E7EB",
               }}
             >
-              <AvatarIcon size={64} />
+              <AvatarIcon size={64} avatarUrl={selectedUser.user.avatar_url} name={selectedUser.user.name} />
               <div style={{ flex: 1 }}>
                 <div
                   style={{
@@ -662,7 +850,10 @@ export function AdminUserPerformanceView({
                       </span>
                     )}
                     <span style={{ fontSize: "13px", color: "#666" }}>
-                      🛠 {getSkillNames(selectedUser.user)}
+                      🛠{" "}
+                      {getSkillList(selectedUser.user)
+                          .map(s => s.skill)
+                          .join(", ")}
                     </span>
                   </div>
                 )}
@@ -686,21 +877,33 @@ export function AdminUserPerformanceView({
               <StatCard
                 label={t("pages.adminUserPerformance.stats.total")}
                 value={totalTickets}
+                icon={<MdConfirmationNumber />}
+                iconColor="#FF8040"
+                iconBg="#FFF5EF"
               />
               <StatCard
                 label={t("pages.adminUserPerformance.stats.active")}
                 value={activeTickets}
                 color="#f59e0b"
+                icon={<MdHourglassEmpty />}
+                iconColor="#f59e0b"
+                iconBg="#FEF3C7"
               />
               <StatCard
                 label={t("pages.adminUserPerformance.stats.solved")}
                 value={solvedTickets}
                 color="#22c55e"
+                icon={<MdCheckCircle />}
+                iconColor="#22c55e"
+                iconBg="#DCFCE7"
               />
               <StatCard
                 label={t("pages.adminUserPerformance.stats.highPriority")}
                 value={highPriority}
                 color="#ef4444"
+                icon={<MdPriorityHigh />}
+                iconColor="#ef4444"
+                iconBg="#FEE2E2"
               />
             </div>
 
@@ -844,21 +1047,21 @@ export function AdminUserPerformanceView({
                     borderRadius: "10px",
                     border: "none",
                     background: "#FF8040",
-                    color: "white",
-                    fontWeight: "700",
+                    color: "#ffffff",
+                    fontWeight: "500",
                     fontSize: "14px",
                     cursor: "pointer",
-                    boxShadow: "0 2px 8px rgba(255,128,64,0.3)",
+                    boxShadow: "0 2px 10px 0 rgba(14, 14, 14, 0.05)",
                     flexShrink: 0,
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = "#e6703a";
+                    e.currentTarget.style.background = "#ea7940";
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.background = "#FF8040";
                   }}
                 >
-                  <MdPersonAdd size={18} /> Add {activeTabConfig.label}
+                  <MdPersonAdd size={18} />{t("pages.adminUserPerformance.add")} {activeTabConfig.label}
                 </button>
               )}
             </div>
@@ -901,7 +1104,7 @@ export function AdminUserPerformanceView({
                             }}
                           >
                             <TableCell>
-                              <AvatarIcon size={38} />
+                              <AvatarIcon size={38} avatarUrl={user.avatar_url} name={user.name} />
                             </TableCell>
                             <TableCell sx={{ fontWeight: 600, color: "#333" }}>
                               {user.name ?? "-"}
@@ -909,28 +1112,34 @@ export function AdminUserPerformanceView({
                             <TableCell sx={{ color: "#666", fontSize: "13px" }}>
                               {user.email ?? "-"}
                             </TableCell>
-                            {isCustomer ? (
+                            {activeTab === "customer" ? (
                               <TierDropdownCell user={user} tiers={tiers} />
-                            ) : (
+                            ) : activeTab === "technician" ? (
                               <>
-                                <TableCell
-                                  sx={{ color: "#555", fontSize: "13px" }}
-                                >
-                                  {user.position ?? "-"}
-                                </TableCell>
-                                <TableCell
-                                  sx={{ color: "#555", fontSize: "13px" }}
-                                >
-                                  {getSkillNames(user)}
+                                <PositionCell user={user} onEdit={handleEditPosition} />
+                                <TableCell>
+                                  <SkillTags
+                                    user={user}
+                                    onAdd={handleAddSkill}
+                                    onRemove={handleRemoveSkill}
+                                  />
                                 </TableCell>
                               </>
+                            ) : (
+                              <PositionCell user={user} onEdit={handleEditPosition} />
                             )}
                           </TableRow>
                         ))}
                         {sortedUsers.length === 0 && (
                           <TableRow>
                             <TableCell
-                              colSpan={isCustomer ? 4 : 5}
+                              colSpan={
+                                activeTab === "customer"
+                                  ? 4
+                                  : activeTab === "technician"
+                                  ? 5
+                                  : 4
+                              }
                               sx={{ textAlign: "center", py: 4, color: "#999" }}
                             >
                               {t("pages.adminUserPerformance.noUsers", {
@@ -962,6 +1171,25 @@ export function AdminUserPerformanceView({
               isOpen={addUserOpen}
               onClose={() => setAddUserOpen(false)}
               defaultRoleName={activeTabConfig.key}
+            />
+            <AddSkillModal
+              open={skillModalOpen}
+              onClose={() => setSkillModalOpen(false)}
+              profile={selectedProfile}
+              existingSkillIds={selectedProfile ? getSkillList(selectedProfile).map((s) => s.id) : []}
+              onCreateSkill={createSkill}
+              onAssignSkill={async (profileId, skillId) => {
+                await addSkill(profileId, skillId);
+                await queryClient.invalidateQueries({
+                  queryKey: ["users-by-role", activeTab, activeRoleId],
+                });
+              }}
+            />
+            <EditPositionModal
+              open={positionModalOpen}
+              onClose={() => setPositionModalOpen(false)}
+              profile={positionProfile}
+              onSave={handleSavePosition}
             />
           </>
         )}

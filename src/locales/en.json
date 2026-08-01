@@ -55,9 +55,10 @@
         "emailPlaceholder": "email@example.com",
         "password": "Password",
         "passwordPlaceholder": "Min 6 characters",
-        "position": "Position",
+        "position": "Position (Optional)",
         "positionPlaceholder": "e.g. Senior Technician",
-        "positionHint": "Optional"
+        "skills": "Skills (Optional)",
+        "skillsPlaceholder": "e.g. JavaScript"
       },
       "errors": {
         "nameRequired": "Name is required",
@@ -128,8 +129,15 @@
       "ticketsHandled": "Tickets Handled",
       "ticketsCreated": "Tickets Created",
       "noTickets": "No tickets found for this user.",
+      "skillSearchLabel": "Search skill or type new skill",
       "noUsers": "No {{role}} found.",
-      "back": "Back"
+      "back": "Back",
+      "add": "Add",
+      "editPosition": "Edit Position",
+      "addSkill": "Add Skill",
+      "save": "Save",
+      "saving": "Saving...",
+      "cancel": "Cancel"
     },
     "notFound": {
       "title": "Oops!",

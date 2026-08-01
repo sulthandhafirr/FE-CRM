@@ -1,18 +1,173 @@
-import { useRef, useState, useEffect } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { MdUploadFile, MdTableChart, MdDownload } from "react-icons/md";
+import { MdDownload, MdTableChart, MdUploadFile } from "react-icons/md";
 import {
-  Box, Button, Chip, Divider, FormControl, InputLabel, MenuItem,
-  Modal, Paper, Select, Stack, Table, TableBody, TableCell,
-  TableHead, TableRow, TextField, Typography,
+  Autocomplete, Box, Button, Chip, CircularProgress, Divider, FormControl,
+  InputLabel, MenuItem, Modal, Paper, Select, Stack, Table, TableBody,
+  TableCell, TableHead, TableRow, TextField, Typography,
 } from "@mui/material";
 import * as XLSX from "xlsx";
 import { useAuth } from "../../hooks/useAuth";
-import { getCompanyRoles, buildRoleMap, downloadTemplate, createSingleUser, createBulkUser, normalizeRows, validateRow, getRoleId } from "./import.service";
+import {
+  createBulkUser, createSingleUser, createSkill, downloadTemplate,
+  getRoleId, normalizeRows, searchSkills, validateRow,
+} from "./import.service";
+import { useCompanyRoles } from "./useCompanyRoles";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 
-const INIT_FORM = (roleId) => ({ name: "", email: "", password: "", roleId: roleId ?? 0, position: "" });
+const TECHNICIAN_ROLE_KEY = "technician";
+const CUSTOMER_ROLE_KEY = "customer";
+const SKILL_SEARCH_DEBOUNCE_MS = 300;
+
+const emptySingleForm = (roleId = "") => ({
+  name: "", email: "", password: "", roleId, position: "",
+});
+
+const roleKeyOf = (role) => role?.role ?? role?.key;
+
+// ─── Skill tag field (comic-genre-tag look) ────────────────────────────────
+// Local-only until the form is submitted: picking an existing skill just adds
+// its real { id, skill }; typing a new one and clicking "Add" adds a
+// { id: null, skill, isNew: true } placeholder tag. Nothing hits the database
+// yet — AddUserForm resolves any `isNew` tags into real skill rows at submit
+// time. Every tag (existing or new) gets the default Chip delete (×) icon.
+function SkillField({ value, onChange, disabled }) {
+  const { t } = useTranslation();
+  const [inputValue, setInputValue] = useState("");
+  const [options, setOptions] = useState([]);
+  const [searching, setSearching] = useState(false);
+  const debounceRef = useRef(null);
+
+  const runSearch = useCallback((query) => {
+    if (!query.trim()) {
+      setOptions([]);
+      return;
+    }
+    setSearching(true);
+    searchSkills(query.trim())
+      .then(setOptions)
+      .catch(() => setOptions([]))
+      .finally(() => setSearching(false));
+  }, []);
+
+  const handleInputChange = (_e, newInput, reason) => {
+    setInputValue(newInput);
+    if (reason === "reset") return;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => runSearch(newInput), SKILL_SEARCH_DEBOUNCE_MS);
+  };
+
+  const handleChange = (_e, newValue) => {
+    const last = newValue[newValue.length - 1];
+
+    // User clicked the synthetic "Add <name>" option -> add a local pending tag.
+    if (last && typeof last === "object" && last.__isNew) {
+      const name = last.inputValue.trim();
+      if (!name) return;
+
+      const duplicate = value.some((s) => s.skill.toLowerCase() === name.toLowerCase());
+      if (duplicate) return;
+
+      const withoutMarker = newValue.slice(0, -1);
+      onChange([...withoutMarker, { id: null, skill: name, isNew: true }]);
+      setInputValue("");
+      setOptions([]);
+      return;
+    }
+
+    // Regular picks from the existing-skills list, deduped; drop stray
+    // free-typed strings that freeSolo can surface without an explicit pick.
+    const objectsOnly = newValue.filter((v) => typeof v === "object");
+    const seen = new Set();
+    const deduped = objectsOnly.filter((v) => {
+      const key = v.isNew ? `new:${v.skill.toLowerCase()}` : `id:${v.id}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    onChange(deduped);
+  };
+
+  const filterOptions = (opts, params) => {
+    const query = params.inputValue.trim();
+    const selectedIds = new Set(value.filter((v) => !v.isNew).map((v) => v.id));
+
+    const matches = opts.filter(
+      (o) => !selectedIds.has(o.id) && o.skill.toLowerCase().includes(query.toLowerCase())
+    );
+
+    const exactMatchExists = opts.some((o) => o.skill.toLowerCase() === query.toLowerCase());
+    const alreadyAddedLocally = value.some((v) => v.skill.toLowerCase() === query.toLowerCase());
+    if (query && !exactMatchExists && !alreadyAddedLocally) {
+      matches.push({
+        __isNew: true,
+        inputValue: query,
+        skill: t("pages.addUserForm.fields.addSkillOption", { defaultValue: `Add "${query}"`, name: query }),
+      });
+    }
+    return matches;
+  };
+
+  return (
+    <Autocomplete
+      multiple
+      freeSolo
+      disabled={disabled}
+      loading={searching}
+      options={options}
+      value={value}
+      inputValue={inputValue}
+      onInputChange={handleInputChange}
+      onChange={handleChange}
+      filterOptions={filterOptions}
+      isOptionEqualToValue={(o, v) => (v.isNew ? o.skill === v.skill : o.id === v.id)}
+      getOptionLabel={(o) => (typeof o === "string" ? o : o.skill)}
+      renderOption={(props, option) => (
+        <li {...props} key={option.__isNew ? `new-${option.inputValue}` : option.id}>
+          {option.__isNew ? <span style={{ color: "#FF8040", fontWeight: 700 }}>{option.skill}</span> : option.skill}
+        </li>
+      )}
+      renderTags={(tagValue, getTagProps) =>
+        tagValue.map((option, index) => (
+          <Chip
+            {...getTagProps({ index })}
+            key={option.isNew ? `new-${option.skill}` : option.id}
+            label={option.skill}
+            size="small"
+            sx={{
+              borderRadius: "999px",
+              background: "#FFF0E6",
+              color: "#FF8040",
+              fontWeight: 700,
+              fontSize: 12,
+              textTransform: "uppercase",
+              letterSpacing: 0.3,
+              border: "1px solid #FFD9BF",
+              "& .MuiChip-deleteIcon": { color: "#FF8040" },
+            }}
+          />
+        ))
+      }
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label={t("pages.addUserForm.fields.skills", { defaultValue: "Skills" })}
+          placeholder={t("pages.addUserForm.fields.skillsPlaceholder", { defaultValue: "Type to search or add a skill" })}
+          InputProps={{
+            ...params.InputProps,
+            endAdornment: (
+              <>
+                {searching && <CircularProgress size={16} sx={{ mr: 1 }} />}
+                {params.InputProps.endAdornment}
+              </>
+            ),
+          }}
+        />
+      )}
+    />
+  );
+}
 
 export default function AddUserForm({ isOpen, onClose, defaultRoleName = "cs_agent" }) {
   const { t } = useTranslation();
@@ -20,147 +175,194 @@ export default function AddUserForm({ isOpen, onClose, defaultRoleName = "cs_age
   const queryClient = useQueryClient();
   const fileInputRef = useRef(null);
 
-  // Dynamic roles fetched from Supabase based on admin's company
-  const [companyRoles, setCompanyRoles] = useState(undefined); // undefined = still loading
-  const [roleMap, setRoleMap] = useState(null);
+  const { roles: companyRoles, roleMap, defaultRoleId } = useCompanyRoles(isOpen, user?.id, defaultRoleName);
 
-  const [mode, setMode]             = useState("single");
-  const [formData, setFormData]     = useState(INIT_FORM(0));
-  const [errors, setErrors]         = useState({});
+  const [mode, setMode] = useState("single");
+
+  // ─── Single-add state ────────────────────────────────────────────────
+  const [formData, setFormData] = useState(() => emptySingleForm());
+  const [skills, setSkills] = useState([]); // [{ id: number|null, skill, isNew?: boolean }]
+  const [errors, setErrors] = useState({});
   const [isSubmitting, setSubmitting] = useState(false);
+  const roleIdInitialized = useRef(false);
 
-  const [bulkRows, setBulkRows]         = useState([]);
-  const [bulkErrors, setBulkErrors]     = useState([]);
+  if (defaultRoleId && !roleIdInitialized.current) {
+    roleIdInitialized.current = true;
+    setFormData((prev) => ({ ...prev, roleId: defaultRoleId }));
+  }
+
+  // ─── Bulk-import state ───────────────────────────────────────────────
+  const [bulkRows, setBulkRows] = useState([]);
+  const [bulkErrors, setBulkErrors] = useState([]);
   const [bulkApiError, setBulkApiError] = useState("");
   const [bulkSubmitting, setBulkSubmit] = useState(false);
   const [bulkProgress, setBulkProgress] = useState({ done: 0, total: 0 });
-  const [dragOver, setDragOver]         = useState(false);
-  const [fileName, setFileName]         = useState("");
+  const [dragOver, setDragOver] = useState(false);
+  const [fileName, setFileName] = useState("");
   const [bulkPassword, setBulkPassword] = useState("12345678");
 
-  // Track whether initial role has been set (avoids re-setting on re-render)
-  const initialRoleSet = useRef(false);
-
-  // ─── Fetch roles for the admin's company when modal opens ──────────────
-  useEffect(() => {
-    if (!isOpen || !user?.id) return;
-    initialRoleSet.current = false;
-    setCompanyRoles(undefined);
-    setRoleMap(null);
-    getCompanyRoles(user.id).then((roles) => {
-      // Filter out ultrauser (and admin) — only show assignable roles
-      const filtered = roles.filter((r) => {
-        const name = r.role ?? r.key;
-        return name !== "ultrauser" && name !== "admin";
-      });
-      setCompanyRoles(filtered);
-      setRoleMap(buildRoleMap(filtered));
-      // Set default role from prop (cs_agent, technician, customer)
-      if (filtered?.length && !initialRoleSet.current) {
-        const match = filtered.find((r) => r.role === defaultRoleName);
-        if (match) {
-          setFormData((prev) => ({ ...prev, roleId: match.id }));
-        } else {
-          // Fallback to first available role
-          setFormData((prev) => ({ ...prev, roleId: filtered[0].id }));
-        }
-        initialRoleSet.current = true;
-      }
-    });
-  }, [isOpen, user?.id, defaultRoleName]);
+  const selectedRole = (companyRoles ?? []).find((r) => r.id === formData.roleId);
+  const isCustomer = roleKeyOf(selectedRole) === CUSTOMER_ROLE_KEY;
+  const isTechnician = roleKeyOf(selectedRole) === TECHNICIAN_ROLE_KEY;
 
   const resetSingle = () => {
-    const fallbackId = companyRoles?.[0]?.id ?? 0;
-    setFormData(INIT_FORM(fallbackId));
+    roleIdInitialized.current = false;
+    setFormData(emptySingleForm(companyRoles?.[0]?.id ?? ""));
+    setSkills([]);
     setErrors({});
   };
-  const resetBulk   = () => {
-    setBulkRows([]); setBulkErrors([]); setBulkApiError("");
-    setBulkProgress({ done: 0, total: 0 }); setFileName(""); setBulkPassword("12345678");
+
+  const resetBulk = () => {
+    setBulkRows([]);
+    setBulkErrors([]);
+    setBulkApiError("");
+    setBulkProgress({ done: 0, total: 0 });
+    setFileName("");
+    setBulkPassword("12345678");
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleClose = () => {
     if (isSubmitting || bulkSubmitting) return;
-    resetSingle(); resetBulk(); setMode("single"); onClose();
+    resetSingle();
+    resetBulk();
+    setMode("single");
+    onClose();
   };
+
+  // ─── Single mode ──────────────────────────────────────────────────────
 
   const validate = () => {
     const e = {};
-    if (!formData.name.trim())             e.name     = t("pages.addUserForm.errors.nameRequired");
-    if (!formData.email.trim())            e.email    = t("pages.addUserForm.errors.emailRequired");
+    if (!formData.name.trim()) e.name = t("pages.addUserForm.errors.nameRequired");
+    if (!formData.email.trim()) e.email = t("pages.addUserForm.errors.emailRequired");
     else if (!/\S+@\S+\.\S+/.test(formData.email)) e.email = t("pages.addUserForm.errors.emailInvalid");
-    if (!formData.password.trim())         e.password = t("pages.addUserForm.errors.passwordRequired");
+    if (!formData.password.trim()) e.password = t("pages.addUserForm.errors.passwordRequired");
     else if (formData.password.length < 6) e.password = t("pages.addUserForm.errors.passwordTooShort");
     return e;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const errs = validate();
-    if (Object.keys(errs).length) { setErrors(errs); return; }
-    setErrors({}); setSubmitting(true);
-    try {
-      await createSingleUser({
-        name: formData.name.trim(), email: formData.email.trim(),
-        password: formData.password, roleId: formData.roleId,
-        position: formData.position.trim(),
-      });
-      await queryClient.invalidateQueries({ queryKey: ["users-by-role"] });
-      resetSingle(); onClose();
-    } catch (err) {
-      const msg = err?.response?.data?.message ?? err?.message ?? "Failed to add user";
-      setErrors((p) => ({ ...p, api: msg }));
-    } finally { setSubmitting(false); }
+  /** New (isNew) tags are only persisted here, right before the user is created. */
+  const resolveSkillIds = async () => {
+    if (!isTechnician || skills.length === 0) return undefined;
+    return Promise.all(
+      skills.map((s) => (s.isNew ? createSkill(s.skill).then((created) => created.id) : s.id))
+    );
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setErrors({});
+    setSubmitting(true);
+    try {
+      const skillIds = await resolveSkillIds();
+      await createSingleUser({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        password: formData.password,
+        roleId: formData.roleId,
+        position: formData.position.trim(),
+        skillIds,
+      });
+      await queryClient.invalidateQueries({ queryKey: ["users-by-role"] });
+      resetSingle();
+      onClose();
+    } catch (err) {
+      const message = err?.response?.data?.message ?? err?.message ?? "Failed to add user";
+      setErrors((prev) => ({ ...prev, api: message }));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const updateField = (field) => (e) => {
+    setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+    setErrors((prev) => ({ ...prev, [field]: undefined }));
+  };
+
+  // ─── Bulk mode ────────────────────────────────────────────────────────
+
   const parseExcel = (file) => {
-    setFileName(file.name); resetBulk();
+    setFileName(file.name);
+    resetBulk();
     const reader = new FileReader();
     reader.onload = (ev) => {
       try {
-        const wb   = XLSX.read(ev.target.result, { type: "array" });
-        const raw  = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: "" });
-        const rows = normalizeRows(raw);
-        setBulkRows(rows); setBulkErrors(rows.map((row) => validateRow(row, roleMap)));
-      } catch { setBulkApiError(t("pages.addUserForm.bulk.readError")); }
+        const workbook = XLSX.read(ev.target.result, { type: "array" });
+        const rawRows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: "" });
+        const rows = normalizeRows(rawRows);
+        setBulkRows(rows);
+        setBulkErrors(rows.map((row) => validateRow(row, roleMap)));
+      } catch {
+        setBulkApiError(t("pages.addUserForm.bulk.readError"));
+      }
     };
     reader.readAsArrayBuffer(file);
   };
 
-  const handleFileChange = (e) => { const f = e.target.files?.[0]; if (f) parseExcel(f); };
-  const handleDrop = (e) => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files?.[0]; if (f) parseExcel(f); };
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) parseExcel(file);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) parseExcel(file);
+  };
 
   const handleBulkSubmit = async () => {
     if (!bulkRows.length) return;
-    if (bulkErrors.some((e) => e.length > 0)) { setBulkApiError(t("pages.addUserForm.bulk.fixErrors")); return; }
+    if (bulkErrors.some((rowErrors) => rowErrors.length > 0)) {
+      setBulkApiError(t("pages.addUserForm.bulk.fixErrors"));
+      return;
+    }
 
-    setBulkSubmit(true); setBulkApiError(""); setBulkProgress({ done: 0, total: bulkRows.length });
-    const newErrors = [...bulkErrors];
-    let ok = 0;
+    setBulkSubmit(true);
+    setBulkApiError("");
+    setBulkProgress({ done: 0, total: bulkRows.length });
+
+    const nextErrors = [...bulkErrors];
+    let successCount = 0;
 
     for (let i = 0; i < bulkRows.length; i++) {
       try {
-        await createBulkUser({ ...bulkRows[i], roleId: getRoleId(bulkRows[i].role, roleMap), password: bulkPassword });
-        newErrors[i] = []; ok++;
+        await createBulkUser({
+          ...bulkRows[i],
+          roleId: getRoleId(bulkRows[i].role, roleMap),
+          password: bulkPassword,
+        });
+        nextErrors[i] = [];
+        successCount++;
       } catch (err) {
-        newErrors[i] = [err?.response?.data?.message ?? err?.message ?? "Failed"];
+        nextErrors[i] = [err?.response?.data?.message ?? err?.message ?? "Failed"];
       }
       setBulkProgress({ done: i + 1, total: bulkRows.length });
-      setBulkErrors([...newErrors]);
+      setBulkErrors([...nextErrors]);
     }
 
     setBulkSubmit(false);
     await queryClient.invalidateQueries({ queryKey: ["users-by-role"] });
 
-    if (ok === bulkRows.length) { resetBulk(); onClose(); return; }
-    setBulkApiError(t("pages.addUserForm.bulk.partialSuccess", { success: ok, total: bulkRows.length }));
-    setBulkRows(bulkRows.filter((_, i) => newErrors[i].length > 0));
-    setBulkErrors(newErrors.filter((e) => e.length > 0));
+    if (successCount === bulkRows.length) {
+      resetBulk();
+      onClose();
+      return;
+    }
+    setBulkApiError(t("pages.addUserForm.bulk.partialSuccess", { success: successCount, total: bulkRows.length }));
+    setBulkRows(bulkRows.filter((_, i) => nextErrors[i].length > 0));
+    setBulkErrors(nextErrors.filter((rowErrors) => rowErrors.length > 0));
   };
 
-  const totalErrors   = bulkErrors.filter((e) => e.length > 0).length;
-  const readyToSubmit = bulkRows.length > 0 && bulkErrors.every((e) => e.length === 0);
+  const totalErrors = bulkErrors.filter((rowErrors) => rowErrors.length > 0).length;
+  const readyToSubmit = bulkRows.length > 0 && bulkErrors.every((rowErrors) => rowErrors.length === 0);
 
   return (
     <Modal
@@ -168,20 +370,23 @@ export default function AddUserForm({ isOpen, onClose, defaultRoleName = "cs_age
       onClose={() => {}}
       slotProps={{ backdrop: { sx: { backgroundColor: "rgba(16,24,40,0.35)", backdropFilter: "blur(2px)" } } }}
     >
-      <Box sx={{
-        position: "absolute", top: { xs: 0, sm: "50%" }, left: "50%",
-        transform: { xs: "translateX(-50%)", sm: "translate(-50%,-50%)" },
-        width: { xs: "100vw", sm: "94%", md: mode === "bulk" ? 700 : 520 },
-        height: { xs: "100vh", sm: "auto" },
-        maxHeight: { xs: "100vh", sm: "calc(100vh - 48px)" },
-        outline: "none", transition: "width 0.2s",
-      }}>
-        <Paper sx={{
-          borderRadius: "16px", position: "relative", display: "flex", flexDirection: "column",
-          maxHeight: "calc(100vh - 48px)", overflow: "hidden",
-          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-        }}>
-
+      <Box
+        sx={{
+          position: "absolute", top: { xs: 0, sm: "50%" }, left: "50%",
+          transform: { xs: "translateX(-50%)", sm: "translate(-50%,-50%)" },
+          width: { xs: "100vw", sm: "94%", md: mode === "bulk" ? 700 : 520 },
+          height: { xs: "100vh", sm: "auto" },
+          maxHeight: { xs: "100vh", sm: "calc(100vh - 48px)" },
+          outline: "none", transition: "width 0.2s",
+        }}
+      >
+        <Paper
+          sx={{
+            borderRadius: "16px", position: "relative", display: "flex", flexDirection: "column",
+            maxHeight: "calc(100vh - 48px)", overflow: "hidden",
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+          }}
+        >
           {/* Header */}
           <Box sx={{ px: { xs: 2.5, sm: 3.5 }, py: 2, background: "linear-gradient(180deg,#FFF9F5 0%,#FFFFFF 100%)" }}>
             <Stack direction="row" alignItems="center" justifyContent="space-between">
@@ -193,11 +398,7 @@ export default function AddUserForm({ isOpen, onClose, defaultRoleName = "cs_age
                   {t(mode === "single" ? "pages.addUserForm.subtitleSingle" : "pages.addUserForm.subtitleBulk")}
                 </Typography>
               </Box>
-              <Button
-                onClick={handleClose}
-                disabled={isSubmitting || bulkSubmitting}
-                sx={{ minWidth: "auto", px: 1.5, color: "#667085", fontSize: 18 }}
-              >
+              <Button onClick={handleClose} disabled={isSubmitting || bulkSubmitting} sx={{ minWidth: "auto", px: 1.5, color: "#667085", fontSize: 18 }}>
                 ✕
               </Button>
             </Stack>
@@ -205,15 +406,20 @@ export default function AddUserForm({ isOpen, onClose, defaultRoleName = "cs_age
             <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
               {[
                 { key: "single", label: t("pages.addUserForm.modeSingle") },
-                { key: "bulk",   label: t("pages.addUserForm.modeBulk")   },
+                { key: "bulk", label: t("pages.addUserForm.modeBulk") },
               ].map((m) => (
-                <Button key={m.key} onClick={() => setMode(m.key)} size="small" sx={{
-                  borderRadius: "8px", px: 2, py: 0.75, fontWeight: 700, fontSize: 13,
-                  border: "2px solid #FF8040",
-                  background: mode === m.key ? "#FF8040" : "transparent",
-                  color: mode === m.key ? "#fff" : "#FF8040",
-                  "&:hover": { background: mode === m.key ? "#e6723a" : "#FFF5EF" },
-                }}>
+                <Button
+                  key={m.key}
+                  onClick={() => setMode(m.key)}
+                  size="small"
+                  sx={{
+                    borderRadius: "8px", px: 2, py: 0.75, fontWeight: 700, fontSize: 13,
+                    border: "2px solid #FF8040",
+                    background: mode === m.key ? "#FF8040" : "transparent",
+                    color: mode === m.key ? "#fff" : "#FF8040",
+                    "&:hover": { background: mode === m.key ? "#e6723a" : "#FFF5EF" },
+                  }}
+                >
                   {m.label}
                 </Button>
               ))}
@@ -223,8 +429,6 @@ export default function AddUserForm({ isOpen, onClose, defaultRoleName = "cs_age
           <Divider />
 
           <Box sx={{ px: { xs: 2, sm: 3.5 }, py: 3, overflowY: "auto", flex: 1 }}>
-
-            {/* Single mode */}
             {mode === "single" && (
               <form onSubmit={handleSubmit}>
                 <Stack spacing={2.5}>
@@ -233,18 +437,18 @@ export default function AddUserForm({ isOpen, onClose, defaultRoleName = "cs_age
                     <Select
                       value={formData.roleId}
                       label={t("pages.addUserForm.fields.role")}
-                      onChange={(e) => setFormData({ ...formData, roleId: e.target.value })}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, roleId: e.target.value }))}
                     >
                       {(companyRoles ?? []).map((r) => (
-                        <MenuItem key={r.id} value={r.id}>{t(`roles.${r.role ?? r.key}`)}</MenuItem>
+                        <MenuItem key={r.id} value={r.id}>{t(`roles.${roleKeyOf(r)}`)}</MenuItem>
                       ))}
                     </Select>
                   </FormControl>
 
                   {[
-                    { field: "name",     type: "text",     labelKey: "fullName",    placeholderKey: "fullNamePlaceholder" },
-                    { field: "email",    type: "email",    labelKey: "email",       placeholderKey: "emailPlaceholder"    },
-                    { field: "password", type: "password", labelKey: "password",    placeholderKey: "passwordPlaceholder" },
+                    { field: "name", type: "text", labelKey: "fullName", placeholderKey: "fullNamePlaceholder" },
+                    { field: "email", type: "email", labelKey: "email", placeholderKey: "emailPlaceholder" },
+                    { field: "password", type: "password", labelKey: "password", placeholderKey: "passwordPlaceholder" },
                   ].map(({ field, type, labelKey, placeholderKey }) => (
                     <TextField
                       key={field}
@@ -253,33 +457,26 @@ export default function AddUserForm({ isOpen, onClose, defaultRoleName = "cs_age
                       label={t(`pages.addUserForm.fields.${labelKey}`)}
                       placeholder={t(`pages.addUserForm.fields.${placeholderKey}`)}
                       value={formData[field]}
-                      onChange={(e) => {
-                        setFormData({ ...formData, [field]: e.target.value });
-                        setErrors((p) => ({ ...p, [field]: undefined }));
-                      }}
+                      onChange={updateField(field)}
                       error={Boolean(errors[field])}
                       helperText={errors[field]}
                       fullWidth
                     />
                   ))}
 
-                  {(() => {
-                    // Show position field only when role is NOT customer
-                    const selectedRole = (companyRoles ?? []).find((r) => r.id === formData.roleId);
-                    const isCustomer = selectedRole
-                      ? (selectedRole.role ?? selectedRole.key) === "customer"
-                      : false;
-                    return !isCustomer && (
-                      <TextField
-                        label={t("pages.addUserForm.fields.position")}
-                        placeholder={t("pages.addUserForm.fields.positionPlaceholder")}
-                        helperText={t("pages.addUserForm.fields.positionHint")}
-                        value={formData.position}
-                        onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-                        fullWidth
-                      />
-                    );
-                  })()}
+                  {!isCustomer && (
+                    <TextField
+                      label={t("pages.addUserForm.fields.position")}
+                      placeholder={t("pages.addUserForm.fields.positionPlaceholder")}
+                      value={formData.position}
+                      onChange={updateField("position")}
+                      fullWidth
+                    />
+                  )}
+
+                  {isTechnician && (
+                    <SkillField value={skills} onChange={setSkills} disabled={isSubmitting} />
+                  )}
 
                   {errors.api && (
                     <Box sx={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: "8px", px: 2, py: 1.5 }}>
@@ -321,11 +518,8 @@ export default function AddUserForm({ isOpen, onClose, defaultRoleName = "cs_age
               </form>
             )}
 
-            {/* Bulk mode */}
             {mode === "bulk" && (
               <Stack spacing={3}>
-
-                {/* Default password for all imported users */}
                 <TextField
                   required
                   type="password"
@@ -336,7 +530,6 @@ export default function AddUserForm({ isOpen, onClose, defaultRoleName = "cs_age
                   fullWidth
                 />
 
-                {/* Drop zone */}
                 <Box
                   onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                   onDragLeave={() => setDragOver(false)}
@@ -368,7 +561,6 @@ export default function AddUserForm({ isOpen, onClose, defaultRoleName = "cs_age
                   </Button>
                 </Box>
 
-                {/* Preview table */}
                 {bulkRows.length > 0 && (
                   <Box>
                     <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
@@ -400,20 +592,21 @@ export default function AddUserForm({ isOpen, onClose, defaultRoleName = "cs_age
                           </TableHead>
                           <TableBody>
                             {bulkRows.map((row, i) => {
-                              const rowErrs = bulkErrors[i] ?? [];
-                              const hasErr  = rowErrs.length > 0;
+                              const rowErrors = bulkErrors[i] ?? [];
+                              const hasErrors = rowErrors.length > 0;
                               return (
-                                <TableRow key={i} sx={{ background: hasErr ? "#fef2f2" : "transparent" }}>
+                                <TableRow key={i} sx={{ background: hasErrors ? "#fef2f2" : "transparent" }}>
                                   <TableCell sx={{ color: "#999", fontSize: 12 }}>{i + 1}</TableCell>
-                                  <TableCell sx={{ fontSize: 13 }}>{row.name  || <span style={{ color: "#dc2626" }}>—</span>}</TableCell>
+                                  <TableCell sx={{ fontSize: 13 }}>{row.name || <span style={{ color: "#dc2626" }}>—</span>}</TableCell>
                                   <TableCell sx={{ fontSize: 13 }}>{row.email || <span style={{ color: "#dc2626" }}>—</span>}</TableCell>
-                                  <TableCell sx={{ fontSize: 13 }}>{row.role  || <span style={{ color: "#dc2626" }}>—</span>}</TableCell>
+                                  <TableCell sx={{ fontSize: 13 }}>{row.role || <span style={{ color: "#dc2626" }}>—</span>}</TableCell>
                                   <TableCell sx={{ fontSize: 13, color: "#667085" }}>{row.position || "-"}</TableCell>
                                   <TableCell>
-                                    {hasErr
-                                      ? <Typography sx={{ fontSize: 11, color: "#dc2626" }}>{rowErrs.join("; ")}</Typography>
-                                      : <Typography sx={{ fontSize: 11, color: "#16a34a", fontWeight: 600 }}>{t("pages.addUserForm.bulk.statusReady")}</Typography>
-                                    }
+                                    {hasErrors ? (
+                                      <Typography sx={{ fontSize: 11, color: "#dc2626" }}>{rowErrors.join("; ")}</Typography>
+                                    ) : (
+                                      <Typography sx={{ fontSize: 11, color: "#16a34a", fontWeight: 600 }}>{t("pages.addUserForm.bulk.statusReady")}</Typography>
+                                    )}
                                   </TableCell>
                                 </TableRow>
                               );
@@ -425,7 +618,6 @@ export default function AddUserForm({ isOpen, onClose, defaultRoleName = "cs_age
                   </Box>
                 )}
 
-                {/* Progress */}
                 {bulkSubmitting && (
                   <Box>
                     <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.5 }}>
@@ -433,10 +625,12 @@ export default function AddUserForm({ isOpen, onClose, defaultRoleName = "cs_age
                       <Typography sx={{ fontSize: 13, fontWeight: 700, color: "#FF8040" }}>{bulkProgress.done} / {bulkProgress.total}</Typography>
                     </Stack>
                     <Box sx={{ height: 6, borderRadius: 3, background: "#f0f0f0", overflow: "hidden" }}>
-                      <Box sx={{
-                        height: "100%", background: "#FF8040", borderRadius: 3, transition: "width 0.3s",
-                        width: `${bulkProgress.total ? (bulkProgress.done / bulkProgress.total) * 100 : 0}%`,
-                      }} />
+                      <Box
+                        sx={{
+                          height: "100%", background: "#FF8040", borderRadius: 3, transition: "width 0.3s",
+                          width: `${bulkProgress.total ? (bulkProgress.done / bulkProgress.total) * 100 : 0}%`,
+                        }}
+                      />
                     </Box>
                   </Box>
                 )}
@@ -486,17 +680,20 @@ export default function AddUserForm({ isOpen, onClose, defaultRoleName = "cs_age
             )}
           </Box>
 
-          {/* Loading overlay */}
           {isSubmitting && (
-            <Box sx={{
-              position: "absolute", inset: 0, zIndex: 20, backgroundColor: "rgba(15,23,42,0.28)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}>
-              <Box sx={{
-                backgroundColor: "#fff", borderRadius: "12px", px: 3, py: 2,
-                display: "flex", flexDirection: "column", alignItems: "center", gap: 1,
-                boxShadow: "0 10px 24px rgba(2,6,23,0.2)",
-              }}>
+            <Box
+              sx={{
+                position: "absolute", inset: 0, zIndex: 20, backgroundColor: "rgba(15,23,42,0.28)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}
+            >
+              <Box
+                sx={{
+                  backgroundColor: "#fff", borderRadius: "12px", px: 3, py: 2,
+                  display: "flex", flexDirection: "column", alignItems: "center", gap: 1,
+                  boxShadow: "0 10px 24px rgba(2,6,23,0.2)",
+                }}
+              >
                 <LoadingSpinner />
                 <Typography sx={{ fontSize: 13, color: "#475467", fontWeight: 600 }}>
                   {t("pages.addUserForm.loading")}
@@ -504,7 +701,6 @@ export default function AddUserForm({ isOpen, onClose, defaultRoleName = "cs_age
               </Box>
             </Box>
           )}
-
         </Paper>
       </Box>
     </Modal>
