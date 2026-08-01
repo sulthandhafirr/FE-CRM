@@ -23,7 +23,7 @@ export const exportUsers = async ({ companyId }) => {
       id,
       name,
       email,
-      Position,
+      position:Position,
       created_at,
       role:role_id ( id, role )
     `)
