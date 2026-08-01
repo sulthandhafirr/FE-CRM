@@ -1,15 +1,10 @@
 import { useEffect, useState, useRef } from "react";
 import { fetchCompanySettingsFromApi } from "../../modules/gsetup/gsetup.service";
+import { toIana, loadCompanyTimezone } from "../../modules/gsetup/companyTimezone";
 
 const STORAGE_KEY = "crm-general-setup-v1";
 
 /* Map display timezone → IANA name for Intl.DateTimeFormat */
-const TZ_MAP = {
-  "WIB (UTC+7)": "Asia/Jakarta",
-  "WITA (UTC+8)": "Asia/Makassar",
-  "WIT (UTC+9)": "Asia/Jayapura",
-};
-
 const DAY_NAMES = {
   en: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
   id: ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"],
@@ -66,25 +61,9 @@ function formatInTimezone(date, timezone, locale = "en") {
   };
 }
 
-function loadTimezone() {
-  if (typeof window === "undefined") return "WIB (UTC+7)";
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return "WIB (UTC+7)";
-    const stored = JSON.parse(raw);
-    return stored?.companySettings?.timezone || "WIB (UTC+7)";
-  } catch {
-    return "WIB (UTC+7)";
-  }
-}
-
-function toIana(displayTz) {
-  return TZ_MAP[displayTz] || "Asia/Jakarta";
-}
-
 export default function RealtimeClock({ timezone: propTz, locale = "id" }) {
   const [now, setNow] = useState(new Date());
-  const [tzDisplay, setTzDisplay] = useState(loadTimezone);
+  const [tzDisplay, setTzDisplay] = useState(loadCompanyTimezone);
   const fetchedRef = useRef(false);
 
   /* ── On mount: fetch fresh timezone from API ── */
@@ -118,14 +97,14 @@ export default function RealtimeClock({ timezone: propTz, locale = "id" }) {
 
   /* ── Listen for save events from Company Settings page ── */
   useEffect(() => {
-    const handler = () => setTzDisplay(loadTimezone());
+    const handler = () => setTzDisplay(loadCompanyTimezone());
     window.addEventListener("company-tz-changed", handler);
     return () => window.removeEventListener("company-tz-changed", handler);
   }, []);
 
   /* ── Re-read on focus (backup) ── */
   useEffect(() => {
-    const onFocus = () => setTzDisplay(loadTimezone());
+    const onFocus = () => setTzDisplay(loadCompanyTimezone());
     window.addEventListener("focus", onFocus);
     return () => window.removeEventListener("focus", onFocus);
   }, []);

@@ -1,3 +1,5 @@
+import { toIana, loadCompanyTimezone } from "../gsetup/companyTimezone";
+
 // ─── Status Color Map (config name → hex) ────────────────────────────────────
 
 const STATUS_COLOR_HEX = {
@@ -144,22 +146,19 @@ export const formatTicketDate = (dateString) => {
   });
 };
 
-export const formatTicketDateTime = (dateString) => {
+export const formatTicketDateTime = (dateString, companyTimezone) => {
   if (!dateString) return "-";
 
   const parsed = new Date(dateString);
   if (Number.isNaN(parsed.getTime())) return "-";
 
-  const datePart = parsed.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  });
+  const ianaZone = toIana(companyTimezone || loadCompanyTimezone());
 
+  const datePart = parsed.toLocaleDateString("en-GB", {
+    day: "2-digit", month: "long", year: "numeric", timeZone: ianaZone,
+  });
   const timePart = parsed.toLocaleTimeString("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
+    hour: "2-digit", minute: "2-digit", hour12: false, timeZone: ianaZone,
   });
 
   return `${datePart}, ${timePart}`;
