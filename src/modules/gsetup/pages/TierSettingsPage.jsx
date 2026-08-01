@@ -126,7 +126,10 @@ function TierSettingsContent({ theme, showToast }) {
     setTierName("");
   };
 
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["company-tiers"] });
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: ["company-tiers"] });
+    queryClient.invalidateQueries({ queryKey: ["tiers"] });
+  };
 
   // mutation "polos", tanpa toast/close sendiri — dikontrol terpusat di handleSubmit
   const createMutation = useMutation({
@@ -287,7 +290,7 @@ function TierSettingsContent({ theme, showToast }) {
             value={tierLevel}
             onChange={(e) => setTierLevel(e.target.value)}
             inputProps={{ min: 1, max: levelInputMax }}
-            helperText={`1 = paling rendah, ${levelInputMax} = paling tinggi`}
+            helperText={`Higher level means higher tier. Max level: ${levelInputMax}.`}
             sx={{ mb: 2.5 }}
           />
 
