@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { MdClose, MdSend } from 'react-icons/md';
-import { FaRobot, FaUser } from 'react-icons/fa';
+import { MdAutoAwesome, MdClose, MdSend } from 'react-icons/md';
+import { FaUser } from 'react-icons/fa';
 import { api } from '../../lib/api/apiClient';
 
 
@@ -9,7 +9,7 @@ export default function ChatBot({ isOpen, onClose, position }) {
     {
       id: 1,
       type: 'bot',
-      text: 'Hello! I\'m your CRM AI Assistant. How can I help you today?',
+      text: 'Hello! I\'m Stella, your CRM AI Assistant. How can I help you today?',
       timestamp: new Date()
     }
   ]);
@@ -136,11 +136,14 @@ export default function ChatBot({ isOpen, onClose, position }) {
             alignItems: 'center',
             justifyContent: 'center'
           }}>
-            <FaRobot size={24} />
+            <MdAutoAwesome size={22} />
           </div>
           <div>
-            <div style={{ fontWeight: '700', fontSize: '16px' }}>AI Assistant</div>
-            <div style={{ fontSize: '12px', opacity: 0.9 }}>Online</div>
+            <div style={{ fontWeight: '700', fontSize: '16px' }}>Stella</div>
+            <div style={{ fontSize: '12px', opacity: 0.9, display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ width: '8px', height: '8px', background: '#4ade80', borderRadius: '50%', display: 'inline-block' }} />
+              AI Assistant · Online
+            </div>
           </div>
         </div>
         <button
@@ -187,7 +190,7 @@ export default function ChatBot({ isOpen, onClose, position }) {
               color: 'white',
               flexShrink: 0
             }}>
-              {message.type === 'bot' ? <FaRobot size={18} /> : <FaUser size={16} />}
+              {message.type === 'bot' ? <MdAutoAwesome size={16} /> : <FaUser size={16} />}
             </div>
 
             {/* Message Bubble */}
@@ -236,7 +239,7 @@ export default function ChatBot({ isOpen, onClose, position }) {
               color: 'white',
               flexShrink: 0
             }}>
-              <FaRobot size={18} />
+              <MdAutoAwesome size={16} />
             </div>
             <div style={{
               background: 'white',
@@ -313,7 +316,7 @@ export default function ChatBot({ isOpen, onClose, position }) {
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder="Type a message..."
+          placeholder="Message Stella..."
           style={{
             flex: 1,
             padding: '12px 16px',
