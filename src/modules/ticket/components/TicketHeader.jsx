@@ -221,22 +221,6 @@ export default function TicketHeader({
             </button>
           </>
         )}
-        <button
-          style={{
-            padding: "5px",
-            background: "white",
-            border: "1px solid #E5E7EB",
-            borderRadius: "10px",
-            cursor: "pointer",
-            color: "#6B7280",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
-          }}
-        >
-          <MdMoreVert size={14} />
-        </button>
       </div>
     </div>
   );
