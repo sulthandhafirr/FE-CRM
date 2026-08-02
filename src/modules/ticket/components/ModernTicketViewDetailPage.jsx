@@ -335,7 +335,7 @@ export default function ModernTicketViewDetailPage() {
 
   const handleDispatchTechnician = async () => {
     // Admin boleh dispatch teknisi walau tiket belum/tidak diassign ke dirinya
-    if (!selectedTechnician || !ticket) return;
+    if (!selectedTechnician || !ticket || resolved) return;
     if (!isAssignedToMe && role !== "admin") return;
     try {
       setDispatchingTech(true);
@@ -429,6 +429,7 @@ export default function ModernTicketViewDetailPage() {
 
   const handleShowDispatchPanel = () => {
     // Toggle: klik lagi untuk menutup panel
+    if (resolved) return;
     if (showDispatchPanel) {
       setShowDispatchPanel(false);
     } else {

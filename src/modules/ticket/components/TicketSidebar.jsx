@@ -263,12 +263,13 @@ export default function TicketSidebar({
               ticket={ticket}
               isAssignedToMe={isAssignedToMe}
               isTechnicianDispatched={isTechnicianDispatched}
+              resolved={resolved}
               onShowDispatchPanel={onShowDispatchPanel}
             />
           )}
 
           {/* Dispatch Panel */}
-          {showDispatchPanel && role !== "admin" && isAssignedToMe && !isTechnicianDispatched && (
+          {showDispatchPanel && role !== "admin" && isAssignedToMe && !isTechnicianDispatched && !resolved && (
             <DispatchPanel
               technicians={technicians}
               technicianSearch={technicianSearch}
@@ -428,7 +429,7 @@ function CustomerHandlerSection({ ticket }) {
   );
 }
 
-function AgentActionsSection({ ticket, isAssignedToMe, isTechnicianDispatched, onShowDispatchPanel }) {
+function AgentActionsSection({ isAssignedToMe, isTechnicianDispatched, resolved, onShowDispatchPanel }) {
   return (
     <>
       <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: "#9CA3AF", marginBottom: "8px" }}>
@@ -437,7 +438,7 @@ function AgentActionsSection({ ticket, isAssignedToMe, isTechnicianDispatched, o
       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
         <button
           onClick={onShowDispatchPanel}
-          disabled={!isAssignedToMe || isTechnicianDispatched}
+          disabled={!isAssignedToMe || isTechnicianDispatched || resolved}
           style={{
             width: "100%",
             textAlign: "left",
@@ -446,11 +447,11 @@ function AgentActionsSection({ ticket, isAssignedToMe, isTechnicianDispatched, o
             border: "1px solid #E5E7EB",
             background: "white",
             boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
-            cursor: isAssignedToMe && !isTechnicianDispatched ? "pointer" : "not-allowed",
+            cursor: isAssignedToMe && !isTechnicianDispatched && !resolved ? "pointer" : "not-allowed",
             transition: "all 0.15s",
           }}
           onMouseEnter={(e) => {
-            if (!isAssignedToMe || isTechnicianDispatched) return;
+            if (!isAssignedToMe || isTechnicianDispatched || resolved) return;
             e.currentTarget.style.borderColor = O[300];
             e.currentTarget.style.background = O[50];
             e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.06)";
@@ -463,12 +464,16 @@ function AgentActionsSection({ ticket, isAssignedToMe, isTechnicianDispatched, o
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
             <p style={{ fontWeight: "600", fontSize: "14px", color: "#111827" }}>
-              {isTechnicianDispatched ? ticket.technician : "Dispatch Technician"}
+              {"Dispatch Technician"}
             </p>
             <MdEngineering size={16} color="#9CA3AF" />
           </div>
           <p style={{ fontSize: "12px", color: "#6B7280" }}>
-            {isTechnicianDispatched ? "Technician assigned" : "Assign a field technician to this ticket"}
+            {resolved
+              ? "Resolved tickets cannot be dispatched"
+              : isTechnicianDispatched
+                ? "Technician assigned"
+                : "Assign a field technician to this ticket"}
           </p>
         </button>
       </div>

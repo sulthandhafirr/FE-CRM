@@ -119,6 +119,7 @@ export default function AgentTicketViewDetailPage() {
   const isAssignedToMe = ticket?.solverId
     ? ticket.solverId === user?.id
     : false;
+  const resolved = isResolvedStatus(ticket?.status);
 
   // ── Handlers ──
   const handleViewAttachment = async (attachmentId) => {
@@ -181,7 +182,7 @@ export default function AgentTicketViewDetailPage() {
   };
 
   const handleDispatchTechnician = async () => {
-    if (!selectedTechnician || !ticket || !isAssignedToMe) return;
+    if (!selectedTechnician || !ticket || !isAssignedToMe || resolved) return;
     try {
       setDispatchingTech(true);
       await updateTicket(ticketId, {
@@ -661,9 +662,9 @@ export default function AgentTicketViewDetailPage() {
                         <div style={{ display: "flex", gap: "12px" }}>
                           <button
                             type="button"
-                            disabled={!isAssignedToMe}
+                            disabled={!isAssignedToMe || resolved}
                             onClick={() => {
-                              if (isAssignedToMe) {
+                              if (isAssignedToMe && !resolved) {
                                 setShowDispatchPanel(true);
                                 setSelectedTechnician(null);
                                 setTechnicianSearch("");
@@ -672,17 +673,23 @@ export default function AgentTicketViewDetailPage() {
                             style={{
                               padding: "10px 25px",
                               borderRadius: "8px",
-                              border: `2px solid ${isAssignedToMe ? "#FF8040" : "#ddd"}`,
+                              border: `2px solid ${isAssignedToMe && !resolved ? "#FF8040" : "#ddd"}`,
                               background: "white",
-                              color: isAssignedToMe ? "#FF8040" : "#bbb",
+                              color:
+                                isAssignedToMe && !resolved
+                                  ? "#FF8040"
+                                  : "#bbb",
                               fontWeight: "600",
-                              cursor: isAssignedToMe
-                                ? "pointer"
-                                : "not-allowed",
+                              cursor:
+                                isAssignedToMe && !resolved
+                                  ? "pointer"
+                                  : "not-allowed",
                               fontSize: "14px",
                             }}
                           >
-                            {t("pages.agentTicketDetail.dispatch")}
+                            {resolved
+                              ? t("pages.agentTicketDetail.resolved")
+                              : t("pages.agentTicketDetail.dispatch")}
                           </button>
                           <button
                             type="submit"
@@ -723,7 +730,7 @@ export default function AgentTicketViewDetailPage() {
                   </div>
 
                   {/* ── Right column ── */}
-                  {showDispatchPanel && isAssignedToMe ? (
+                  {showDispatchPanel && isAssignedToMe && !resolved ? (
                     /* ── Dispatch Panel ── */
                     <div
                       style={{
