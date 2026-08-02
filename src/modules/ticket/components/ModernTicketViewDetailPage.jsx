@@ -65,6 +65,8 @@ export default function ModernTicketViewDetailPage() {
   const [technicianSearch, setTechnicianSearch] = useState("");
   const [selectedTechnician, setSelectedTechnician] = useState(null);
   const [dispatchingTech, setDispatchingTech] = useState(false);
+  const [changingPriority, setChangingPriority] = useState(false);
+  const [changingIntent, setChangingIntent] = useState(false);
   const [stellaSummary, setStellaSummary] = useState(null);
   const [summarizing, setSummarizing] = useState(false);
   const [loadingDots, setLoadingDots] = useState("");
@@ -466,28 +468,34 @@ export default function ModernTicketViewDetailPage() {
   };
 
   const handleChangePriority = async (priority) => {
-    if (!ticket || priority === ticket.priority) return;
+    if (!ticket || priority === ticket.priority || changingPriority) return;
+    setShowPriorityMenu(false);
+    setChangingPriority(true);
     try {
       await changeTicketPriority(ticketId, priority);
       queryClient.invalidateQueries({ queryKey: ["ticket-detail", ticketId] });
       queryClient.invalidateQueries({ queryKey: ["all-tickets"] });
-      setShowPriorityMenu(false);
     } catch (err) {
       console.error(err);
       alert("Failed to change ticket priority.");
+    } finally {
+      setChangingPriority(false);
     }
   };
 
   const handleChangeIntent = async (intent) => {
-    if (!ticket || intent === ticket.intent) return;
+    if (!ticket || intent === ticket.intent || changingIntent) return;
+    setShowIntentMenu(false);
+    setChangingIntent(true);
     try {
       await updateTicket(ticketId, { intent });
       queryClient.invalidateQueries({ queryKey: ["ticket-detail", ticketId] });
       queryClient.invalidateQueries({ queryKey: ["all-tickets"] });
-      setShowIntentMenu(false);
     } catch (err) {
       console.error(err);
       alert("Failed to change issue detected.");
+    } finally {
+      setChangingIntent(false);
     }
   };
 
@@ -542,6 +550,10 @@ export default function ModernTicketViewDetailPage() {
         @keyframes mtd-blink {
           0%, 50% { opacity: 1; }
           51%, 100% { opacity: 0; }
+        }
+        @keyframes mtd-spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
         @media (max-width: 1023px) {
           .mtd-sidebar { display: none !important; }
@@ -698,6 +710,8 @@ export default function ModernTicketViewDetailPage() {
           assigningAgent={assigningAgent}
           showPriorityMenu={showPriorityMenu}
           showIntentMenu={showIntentMenu}
+          changingPriority={changingPriority}
+          changingIntent={changingIntent}
           onShowAgentPanel={handleShowAgentPanel}
           onHideAgentPanel={handleHideAgentPanel}
           onAgentSearch={handleAgentSearch}

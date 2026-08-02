@@ -1,4 +1,4 @@
-import { MdAutoAwesome, MdCheckCircle, MdOutlineFilterNone, MdEngineering, MdHourglassEmpty, MdAttachFile, MdPersonAdd, MdSwapVert, MdPerson } from "react-icons/md";
+import { MdAutoAwesome, MdCheckCircle, MdOutlineFilterNone, MdEngineering, MdHourglassEmpty, MdAttachFile, MdPersonAdd, MdSwapVert, MdPerson, MdSync } from "react-icons/md";
 import { O } from "./ticketTheme";
 import { useState, useEffect } from "react";
 import { Badge, ProgressBar } from "./TicketShared";
@@ -50,6 +50,8 @@ export default function TicketSidebar({
   assigningAgent,
   showPriorityMenu,
   showIntentMenu,
+  changingPriority,
+  changingIntent,
   onShowAgentPanel,
   onHideAgentPanel,
   onAgentSearch,
@@ -235,6 +237,8 @@ export default function TicketSidebar({
               showPriorityMenu={showPriorityMenu}
               showIntentMenu={showIntentMenu}
               showDispatchPanel={showDispatchPanel}
+              changingPriority={changingPriority}
+              changingIntent={changingIntent}
               technicians={technicians}
               technicianSearch={technicianSearch}
               selectedTechnician={selectedTechnician}
@@ -484,6 +488,8 @@ function AdminActionsSection({
   showPriorityMenu,
   showIntentMenu,
   showDispatchPanel,
+  changingPriority,
+  changingIntent,
   technicians,
   technicianSearch,
   selectedTechnician,
@@ -621,36 +627,40 @@ function AdminActionsSection({
         {/* ── Change Priority ── */}
         <div style={{ position: "relative" }}>
           <button
-            onClick={resolved ? null : onTogglePriorityMenu}
-            disabled={resolved}
+            onClick={resolved || changingPriority ? null : onTogglePriorityMenu}
+            disabled={resolved || changingPriority}
             style={{
               width: "100%",
               textAlign: "left",
               padding: "12px",
               borderRadius: "12px",
               border: "1px solid #E5E7EB",
-              background: "white",
+              background: changingPriority ? O[50] : "white",
               boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
-              cursor: resolved ? "not-allowed" : "pointer",
+              cursor: resolved || changingPriority ? "not-allowed" : "pointer",
               transition: "all 0.15s",
             }}
             onMouseEnter={(e) => {
-              if (resolved) return;
+              if (resolved || changingPriority) return;
               e.currentTarget.style.borderColor = O[300];
               e.currentTarget.style.background = O[50];
               e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.06)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.borderColor = "#E5E7EB";
-              e.currentTarget.style.background = "white";
+              e.currentTarget.style.background = changingPriority ? O[50] : "white";
               e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.03)";
             }}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
               <p style={{ fontWeight: "600", fontSize: "14px", color: "#111827" }}>
-                {currentPriority}
+                {changingPriority ? "Changing..." : currentPriority}
               </p>
-              <MdSwapVert size={16} color="#9CA3AF" />
+              {changingPriority ? (
+                <MdSync size={16} color={O[500]} style={{ animation: "mtd-spin 0.9s linear infinite" }} />
+              ) : (
+                <MdSwapVert size={16} color="#9CA3AF" />
+              )}
             </div>
             <p style={{ fontSize: "12px", color: "#6B7280" }}>
               Ticket Priority
@@ -709,36 +719,40 @@ function AdminActionsSection({
         {/* ── Change Issue Detected (Intent) ── */}
         <div style={{ position: "relative" }}>
           <button
-            onClick={resolved ? null : onToggleIntentMenu}
-            disabled={resolved}
+            onClick={resolved || changingIntent ? null : onToggleIntentMenu}
+            disabled={resolved || changingIntent}
             style={{
               width: "100%",
               textAlign: "left",
               padding: "12px",
               borderRadius: "12px",
               border: "1px solid #E5E7EB",
-              background: "white",
+              background: changingIntent ? O[50] : "white",
               boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
-              cursor: resolved ? "not-allowed" : "pointer",
+              cursor: resolved || changingIntent ? "not-allowed" : "pointer",
               transition: "all 0.15s",
             }}
             onMouseEnter={(e) => {
-              if (resolved) return;
+              if (resolved || changingIntent) return;
               e.currentTarget.style.borderColor = O[300];
               e.currentTarget.style.background = O[50];
               e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.06)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.borderColor = "#E5E7EB";
-              e.currentTarget.style.background = "white";
+              e.currentTarget.style.background = changingIntent ? O[50] : "white";
               e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.03)";
             }}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
               <p style={{ fontWeight: "600", fontSize: "14px", color: getIntentColor(ticket.intent) }}>
-                {currentIntent}
+                {changingIntent ? "Changing..." : currentIntent}
               </p>
-              <MdSwapVert size={16} color="#9CA3AF" />
+              {changingIntent ? (
+                <MdSync size={16} color={O[500]} style={{ animation: "mtd-spin 0.9s linear infinite" }} />
+              ) : (
+                <MdSwapVert size={16} color="#9CA3AF" />
+              )}
             </div>
             <p style={{ fontSize: "12px", color: "#6B7280" }}>
               Issue Detected
@@ -916,8 +930,15 @@ function AgentAssignPanel({ csAgents, agentSearch, selectedAgent, assigningAgent
             fontWeight: "600",
             fontSize: "13px",
             cursor: !selectedAgent || assigningAgent ? "not-allowed" : "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "6px",
           }}
         >
+          {assigningAgent && (
+            <MdSync size={13} style={{ animation: "mtd-spin 0.9s linear infinite" }} />
+          )}
           {assigningAgent ? "Assigning..." : "Assign"}
         </button>
       </div>
@@ -1054,8 +1075,15 @@ function DispatchPanel({ technicians, technicianSearch, selectedTechnician, disp
             fontWeight: "600",
             fontSize: "13px",
             cursor: !selectedTechnician || dispatchingTech ? "not-allowed" : "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "6px",
           }}
         >
+          {dispatchingTech && (
+            <MdSync size={13} style={{ animation: "mtd-spin 0.9s linear infinite" }} />
+          )}
           {dispatchingTech ? "Dispatching..." : isReplacing ? "Change" : "Dispatch"}
         </button>
       </div>
