@@ -244,6 +244,8 @@
       "previewDetail": "Detail",
       "previewTicketsFound": "tickets found",
       "clickForDetails": "Click for details",
+      "recentTicketsTitle": "Recent Tickets",
+      "recentTicketsSubtitle": "Your latest support activity",
       "ticketStatusLabels": {
         "solved": "Solved",
         "progress": "Progress",

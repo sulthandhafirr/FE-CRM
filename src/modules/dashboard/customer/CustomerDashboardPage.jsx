@@ -16,6 +16,7 @@ import { useAuth } from "../../../hooks/useAuth";
 import DateRangeFilter from "../components/DateRangeFilter";
 import TicketStatusDonutChart from "../chart/TicketStatusDonutChart";
 import TicketPreviewModal from "../components/TicketPreviewModal";
+import RecentTicketsCard from "../components/RecentTicketsCard";
 import { useNavigate } from "react-router-dom";
 import { StatCard } from "../components/StatCard";
 import { formatDuration } from "../../ticket/ticket.schema";
@@ -167,13 +168,23 @@ export default function CustomerDashboardPage() {
           />
         </div>
 
-        <div style={{ marginBottom: "24px" }}>
-          <TicketStatusDonutChart
-            ticketByStatus={stats?.ticketByStatus}
-            loading={statsLoading}
-            onSliceClick={(status) =>
-              openPreview({ status, ...dateRange }, `Tickets: ${status}`)
-            }
+        <div
+          className="chart-row-responsive"
+          style={{ display: "flex", marginBottom: "24px" }}
+        >
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <TicketStatusDonutChart
+              ticketByStatus={stats?.ticketByStatus}
+              loading={statsLoading}
+              height={420}
+              onSliceClick={(status) =>
+                openPreview({ status, ...dateRange }, `Tickets: ${status}`)
+              }
+            />
+          </div>
+          <RecentTicketsCard
+            filters={{ ...dateRange }}
+            onDetailClick={handleDetailClick}
           />
         </div>
       </div>
