@@ -176,7 +176,7 @@ export default function CustomerDashboardPage() {
             <TicketStatusDonutChart
               ticketByStatus={stats?.ticketByStatus}
               loading={statsLoading}
-              height={420}
+              height={420} // same as the RecentTicketsCard, might change in the future
               onSliceClick={(status) =>
                 openPreview({ status, ...dateRange }, `Tickets: ${status}`)
               }
