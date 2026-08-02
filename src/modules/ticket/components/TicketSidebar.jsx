@@ -429,7 +429,7 @@ function CustomerHandlerSection({ ticket }) {
   );
 }
 
-function AgentActionsSection({ isAssignedToMe, isTechnicianDispatched, resolved, onShowDispatchPanel }) {
+function AgentActionsSection({ ticket, isAssignedToMe, isTechnicianDispatched, resolved, onShowDispatchPanel }) {
   return (
     <>
       <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: "#9CA3AF", marginBottom: "8px" }}>
@@ -464,7 +464,7 @@ function AgentActionsSection({ isAssignedToMe, isTechnicianDispatched, resolved,
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
             <p style={{ fontWeight: "600", fontSize: "14px", color: "#111827" }}>
-              {"Dispatch Technician"}
+              {isTechnicianDispatched ? `Technician: ${ticket.technician}` : "Dispatch Technician"}
             </p>
             <MdEngineering size={16} color="#9CA3AF" />
           </div>
