@@ -77,6 +77,16 @@ export default function TicketSidebar({
         zIndex: 10,
       }}
     >
+      {/* ── Stella Help / AI Summary (all roles) ── */}
+      <StellaHelpPanel
+        stellaSummary={stellaSummary}
+        summarizing={summarizing}
+        loadingDots={loadingDots}
+        typewriterIndex={typewriterIndex}
+        typewriterDone={typewriterDone}
+        onClick={onStellaSummary}
+      />
+      
       {/* ── Stella Analysis (non-customer) ── */}
       {role !== "customer" && (
         <div
@@ -284,18 +294,6 @@ export default function TicketSidebar({
           )}
         </div>
       </div>
-
-      {/* ── Stella Help (customer only) ── */}
-      {role === "customer" && (
-        <StellaHelpPanel
-          stellaSummary={stellaSummary}
-          summarizing={summarizing}
-          loadingDots={loadingDots}
-          typewriterIndex={typewriterIndex}
-          typewriterDone={typewriterDone}
-          onClick={onStellaSummary}
-        />
-      )}
 
       {/* ── Customer Info ── */}
       <CustomerInfoSection
