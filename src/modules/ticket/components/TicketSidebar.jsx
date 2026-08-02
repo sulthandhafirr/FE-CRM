@@ -235,6 +235,10 @@ export default function TicketSidebar({
               showPriorityMenu={showPriorityMenu}
               showIntentMenu={showIntentMenu}
               showDispatchPanel={showDispatchPanel}
+              technicians={technicians}
+              technicianSearch={technicianSearch}
+              selectedTechnician={selectedTechnician}
+              dispatchingTech={dispatchingTech}
               onShowAgentPanel={onShowAgentPanel}
               onHideAgentPanel={onHideAgentPanel}
               onAgentSearch={onAgentSearch}
@@ -245,6 +249,10 @@ export default function TicketSidebar({
               onChangeIntent={onChangeIntent}
               onToggleIntentMenu={onToggleIntentMenu}
               onShowDispatchPanel={onShowDispatchPanel}
+              onHideDispatchPanel={onHideDispatchPanel}
+              onTechnicianSearch={onTechnicianSearch}
+              onSelectTechnician={onSelectTechnician}
+              onDispatchTechnician={onDispatchTechnician}
             />
           ) : (
             <AgentActionsSection
@@ -256,7 +264,7 @@ export default function TicketSidebar({
           )}
 
           {/* Dispatch Panel */}
-          {showDispatchPanel && (role === "admin" || (isAssignedToMe && !isTechnicianDispatched)) && (
+          {showDispatchPanel && role !== "admin" && isAssignedToMe && !isTechnicianDispatched && (
             <DispatchPanel
               technicians={technicians}
               technicianSearch={technicianSearch}
@@ -476,6 +484,10 @@ function AdminActionsSection({
   showPriorityMenu,
   showIntentMenu,
   showDispatchPanel,
+  technicians,
+  technicianSearch,
+  selectedTechnician,
+  dispatchingTech,
   onShowAgentPanel,
   onHideAgentPanel,
   onAgentSearch,
@@ -486,6 +498,10 @@ function AdminActionsSection({
   onChangeIntent,
   onToggleIntentMenu,
   onShowDispatchPanel,
+  onHideDispatchPanel,
+  onTechnicianSearch,
+  onSelectTechnician,
+  onDispatchTechnician,
 }) {
   const currentPriority = ticket.priority || "Normal";
   const currentIntent = getIntentLabel(ticket.intent) || "Unclassified";
@@ -586,6 +602,21 @@ function AdminActionsSection({
             {isTechnicianDispatched ? "Click to change technician" : "Assign a field technician to this ticket"}
           </p>
         </button>
+
+        {/* Dispatch panel */}
+        {showDispatchPanel && (
+          <DispatchPanel
+            technicians={technicians}
+            technicianSearch={technicianSearch}
+            selectedTechnician={selectedTechnician}
+            dispatchingTech={dispatchingTech}
+            currentTechnician={isTechnicianDispatched ? ticket.technician : null}
+            onSearch={onTechnicianSearch}
+            onSelect={onSelectTechnician}
+            onDispatch={onDispatchTechnician}
+            onCancel={onHideDispatchPanel}
+          />
+        )}
 
         {/* ── Change Priority ── */}
         <div style={{ position: "relative" }}>
