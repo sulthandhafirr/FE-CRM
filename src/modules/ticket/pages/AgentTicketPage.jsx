@@ -85,9 +85,11 @@ export default function AgentTicketPage() {
   const { data: tickets = [], isLoading: loading } = useQuery({
     queryKey: ["all-tickets"],
     queryFn: getAllTickets,
-    staleTime: 1000 * 60 * 5,
-    refetchOnWindowFocus: false,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
     refetchOnMount: "always",
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true,
   });
 
   const {

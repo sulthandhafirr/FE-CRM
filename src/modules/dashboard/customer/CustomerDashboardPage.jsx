@@ -36,8 +36,10 @@ export default function CustomerDashboardPage() {
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["dashboard-stats", dateRange.startDate, dateRange.endDate],
     queryFn: () => getDashboardStats(dateRange.startDate, dateRange.endDate),
-    staleTime: 1000 * 60 * 5, // 5 Minutes
-    refetchOnWindowFocus: false,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true,
   });
 
   const handleDateApply = (startDate, endDate) => {

@@ -2,9 +2,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import {
-  MdCheckCircle,
-} from "react-icons/md";
+import { MdCheckCircle } from "react-icons/md";
 import LoadingSpinner from "../../../components/ui/LoadingSpinner";
 import { useAuth } from "../../../hooks/useAuth";
 import { api } from "../../../lib/api/apiClient";
@@ -23,10 +21,7 @@ import {
   assignTicketToAgent,
   changeTicketPriority,
 } from "../ticket.service";
-import {
-  getTicketSummary,
-  getTicketDraft,
-} from "../ticket.ai";
+import { getTicketSummary, getTicketDraft } from "../ticket.ai";
 import { getUsersByRole } from "../../profile/profile.service";
 import {
   isResolvedStatus,
@@ -74,20 +69,28 @@ export default function ModernTicketViewDetailPage() {
   const [typewriterDone, setTypewriterDone] = useState(false);
 
   // ── Queries ──
-  const { data: ticket, isLoading, isError } = useQuery({
+  const {
+    data: ticket,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["ticket-detail", ticketId],
     queryFn: () => getTicketById(ticketId),
     enabled: Boolean(ticketId),
-    staleTime: 1000 * 60 * 5,
-    refetchOnWindowFocus: false,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true,
   });
 
   const { data: comments = [] } = useQuery({
     queryKey: ["ticket-comments", ticketId],
     queryFn: () => getTicketComments(ticketId),
     enabled: Boolean(ticketId),
-    staleTime: 1000 * 60,
-    refetchOnWindowFocus: false,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+    refetchInterval: 3000,
+    refetchIntervalInBackground: true,
   });
 
   const { data: technicians = [] } = useQuery({
@@ -134,7 +137,10 @@ export default function ModernTicketViewDetailPage() {
           .eq("company_id", companyId)
           .in("role_id", agentRoleIds);
         if (!error && agents?.length) return agents;
-        console.warn("Supabase agent query returned empty, falling back to API:", error);
+        console.warn(
+          "Supabase agent query returned empty, falling back to API:",
+          error,
+        );
       }
       // 4. Fallback: ambil semua CS agent via backend API
       try {
@@ -167,7 +173,9 @@ export default function ModernTicketViewDetailPage() {
   const { mutateAsync: submitComment } = useMutation({
     mutationFn: (message) => createTicketComment(ticketId, message),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["ticket-comments", ticketId] }),
+      queryClient.invalidateQueries({
+        queryKey: ["ticket-comments", ticketId],
+      }),
   });
 
   // ── Effects ──
@@ -230,7 +238,9 @@ export default function ModernTicketViewDetailPage() {
         { event: "INSERT", schema: "public", table: "ticket_comment" },
         (payload) => {
           if (payload.new.sender_id === user?.id) return;
-          queryClient.invalidateQueries({ queryKey: ["ticket-comments", ticketId] });
+          queryClient.invalidateQueries({
+            queryKey: ["ticket-comments", ticketId],
+          });
         },
       )
       .subscribe();
@@ -242,24 +252,37 @@ export default function ModernTicketViewDetailPage() {
   const resolved = isResolvedStatus(ticket?.status);
   const attachments = useMemo(() => ticket?.attachments || [], [ticket]);
 
-  const isAssignedToMe = role === "technician"
-    ? norm(ticket?.technician) === norm(user?.name)
-    : ticket?.solverId
-      ? ticket.solverId === user?.id
-      : false;
-  const canReply = isAssignedToMe || role === "technician" || role === "admin" || role === "customer";
+  const isAssignedToMe =
+    role === "technician"
+      ? norm(ticket?.technician) === norm(user?.name)
+      : ticket?.solverId
+        ? ticket.solverId === user?.id
+        : false;
+  const canReply =
+    isAssignedToMe ||
+    role === "technician" ||
+    role === "admin" ||
+    role === "customer";
   // Guard AI assist hanya untuk cs_agent (agent): wajib tiket sudah diambilnya.
   // Technician & admin tidak terpengaruh.
   const canGenerateDraft = role !== "cs_agent" || isAssignedToMe;
-  const isAssignedToOther = role === "technician"
-    ? Boolean(ticket?.technician) && norm(ticket.technician) !== norm(user?.name)
-    : !isAssignedToMe && Boolean(ticket?.solver);
+  const isAssignedToOther =
+    role === "technician"
+      ? Boolean(ticket?.technician) &&
+        norm(ticket.technician) !== norm(user?.name)
+      : !isAssignedToMe && Boolean(ticket?.solver);
   const isTechnicianDispatched = Boolean(ticket?.technician);
 
   const getTierStyle = (tierName, tierColor) => {
     if (!tierName) return null;
     const color = tierColor || "#6b7280";
-    return { label: tierName, color, bg: `${color}15`, border: color, dot: color };
+    return {
+      label: tierName,
+      color,
+      bg: `${color}15`,
+      border: color,
+      dot: color,
+    };
   };
 
   // ── Handlers ──
@@ -316,7 +339,10 @@ export default function ModernTicketViewDetailPage() {
     if (!isAssignedToMe && role !== "admin") return;
     try {
       setDispatchingTech(true);
-      await updateTicket(ticketId, { technicianId: selectedTechnician.id, status: "Progress" });
+      await updateTicket(ticketId, {
+        technicianId: selectedTechnician.id,
+        status: "Progress",
+      });
       queryClient.invalidateQueries({ queryKey: ["ticket-detail", ticketId] });
       queryClient.invalidateQueries({ queryKey: ["all-tickets"] });
       setShowDispatchPanel(false);
@@ -344,11 +370,15 @@ export default function ModernTicketViewDetailPage() {
       }
       if (selectedFile) {
         await uploadTicketAttachment(ticketId, selectedFile, newCommentId);
-        queryClient.invalidateQueries({ queryKey: ["ticket-detail", ticketId] });
+        queryClient.invalidateQueries({
+          queryKey: ["ticket-detail", ticketId],
+        });
       }
       if (ticket?.status === "Waiting" && role !== "customer") {
         await updateTicket(ticketId, { status: "Progress" });
-        queryClient.invalidateQueries({ queryKey: ["ticket-detail", ticketId] });
+        queryClient.invalidateQueries({
+          queryKey: ["ticket-detail", ticketId],
+        });
         queryClient.invalidateQueries({ queryKey: ["all-tickets"] });
       }
       setReplyText("");
@@ -389,7 +419,9 @@ export default function ModernTicketViewDetailPage() {
       }
     } catch (error) {
       console.error("Error generating draft:", error);
-      setReplyText("Error connecting to AI. Please try again or write the draft manually.");
+      setReplyText(
+        "Error connecting to AI. Please try again or write the draft manually.",
+      );
     } finally {
       setIsGenerating(false);
     }
@@ -461,7 +493,11 @@ export default function ModernTicketViewDetailPage() {
       setAgentSearch("");
     } catch (err) {
       console.error("Assign error:", err);
-      alert(err?.response?.data?.message || err?.message || "Failed to assign ticket to agent.");
+      alert(
+        err?.response?.data?.message ||
+          err?.message ||
+          "Failed to assign ticket to agent.",
+      );
     } finally {
       setAssigningAgent(false);
     }
@@ -502,7 +538,14 @@ export default function ModernTicketViewDetailPage() {
   // ── Render: Loading / Error ──
   if (isLoading) {
     return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+        }}
+      >
         <LoadingSpinner />
       </div>
     );
@@ -534,7 +577,8 @@ export default function ModernTicketViewDetailPage() {
         flexDirection: "column",
         background: "#F9FAFB",
         overflow: "hidden",
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        fontFamily:
+          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
     >
       <style>{`
@@ -604,7 +648,12 @@ export default function ModernTicketViewDetailPage() {
             }}
           >
             {/* ── Ticket created ── */}
-            <TicketCreatedMessage ticket={ticket} role={role} formatTicketDateTime={formatTicketDateTime} t={t} />
+            <TicketCreatedMessage
+              ticket={ticket}
+              role={role}
+              formatTicketDateTime={formatTicketDateTime}
+              t={t}
+            />
 
             {/* ── Comments ── */}
             {comments.map((comment) => (
@@ -641,10 +690,7 @@ export default function ModernTicketViewDetailPage() {
                   <MdCheckCircle size={16} />
                   Ticket Resolved
                   {ticket.resolvedAt && (
-                    <>
-                      {" "}
-                      &bull; {formatTicketDateTime(ticket.resolvedAt)}
-                    </>
+                    <> &bull; {formatTicketDateTime(ticket.resolvedAt)}</>
                   )}
                 </div>
               </div>
@@ -730,7 +776,12 @@ export default function ModernTicketViewDetailPage() {
 // ── Ticket created message (initial description bubble) ──
 function TicketCreatedMessage({ ticket, role, formatTicketDateTime, t }) {
   return (
-    <div style={{ display: "flex", justifyContent: role === "customer" ? "flex-end" : "flex-start" }}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: role === "customer" ? "flex-end" : "flex-start",
+      }}
+    >
       {role !== "customer" && (
         <div
           style={{
@@ -749,7 +800,12 @@ function TicketCreatedMessage({ ticket, role, formatTicketDateTime, t }) {
             marginTop: "4px",
           }}
         >
-          {(ticket.customer || "?").split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)}
+          {(ticket.customer || "?")
+            .split(" ")
+            .map((n) => n[0])
+            .join("")
+            .toUpperCase()
+            .slice(0, 2)}
         </div>
       )}
       <div
@@ -764,8 +820,17 @@ function TicketCreatedMessage({ ticket, role, formatTicketDateTime, t }) {
           border: "1px solid #FECACA",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
-          <span style={{ fontWeight: "600", fontSize: "14px", color: "#111827" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            marginBottom: "12px",
+          }}
+        >
+          <span
+            style={{ fontWeight: "600", fontSize: "14px", color: "#111827" }}
+          >
             {ticket.customer || "Customer"}
           </span>
           <span
@@ -787,7 +852,14 @@ function TicketCreatedMessage({ ticket, role, formatTicketDateTime, t }) {
             {formatTicketDateTime(ticket.createdAt)}
           </span>
         </div>
-        <p style={{ fontSize: "14px", color: "#374151", lineHeight: 1.65, whiteSpace: "pre-wrap" }}>
+        <p
+          style={{
+            fontSize: "14px",
+            color: "#374151",
+            lineHeight: 1.65,
+            whiteSpace: "pre-wrap",
+          }}
+        >
           {ticket.description || t("pages.ticketDetail.noDescription")}
         </p>
       </div>

@@ -38,15 +38,19 @@ export default function AgentDashboardPage() {
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["dashboard-stats", dateRange.startDate, dateRange.endDate],
     queryFn: () => getDashboardStats(dateRange.startDate, dateRange.endDate),
-    staleTime: 1000 * 60 * 5,
-    refetchOnWindowFocus: false,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true,
   });
 
   const { data: trend, isLoading: trendLoading } = useQuery({
     queryKey: ["ticket-trend", dateRange.startDate, dateRange.endDate],
     queryFn: () => getTicketTrend(dateRange.startDate, dateRange.endDate),
-    staleTime: 1000 * 60 * 5,
-    refetchOnWindowFocus: false,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true,
   });
 
   const handleDateApply = (startDate, endDate) => {

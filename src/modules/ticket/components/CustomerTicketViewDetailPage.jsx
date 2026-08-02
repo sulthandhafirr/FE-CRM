@@ -19,10 +19,7 @@ import {
   createTicketComment,
   uploadTicketAttachment,
 } from "../ticket.service";
-import {
-  getStatusColor,
-  formatTicketDateTime,
-} from "../ticket.schema";
+import { getStatusColor, formatTicketDateTime } from "../ticket.schema";
 
 export default function CustomerTicketViewDetailPage() {
   const { t } = useTranslation();
@@ -43,8 +40,10 @@ export default function CustomerTicketViewDetailPage() {
     queryKey: ["ticket-detail", ticketId],
     queryFn: () => getTicketById(ticketId),
     enabled: Boolean(ticketId),
-    staleTime: 1000 * 60 * 5,
-    refetchOnWindowFocus: false,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true,
   });
 
   const attachments = useMemo(() => ticket?.attachments || [], [ticket]);
@@ -57,8 +56,10 @@ export default function CustomerTicketViewDetailPage() {
     queryKey: ["ticket-comments", ticketId],
     queryFn: () => getTicketComments(ticketId),
     enabled: Boolean(ticketId),
-    staleTime: 1000 * 60,
-    refetchOnWindowFocus: false,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+    refetchInterval: 3000,
+    refetchIntervalInBackground: true,
   });
 
   const { mutateAsync: submitComment, isPending: isSubmittingComment } =
@@ -432,7 +433,10 @@ export default function CustomerTicketViewDetailPage() {
                               display: "inline-flex",
                               alignItems: "center",
                               gap: "6px",
-                              cursor: ticket.status === "Solved" ? "not-allowed" : "pointer",
+                              cursor:
+                                ticket.status === "Solved"
+                                  ? "not-allowed"
+                                  : "pointer",
                               color: "#FF8040",
                               fontWeight: "600",
                               fontSize: "13px",
@@ -444,30 +448,48 @@ export default function CustomerTicketViewDetailPage() {
                               type="file"
                               style={{ display: "none" }}
                               disabled={ticket.status === "Solved"}
-                              onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                              onChange={(e) =>
+                                setSelectedFile(e.target.files?.[0] || null)
+                              }
                             />
                           </label>
                           {selectedFile && (
-                            <div style={{
-                              marginTop: "6px",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "8px",
-                              background: "#fff7f2",
-                              border: "1px solid #fde4d4",
-                              borderRadius: "8px",
-                              padding: "6px 10px",
-                              fontSize: "13px",
-                              color: "#374151",
-                            }}>
+                            <div
+                              style={{
+                                marginTop: "6px",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "8px",
+                                background: "#fff7f2",
+                                border: "1px solid #fde4d4",
+                                borderRadius: "8px",
+                                padding: "6px 10px",
+                                fontSize: "13px",
+                                color: "#374151",
+                              }}
+                            >
                               <MdAttachFile size={14} color="#FF8040" />
-                              <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                              <span
+                                style={{
+                                  flex: 1,
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  whiteSpace: "nowrap",
+                                }}
+                              >
                                 {selectedFile.name}
                               </span>
                               <button
                                 type="button"
                                 onClick={() => setSelectedFile(null)}
-                                style={{ background: "none", border: "none", cursor: "pointer", color: "#9ca3af", fontSize: "16px", lineHeight: 1 }}
+                                style={{
+                                  background: "none",
+                                  border: "none",
+                                  cursor: "pointer",
+                                  color: "#9ca3af",
+                                  fontSize: "16px",
+                                  lineHeight: 1,
+                                }}
                               >
                                 ×
                               </button>
@@ -702,7 +724,7 @@ export default function CustomerTicketViewDetailPage() {
                               : isTechnicianReply
                                 ? "#28496E"
                                 : "white";
-                              ticket?.handler &&
+                            ticket?.handler &&
                               comment.senderName &&
                               comment.senderName === ticket.handler;
                             return (
@@ -756,7 +778,6 @@ export default function CustomerTicketViewDetailPage() {
                                     background: bubbleBackground,
                                   }}
                                 >
-                            
                                   <div
                                     style={{
                                       display: "flex",
