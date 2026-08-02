@@ -10,6 +10,28 @@ import {
   formatTicketDateTime
 } from "../ticket.schema";
 
+const getTechSkills = (tech) => {
+  const raw = tech.profile_skill ?? tech.profileSkills ?? tech.skills ?? [];
+  return raw
+    .map((item) => {
+      if (item == null) return null;
+
+      if (typeof item.skill === "string") {
+        return { id: item.id ?? item.skillId ?? item.skill_id, skill: item.skill };
+      }
+
+      const s = item.skills ?? item.skill;
+      if (s && typeof s === "object") {
+        const id = s.id ?? item.skillId ?? item.skill_id;
+        const skill = s.skill ?? s.skillName;
+        return id != null && skill ? { id, skill } : null;
+      }
+
+      return null;
+    })
+    .filter(Boolean);
+};
+
 const PRIORITY_OPTIONS = ["Low", "Normal", "High", "Critical"];
 
 export default function TicketSidebar({
@@ -951,6 +973,16 @@ function AgentAssignPanel({ csAgents, agentSearch, selectedAgent, assigningAgent
 
 function DispatchPanel({ technicians, technicianSearch, selectedTechnician, dispatchingTech, currentTechnician, onSearch, onSelect, onDispatch, onCancel }) {
   const isReplacing = Boolean(currentTechnician);
+
+  const filteredTechnicians = technicians.filter((tech) => {
+    if (!technicianSearch) return true;
+    const q = technicianSearch.toLowerCase();
+    const nameMatch = tech.name?.toLowerCase().includes(q);
+    const emailMatch = tech.email?.toLowerCase().includes(q);
+    const skillMatch = getTechSkills(tech).some((s) => s.skill.toLowerCase().includes(q));
+    return nameMatch || emailMatch || skillMatch;
+  });
+
   return (
     <div
       style={{
@@ -971,7 +1003,7 @@ function DispatchPanel({ technicians, technicianSearch, selectedTechnician, disp
       )}
       <input
         type="text"
-        placeholder="Search by name or email..."
+        placeholder="Search by name, email, or skill..."
         value={technicianSearch}
         onChange={(e) => onSearch(e.target.value)}
         style={{
@@ -985,23 +1017,17 @@ function DispatchPanel({ technicians, technicianSearch, selectedTechnician, disp
           marginBottom: "6px",
         }}
       />
-      <div
-        style={{
-          border: `1px solid ${O[200]}`,
-          borderRadius: "8px",
-          background: "white",
-          maxHeight: "120px",
-          overflowY: "auto",
-        }}
-      >
-        {technicians
-          .filter(
-            (tech) =>
-              !technicianSearch ||
-              tech.name?.toLowerCase().includes(technicianSearch.toLowerCase()) ||
-              tech.email?.toLowerCase().includes(technicianSearch.toLowerCase()),
-          )
-          .map((tech) => (
+      {!selectedTechnician && (
+        <div
+          style={{
+            border: `1px solid ${O[200]}`,
+            borderRadius: "8px",
+            background: "white",
+            maxHeight: "220px",
+            overflowY: "auto",
+          }}
+        >
+          {filteredTechnicians.map((tech) => (
             <div
               key={tech.id}
               onClick={() => onSelect(tech)}
@@ -1015,19 +1041,18 @@ function DispatchPanel({ technicians, technicianSearch, selectedTechnician, disp
               onMouseEnter={(e) => (e.currentTarget.style.background = O[50])}
               onMouseLeave={(e) => (e.currentTarget.style.background = "white")}
             >
-              <span style={{ fontWeight: "600" }}>{tech.name}</span>
-              <span style={{ color: "#999", marginLeft: "6px", fontSize: "11px" }}>{tech.email}</span>
+              <div>
+                <span style={{ fontWeight: "600" }}>{tech.name}</span>
+                <span style={{ color: "#999", marginLeft: "6px", fontSize: "11px" }}>{tech.email}</span>
+              </div>
+              <SkillBadgeList skills={getTechSkills(tech)} />
             </div>
           ))}
-        {technicians.filter(
-          (tech) =>
-            !technicianSearch ||
-            tech.name?.toLowerCase().includes(technicianSearch.toLowerCase()) ||
-            tech.email?.toLowerCase().includes(technicianSearch.toLowerCase()),
-        ).length === 0 && (
-          <div style={{ padding: "8px 10px", color: "#9CA3AF", fontSize: "12px" }}>No technicians found</div>
-        )}
-      </div>
+          {filteredTechnicians.length === 0 && (
+            <div style={{ padding: "8px 10px", color: "#9CA3AF", fontSize: "12px" }}>No technicians found</div>
+          )}
+        </div>
+      )}
       {selectedTechnician && (
         <div
           style={{
@@ -1046,6 +1071,7 @@ function DispatchPanel({ technicians, technicianSearch, selectedTechnician, disp
           {selectedTechnician.email && (
             <span style={{ color: "#6B7280" }}>{selectedTechnician.email}</span>
           )}
+          <SkillBadgeList skills={getTechSkills(selectedTechnician)} />
         </div>
       )}
       <div style={{ display: "flex", gap: "6px", marginTop: "8px" }}>
@@ -1090,6 +1116,101 @@ function DispatchPanel({ technicians, technicianSearch, selectedTechnician, disp
           {dispatchingTech ? "Dispatching..." : isReplacing ? "Change" : "Dispatch"}
         </button>
       </div>
+    </div>
+  );
+}
+
+const MAX_VISIBLE_SKILLS = 3;
+
+function SkillBadgeList({ skills }) {
+  const [showTooltip, setShowTooltip] = useState(false);
+
+  if (!skills.length) return null;
+
+  const visible = skills.slice(0, MAX_VISIBLE_SKILLS);
+  const overflow = skills.slice(MAX_VISIBLE_SKILLS);
+
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: "4px", flexWrap: "wrap", marginTop: "4px" }}>
+      {visible.map((s) => (
+        <span
+          key={s.id}
+          style={{
+            fontSize: "10px",
+            fontWeight: 600,
+            color: O[600],
+            background: O[50],
+            border: `1px solid ${O[200]}`,
+            borderRadius: "999px",
+            padding: "1px 7px",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {s.skill}
+        </span>
+      ))}
+      {overflow.length > 0 && (
+        <span
+          style={{ position: "relative", display: "inline-block" }}
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+        >
+          <span
+            style={{
+              fontSize: "10px",
+              fontWeight: 700,
+              color: "#6B7280",
+              background: "#F3F4F6",
+              border: "1px solid #E5E7EB",
+              borderRadius: "999px",
+              padding: "1px 7px",
+              cursor: "default",
+              whiteSpace: "nowrap",
+            }}
+          >
+            +{overflow.length}
+          </span>
+          {showTooltip && (
+            <div
+              style={{
+                position: "absolute",
+                bottom: "calc(100% + 6px)",
+                left: "50%",
+                transform: "translateX(-50%)",
+                background: "#111827",
+                color: "white",
+                fontSize: "11px",
+                fontWeight: 500,
+                padding: "6px 10px",
+                borderRadius: "8px",
+                whiteSpace: "nowrap",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
+                zIndex: 2000,
+                display: "flex",
+                flexDirection: "column",
+                gap: "2px",
+              }}
+            >
+              {overflow.map((s) => (
+                <span key={s.id}>{s.skill}</span>
+              ))}
+              <div
+                style={{
+                  position: "absolute",
+                  top: "100%",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  width: 0,
+                  height: 0,
+                  borderLeft: "5px solid transparent",
+                  borderRight: "5px solid transparent",
+                  borderTop: "5px solid #111827",
+                }}
+              />
+            </div>
+          )}
+        </span>
+      )}
     </div>
   );
 }
