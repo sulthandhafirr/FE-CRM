@@ -1,31 +1,36 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  MdCheckCircle,
-  MdConfirmationNumber,
-  MdHourglassBottom,
-  MdHourglassDisabled,
   MdHourglassEmpty,
   MdListAlt,
-  MdPending,
   MdPeople,
   MdSupportAgent,
   MdTaskAlt,
+  MdOutlineWatchLater,
+  MdAvTimer,
 } from "react-icons/md";
 import { useTranslation } from "react-i18next";
 import ChatFab from "../../../components/ui/ChatFab";
 import { getDashboardStats } from "../dashboard.service";
 import { useAuth } from "../../../hooks/useAuth";
 import DateRangeFilter from "../components/DateRangeFilter";
+import TicketStatusDonutChart from "../chart/TicketStatusDonutChart";
+import TicketPreviewModal from "../components/TicketPreviewModal";
+import { useNavigate } from "react-router-dom";
 import { StatCard } from "../components/StatCard";
+import { formatDuration } from "../../ticket/ticket.schema";
+import { ROUTE } from "../../../app/routes";
 
 export default function CustomerDashboardPage() {
   const { t } = useTranslation();
   const { name } = useAuth();
+  const navigate = useNavigate();
   const [dateRange, setDateRange] = useState({
     startDate: null,
     endDate: null,
   });
+  const [previewFilters, setPreviewFilters] = useState(null);
+  const [previewTitle, setPreviewTitle] = useState("");
 
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["dashboard-stats", dateRange.startDate, dateRange.endDate],
@@ -36,6 +41,15 @@ export default function CustomerDashboardPage() {
 
   const handleDateApply = (startDate, endDate) => {
     setDateRange({ startDate, endDate });
+  };
+
+  const openPreview = (filters, title) => {
+    setPreviewFilters(filters);
+    setPreviewTitle(title);
+  };
+
+  const handleDetailClick = (ticket) => {
+    navigate(ROUTE.customerTicketDetail.replace(":ticketId", ticket.id));
   };
 
   return (
@@ -113,7 +127,7 @@ export default function CustomerDashboardPage() {
             icon={MdSupportAgent}
             loading={statsLoading}
           />
-          <StatCard
+          {/* <StatCard
             title={t("pages.dashboard.solvedTicket")}
             value={stats?.solvedTicket}
             icon={MdTaskAlt}
@@ -124,89 +138,56 @@ export default function CustomerDashboardPage() {
             value={stats?.activeTicket}
             icon={MdHourglassEmpty}
             loading={statsLoading}
-          />
+          /> */}
           <StatCard
             title={t("pages.dashboard.totalTicket")}
             value={stats?.totalMyTicket}
             icon={MdListAlt}
             loading={statsLoading}
           />
+          <StatCard
+            title={t("pages.dashboard.myAvgResponseTime")}
+            value={
+              stats?.myAvgResponseTime != null
+                ? formatDuration(Math.floor(stats.myAvgResponseTime))
+                : "-"
+            }
+            icon={MdOutlineWatchLater}
+            loading={statsLoading}
+          />
+          <StatCard
+            title={t("pages.dashboard.myAvgResolutionTime")}
+            value={
+              stats?.myAvgResolutionTime != null
+                ? formatDuration(Math.floor(stats.myAvgResolutionTime))
+                : "-"
+            }
+            icon={MdAvTimer}
+            loading={statsLoading}
+          />
         </div>
 
-        {/* Charts Row */}
-        {/* <div style={{ display: "flex" }} className="chart-row-responsive">
-          <div
-            className="chart-card-mobile"
-            style={{
-              flex: 2,
-              background: "white",
-              padding: "25px",
-              border: "2px solid #FF8040",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-            }}
-          >
-            <div
-              style={{
-                fontSize: "18px",
-                fontWeight: "600",
-                color: "#333",
-                marginBottom: "20px",
-              }}
-            >
-              {t("pages.dashboard.ticketSolvedByAi")}
-            </div>
-            <div
-              style={{
-                height: "300px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#999",
-                fontSize: "14px",
-              }}
-            >
-              {t("pages.dashboard.lineChartPlaceholder")}
-            </div>
-          </div>
-
-          <div
-            className="chart-card-mobile"
-            style={{
-              flex: 1,
-              background: "white",
-              padding: "25px",
-              border: "2px solid #FF8040",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-            }}
-          >
-            <div
-              style={{
-                fontSize: "18px",
-                fontWeight: "600",
-                color: "#333",
-                marginBottom: "20px",
-              }}
-            >
-              {t("pages.dashboard.ticketPriority")}
-            </div>
-            <div
-              style={{
-                height: "300px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#999",
-                fontSize: "14px",
-              }}
-            >
-              {t("pages.dashboard.barChartPlaceholder")}
-            </div>
-          </div>
-        </div> */}
+        <div style={{ marginBottom: "24px" }}>
+          <TicketStatusDonutChart
+            ticketByStatus={stats?.ticketByStatus}
+            loading={statsLoading}
+            onSliceClick={(status) =>
+              openPreview({ status, ...dateRange }, `Tickets: ${status}`)
+            }
+          />
+        </div>
       </div>
 
       {/* Floating Chat Button */}
       <ChatFab />
+      <TicketPreviewModal
+        open={!!previewFilters}
+        onClose={() => setPreviewFilters(null)}
+        title={previewTitle}
+        filters={previewFilters}
+        onDetailClick={handleDetailClick}
+        hideColumns={["priority", "intent"]}
+      />
     </div>
   );
 }

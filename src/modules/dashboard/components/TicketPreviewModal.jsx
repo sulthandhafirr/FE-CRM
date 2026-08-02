@@ -40,8 +40,14 @@ const Badge = ({ label, palette }) => (
 );
 
 // filters: { status?, priority?, intentKey?, startDate?, endDate? }
-// onDetailClick(ticket): role-aware navigation, owned by the parent page
-export default function TicketPreviewModal({ open, onClose, title, filters, onDetailClick }) {
+export default function TicketPreviewModal({
+  open,
+  onClose,
+  title,
+  filters,
+  onDetailClick,
+  hideColumns = [],
+}) {
   const { t } = useTranslation();
 
   const { data: tickets, isLoading } = useQuery({
@@ -50,6 +56,25 @@ export default function TicketPreviewModal({ open, onClose, title, filters, onDe
     enabled: open && !!filters,
     staleTime: 1000 * 60 * 2,
   });
+
+  const showPriority = !hideColumns.includes("priority");
+  const showIntent = !hideColumns.includes("intent");
+
+  const columns = [
+    { key: "id", label: t("pages.dashboard.previewId"), width: 12 },
+    { key: "subject", label: t("pages.dashboard.previewSubject"), width: 30 },
+    { key: "status", label: t("pages.dashboard.previewStatus"), width: 15 },
+    ...(showPriority ? [{ key: "priority", label: t("pages.dashboard.previewPriority"), width: 14 }] : []),
+    ...(showIntent ? [{ key: "intent", label: t("pages.dashboard.previewIntent"), width: 17 }] : []),
+    { key: "createdAt", label: t("pages.dashboard.previewCreatedAt"), width: 14 },
+    { key: "action", label: "", width: 10 },
+  ];
+
+  const totalWidth = columns.reduce((sum, c) => sum + c.width, 0);
+  const normalizedColumns = columns.map((c) => ({
+    ...c,
+    width: (c.width / totalWidth) * 100,
+  }));
 
   return (
     <Dialog
@@ -127,30 +152,18 @@ export default function TicketPreviewModal({ open, onClose, title, filters, onDe
           <div style={{ maxHeight: "60vh", overflowY: "auto", overflowX: "hidden", paddingRight: "10px" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", tableLayout: "fixed" }}>
               <colgroup>
-                <col style={{ width: "12%" }} />
-                <col style={{ width: "26%" }} />
-                <col style={{ width: "13%" }} />
-                <col style={{ width: "13%" }} />
-                <col style={{ width: "16%" }} />
-                <col style={{ width: "12%" }} />
-                <col style={{ width: "8%" }} />
+                {normalizedColumns.map((col) => (
+                  <col key={col.key} style={{ width: `${col.width}%` }} />
+                ))}
               </colgroup>
               <thead>
                 <tr>
-                  {[
-                    t("pages.dashboard.previewId"),
-                    t("pages.dashboard.previewSubject"),
-                    t("pages.dashboard.previewStatus"),
-                    t("pages.dashboard.previewPriority"),
-                    t("pages.dashboard.previewIntent"),
-                    t("pages.dashboard.previewCreatedAt"),
-                    "",
-                  ].map((head, i) => (
+                  {normalizedColumns.map((col) => (
                     <th
-                      key={i}
+                      key={col.key}
                       style={{
-                        textAlign: i === 6 ? "right" : "left",
-                        padding: i === 6 ? "10px 24px 10px 14px" : "10px 14px",
+                        textAlign: col.key === "action" ? "right" : "left",
+                        padding: col.key === "action" ? "10px 24px 10px 14px" : "10px 14px",
                         fontSize: "11px",
                         fontWeight: "700",
                         color: "#999",
@@ -162,7 +175,7 @@ export default function TicketPreviewModal({ open, onClose, title, filters, onDe
                         background: "#fafafa",
                       }}
                     >
-                      {head}
+                      {col.label}
                     </th>
                   ))}
                 </tr>
@@ -187,7 +200,6 @@ export default function TicketPreviewModal({ open, onClose, title, filters, onDe
                         fontSize: "13px",
                         color: "#333",
                         fontWeight: "500",
-                        maxWidth: "220px",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
@@ -198,12 +210,16 @@ export default function TicketPreviewModal({ open, onClose, title, filters, onDe
                     <td style={{ padding: "12px 14px" }}>
                       <Badge label={ticket.status ?? "-"} palette={STATUS_BADGE[ticket.status]} />
                     </td>
-                    <td style={{ padding: "12px 14px" }}>
-                      <Badge label={ticket.priority ?? "-"} palette={PRIORITY_BADGE[ticket.priority]} />
-                    </td>
-                    <td style={{ padding: "12px 14px", fontSize: "13px", color: "#666" }}>
-                      {ticket.intent === "Unclassified" ? "Unclassified" : getIntentLabel(ticket.intent)}
-                    </td>
+                    {showPriority && (
+                      <td style={{ padding: "12px 14px" }}>
+                        <Badge label={ticket.priority ?? "-"} palette={PRIORITY_BADGE[ticket.priority]} />
+                      </td>
+                    )}
+                    {showIntent && (
+                      <td style={{ padding: "12px 14px", fontSize: "13px", color: "#666" }}>
+                        {ticket.intent === "Unclassified" ? "Unclassified" : getIntentLabel(ticket.intent)}
+                      </td>
+                    )}
                     <td style={{ padding: "12px 14px", fontSize: "13px", color: "#666", whiteSpace: "nowrap" }}>
                       {formatTicketDate(ticket.createdAt)}
                     </td>
