@@ -122,7 +122,7 @@ export default function AgentLeaderboard({ startDate, endDate }) {
 
     return [...agentRanks]
       .sort((a, b) => Number(b?.avgScore ?? 0) - Number(a?.avgScore ?? 0))
-      .slice(0, 3);
+      // .slice(0, 5);
   }, [agentRanks]);
 
   return (
