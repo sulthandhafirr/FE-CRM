@@ -360,7 +360,6 @@ export default function RoleManagementPage() {
   return (
     <GeneralSetupSectionPage
       title={t("pages.gsetup.roleManagement.title")}
-      subtitle={t("pages.gsetup.roleManagement.subtitle")}
       ContentComponent={RoleManagementContent}
     />
   );

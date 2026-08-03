@@ -258,12 +258,12 @@
         "ticketStatus": {
           "badge": "Alur",
           "title": "Status Tiket",
-          "description": "Ubah status, warna, perilaku buka ulang, dan kebijakan tutup otomatis untuk alur tiket."
+          "description": "Ubah status, warna, dan perilaku buka ulang."
         },
         "slaRules": {
           "badge": "SLA",
           "title": "Aturan SLA",
-          "description": "Tetapkan target respons pertama dan resolusi per prioritas serta notifikasi SLA."
+          "description": "Tetapkan target resolusi per prioritas serta notifikasi SLA."
         },
         "tierSettings": {
           "badge": "Loyalitas",
@@ -345,7 +345,7 @@
       },
       "slaRules": {
         "title": "Aturan SLA",
-        "subtitle": "Tetapkan target respons pertama dan resolusi per prioritas serta aktifkan pemantauan proaktif.",
+        "subtitle": "Tetapkan target resolusi per prioritas serta aktifkan pemantauan proaktif.",
         "notifyChip": "Beri tahu {{minutes}} menit sebelum pelanggaran",
         "priority": "Prioritas",
         "resolutionHours": "Waktu Resolusi (jam)",
@@ -358,8 +358,7 @@
       },
       "ticketStatus": {
         "title": "Status Tiket",
-        "subtitle": "Ubah status, warna, perilaku buka ulang, dan kebijakan tutup otomatis untuk alur tiket.",
-        "subtitlePage": "Sesuaikan status alur kerja, warna, perilaku buka ulang, dan waktu tutup otomatis.",
+        "subtitle": "Ubah status, warna, dan perilaku buka ulang.",
         "addStatus": "Tambah Status",
         "editStatus": "Ubah Status",
         "colStatusName": "Nama Status",

@@ -335,7 +335,6 @@ export default function CompanySettingsPage() {
   return (
     <GeneralSetupSectionPage
       title={t("pages.gsetup.companySettings.title")}
-      subtitle={t("pages.gsetup.companySettings.subtitle")}
       ContentComponent={CompanySettingsContent}
     />
   );

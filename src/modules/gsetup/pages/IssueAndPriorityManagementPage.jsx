@@ -531,7 +531,6 @@ export default function IssueAndPriorityManagementPage() {
   return (
     <GeneralSetupSectionPage
       title={t("pages.gsetup.issuePriority.title")}
-      subtitle={t("pages.gsetup.issuePriority.subtitle")}
       ContentComponent={IssueAndPriorityContent}
     />
   );

@@ -33,7 +33,7 @@ export function createGeneralSetupThemeTokens() {
   };
 }
 
-function SettingsPageShell({ title, subtitle, actions, children, theme }) {
+function SettingsPageShell({ title, actions, children, theme }) {
   const { t } = useTranslation();
 
   return (
@@ -55,10 +55,18 @@ function SettingsPageShell({ title, subtitle, actions, children, theme }) {
           spacing={2}
           sx={{ mb: 3 }}
         >
-          <Box>
+          <Stack direction="row" spacing={1.5} alignItems="center" sx={{ flexWrap: "wrap" }}>
+            <Button
+              onClick={() => window.history.back()}
+              variant="outlined"
+              startIcon={<MdArrowBack size={18} />}
+              sx={{ borderRadius: "12px", fontWeight: 800, minHeight: 42 }}
+            >
+              {t("pages.gsetup.common.back")}
+            </Button>
             <Breadcrumbs
               separator={<MdChevronRight size={16} color={theme.subtext} />}
-              sx={{ mb: 1, color: theme.subtext }}
+              sx={{ color: theme.subtext }}
             >
               <Typography sx={{ fontSize: 13, fontWeight: 700, color: theme.subtext }}>
                 {t("pages.gsetup.breadcrumb.dashboard")}
@@ -70,35 +78,7 @@ function SettingsPageShell({ title, subtitle, actions, children, theme }) {
                 {title}
               </Typography>
             </Breadcrumbs>
-
-            <Stack direction="row" spacing={1.25} alignItems="center" sx={{ flexWrap: "wrap" }}>
-              <Button
-                onClick={() => window.history.back()}
-                variant="outlined"
-                startIcon={<MdArrowBack size={18} />}
-                sx={{ borderRadius: "12px", fontWeight: 800, minHeight: 42 }}
-              >
-                {t("pages.gsetup.common.back")}
-              </Button>
-              <Box>
-                <Typography
-                  sx={{
-                    fontSize: { xs: 26, sm: 32 },
-                    fontWeight: 900,
-                    letterSpacing: -0.6,
-                    lineHeight: 1.1,
-                  }}
-                >
-                  {title}
-                </Typography>
-                <Typography
-                  sx={{ mt: 0.75, color: theme.subtext, lineHeight: 1.7, maxWidth: 860 }}
-                >
-                  {subtitle}
-                </Typography>
-              </Box>
-            </Stack>
-          </Box>
+          </Stack>
 
           {actions ? (
             <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
@@ -219,12 +199,12 @@ export function SectionFooter({
 export { default as ConfirmDialog } from "./components/ConfirmDialog";
 export { default as DialogField } from "./components/DialogField";
 
-export default function GeneralSetupSectionPage({ title, subtitle, actions, ContentComponent }) {
+export default function GeneralSetupSectionPage({ title, actions, ContentComponent }) {
   const theme = useMemo(() => createGeneralSetupThemeTokens(), []);
   const editor = useGeneralSetupEditor();
 
   return (
-    <SettingsPageShell title={title} subtitle={subtitle} actions={actions} theme={theme}>
+    <SettingsPageShell title={title} actions={actions} theme={theme}>
       <ContentComponent {...editor} theme={theme} />
 
       <Snackbar

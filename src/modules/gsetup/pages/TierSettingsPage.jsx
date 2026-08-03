@@ -348,7 +348,6 @@ export default function TierSettingsPage() {
   return (
     <GeneralSetupSectionPage
       title={t("pages.gsetup.tierSettings.title")}
-      subtitle={t("pages.gsetup.tierSettings.subtitle")}
       ContentComponent={TierSettingsContent}
     />
   );

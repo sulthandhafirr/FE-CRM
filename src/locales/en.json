@@ -258,12 +258,12 @@
         "ticketStatus": {
           "badge": "Workflow",
           "title": "Ticket Status",
-          "description": "Edit statuses, colors, reopen behavior, and auto-close policy for ticket flow."
+          "description": "Edit statuses, colors, and reopen behavior."
         },
         "slaRules": {
           "badge": "SLA",
           "title": "SLA Rules",
-          "description": "Set first response and resolution targets per priority and SLA notifications."
+          "description": "Set resolution targets per priority and SLA notifications."
         },
         "tierSettings": {
           "badge": "Loyalty",
@@ -345,7 +345,7 @@
       },
       "slaRules": {
         "title": "SLA Rules",
-        "subtitle": "Set first response and resolution targets per priority and enable proactive monitoring.",
+        "subtitle": "Set resolution targets per priority and enable proactive monitoring.",
         "notifyChip": "Notify {{minutes}} min before breach",
         "priority": "Priority",
         "resolutionHours": "Resolution Time (hours)",
@@ -358,8 +358,7 @@
       },
       "ticketStatus": {
         "title": "Ticket Status",
-        "subtitle": "Edit statuses, colors, reopen behavior, and auto-close policy for ticket flow.",
-        "subtitlePage": "Customize workflow statuses, colors, reopening behavior, and auto close timing.",
+        "subtitle": "Edit statuses, colors, and reopen behavior.",
         "addStatus": "Add Status",
         "editStatus": "Edit Status",
         "colStatusName": "Status Name",

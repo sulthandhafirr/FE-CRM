@@ -363,7 +363,6 @@ export default function TicketStatusPage() {
   return (
     <GeneralSetupSectionPage
       title={t("pages.gsetup.ticketStatus.title")}
-      subtitle={t("pages.gsetup.ticketStatus.subtitlePage")}
       ContentComponent={TicketStatusContent}
     />
   );

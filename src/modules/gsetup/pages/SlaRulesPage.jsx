@@ -247,7 +247,6 @@ export default function SlaRulesPage() {
   return (
     <GeneralSetupSectionPage
       title={t("pages.gsetup.slaRules.title")}
-      subtitle={t("pages.gsetup.slaRules.subtitle")}
       ContentComponent={SlaRulesContent}
     />
   );
