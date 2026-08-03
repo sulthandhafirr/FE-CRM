@@ -1,4 +1,9 @@
-export default function SearchBar({ placeholder = "Search...", value, onChange }) {
+import { useTranslation } from "react-i18next";
+
+export default function SearchBar({ placeholder, value, onChange }) {
+  const { t } = useTranslation();
+  const effectivePlaceholder = placeholder ?? t("common.searchPlaceholder");
+
   return (
     <>
       <style>{`
@@ -19,7 +24,7 @@ export default function SearchBar({ placeholder = "Search...", value, onChange }
       <div className="search-bar-container">
         <input
           type="text"
-          placeholder={placeholder}
+          placeholder={effectivePlaceholder}
           value={value}
           onChange={onChange}
           className="search-bar-input"

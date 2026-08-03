@@ -86,7 +86,7 @@ export default function TechnicianDashboardPage() {
             <div
               style={{ fontSize: "14px", color: "#6B7280", marginTop: "4px" }}
             >
-              Here&apos;s what&apos;s happening with your support operations.
+              {t("pages.dashboard.supportOperationsOverview")}
             </div>
           </div>
           <div>

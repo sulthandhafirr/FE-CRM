@@ -1,5 +1,6 @@
 import { MdAttachFile, MdSend, MdAutoAwesome } from "react-icons/md";
 import { O } from "./ticketTheme";
+import { useTranslation } from "react-i18next";
 
 export default function TicketReplyComposer({
   replyRef,
@@ -15,6 +16,7 @@ export default function TicketReplyComposer({
   onSubmitResponse,
   onGenerateDraft,
 }) {
+  const { t } = useTranslation();
   return (
     <div
       style={{
@@ -47,7 +49,7 @@ export default function TicketReplyComposer({
             <textarea
               ref={replyRef}
               rows={1}
-              placeholder="Type your reply or use AI assist (/ai)..."
+              placeholder={t("pages.ticketReply.type")}
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
               onKeyDown={(e) => {
@@ -133,7 +135,7 @@ export default function TicketReplyComposer({
               }}
             >
               <span style={{ fontSize: "12px", color: "#9CA3AF" }}>
-                Press{" "}
+                {t("pages.ticketReply.press")}{" "}
                 <span
                   style={{
                     fontFamily: "monospace",
@@ -145,7 +147,7 @@ export default function TicketReplyComposer({
                 >
                   Enter
                 </span>{" "}
-                to send
+                {t("pages.ticketReply.toSend")}
               </span>
               <div style={{ display: "flex", gap: "8px" }}>
                 <label
@@ -231,7 +233,7 @@ export default function TicketReplyComposer({
                   }}
                 >
                   <MdSend size={16} />
-                  {submitting ? "Sending..." : "Send Reply"}
+                  {submitting ? t("pages.ticketReply.sending") : t("pages.ticketReply.send")}
                 </button>
               </div>
             </div>

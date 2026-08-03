@@ -777,13 +777,31 @@ export default function AgentTicketPage() {
                 marginBottom: "25px",
               }}
             >
-              <div
-                style={{ fontSize: "28px", fontWeight: "700", color: "#333" }}
-              >
-                {t("pages.agentTicket.duplicateTickets")}{" "}
-                <span style={{ color: "#FF8040" }}>
-                  • {sortedDuplicates.length}
-                </span>
+              <div>
+                <div
+                  style={{
+                    fontSize: "28px",
+                    fontWeight: "700",
+                    color: "#333",
+                    lineHeight: 1.2,
+                  }}
+                >
+                  {t("pages.agentTicket.duplicateTickets")}{" "}
+                  <span style={{ color: "#FF8040" }}>
+                    • {sortedDuplicates.length}
+                  </span>
+                </div>
+
+                <div
+                  style={{
+                    marginTop: "4px",
+                    fontSize: "13px",
+                    color: "#9CA3AF",
+                    fontWeight: "500",
+                  }}
+                >
+                  {t("pages.agentTicket.duplicateTicketsDescription")}
+                </div>
               </div>
               <div style={{ display: "flex", gap: "10px" }}>
                 <button

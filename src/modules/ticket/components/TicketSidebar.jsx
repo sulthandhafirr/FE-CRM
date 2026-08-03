@@ -2,6 +2,7 @@ import { MdAutoAwesome, MdCheckCircle, MdOutlineFilterNone, MdEngineering, MdHou
 import { O } from "./ticketTheme";
 import { useState, useEffect } from "react";
 import { Badge, ProgressBar } from "./TicketShared";
+import { useTranslation } from "react-i18next";
 import {
   getIntentLabel,
   getIntentColor,
@@ -84,6 +85,7 @@ export default function TicketSidebar({
   onChangeIntent,
   onToggleIntentMenu,
 }) {
+  const { t } = useTranslation();
   return (
     <div
       className="mtd-sidebar"
@@ -148,7 +150,7 @@ export default function TicketSidebar({
                 letterSpacing: "-0.01em",
               }}
             >
-              Stella Analysis
+              {t("pages.ticketSidebar.stellaAnalysis")}
             </h3>
           </div>
 
@@ -175,7 +177,7 @@ export default function TicketSidebar({
                   marginBottom: "8px",
                 }}
               >
-                <span>Issue Detected</span>
+                <span>{t("pages.ticketSidebar.issueDetected")}</span>
               </div>
               <div
                 style={{
@@ -219,7 +221,7 @@ export default function TicketSidebar({
                   marginBottom: "8px",
                 }}
               >
-                <span>SLA Prediction</span>
+                <span>{t("pages.ticketSidebar.slaPrediction")}</span>
               </div>
               <div
                 style={{
@@ -335,6 +337,7 @@ export default function TicketSidebar({
 
 function DuplicateCard({ duplicateCounts, ticketId, ticketIdParam, onNavigate }) {
   const dupCount = duplicateCounts[ticketId] ?? 0;
+  const { t } = useTranslation();
   return (
     <div
       onClick={() => dupCount > 0 && onNavigate("/dashboard/csAgent/ticket", { state: { openDuplicatesForId: Number(ticketIdParam) } })}
@@ -371,7 +374,7 @@ function DuplicateCard({ duplicateCounts, ticketId, ticketIdParam, onNavigate })
           marginBottom: "8px",
         }}
       >
-        <span>Duplicate Tickets</span>
+        <span>{t("pages.ticketSidebar.duplicateTickets")}</span>
       </div>
       <div
         style={{
@@ -387,13 +390,13 @@ function DuplicateCard({ duplicateCounts, ticketId, ticketIdParam, onNavigate })
             color: dupCount > 0 ? "#FF8040" : "#9CA3AF",
           }}
         >
-          {dupCount > 0 ? `${dupCount} duplicate${dupCount > 1 ? "s" : ""} found` : "No duplicates"}
+          {dupCount > 0 ? t("pages.ticketSidebar.duplicateFound", { count: dupCount }) : t("pages.ticketSidebar.noDuplicates")}
         </span>
         {dupCount > 0 && <MdOutlineFilterNone size={16} color="#FF8040" />}
       </div>
       {dupCount > 0 && (
         <p style={{ fontSize: "11px", color: "#6B7280", marginTop: "4px" }}>
-          Click to review duplicate tickets
+          {t("pages.ticketSidebar.clickReviewDuplicates")}
         </p>
       )}
     </div>
@@ -401,17 +404,18 @@ function DuplicateCard({ duplicateCounts, ticketId, ticketIdParam, onNavigate })
 }
 
 function HandlerSection({ ticket }) {
+  const { t } = useTranslation();
   return (
     <>
       <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: "#9CA3AF", marginBottom: "8px" }}>
-        Handler
+        {t("pages.ticketSidebar.handler")}
       </p>
       <div style={{ background: O[50], padding: "12px", borderRadius: "12px", border: `1px solid ${O[200]}`, boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
         <p style={{ fontWeight: "600", fontSize: "14px", color: O[700] }}>
           {ticket.solver || "—"}
         </p>
         <p style={{ fontSize: "12px", color: "#6B7280", marginTop: "2px" }}>
-          CS Agent
+          {t("pages.ticketSidebar.csAgent")}
         </p>
       </div>
     </>
@@ -419,19 +423,20 @@ function HandlerSection({ ticket }) {
 }
 
 function CustomerHandlerSection({ ticket }) {
+  const { t } = useTranslation();
   return (
     <>
-      <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: "#9CA3AF", marginBottom: "8px" }}>Handler</p>
+      <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: "#9CA3AF", marginBottom: "8px" }}>{t("pages.ticketSidebar.handler")}</p>
       <div style={{ background: O[50], padding: "12px", borderRadius: "12px", border: `1px solid ${O[200]}`, boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
         {ticket.solver ? (
           <>
             <p style={{ fontWeight: "600", fontSize: "14px", color: O[700] }}>{ticket.solver}</p>
-            <p style={{ fontSize: "12px", color: "#6B7280", marginTop: "2px" }}>CS Agent</p>
+            <p style={{ fontSize: "12px", color: "#6B7280", marginTop: "2px" }}>{t("pages.ticketSidebar.csAgent")}</p>
             {ticket.technician && (
               <>
                 <div style={{ height: "1px", background: O[200], margin: "8px 0" }} />
                 <p style={{ fontWeight: "600", fontSize: "14px", color: O[700] }}>{ticket.technician}</p>
-                <p style={{ fontSize: "12px", color: "#6B7280", marginTop: "2px" }}>Technician</p>
+                <p style={{ fontSize: "12px", color: "#6B7280", marginTop: "2px" }}>{t("pages.ticketSidebar.technician")}</p>
               </>
             )}
           </>
@@ -439,9 +444,9 @@ function CustomerHandlerSection({ ticket }) {
           <>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <MdHourglassEmpty size={16} color={O[500]} />
-              <p style={{ fontWeight: "600", fontSize: "14px", color: O[700] }}>Waiting for CS Agent</p>
+              <p style={{ fontWeight: "600", fontSize: "14px", color: O[700] }}>{t("pages.ticketSidebar.waitingForCsAgent")}</p>
             </div>
-            <p style={{ fontSize: "12px", color: "#6B7280", marginTop: "4px" }}>A customer service agent will be assigned to handle your ticket shortly</p>
+            <p style={{ fontSize: "12px", color: "#6B7280", marginTop: "4px" }}>{t("pages.ticketSidebar.waitingForCsAgentDesc")}</p>
           </>
         )}
       </div>
@@ -450,10 +455,11 @@ function CustomerHandlerSection({ ticket }) {
 }
 
 function AgentActionsSection({ ticket, isAssignedToMe, isTechnicianDispatched, resolved, onShowDispatchPanel }) {
+  const { t } = useTranslation();
   return (
     <>
       <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: "#9CA3AF", marginBottom: "8px" }}>
-        Actions
+        {t("pages.ticketSidebar.actions")}
       </p>
       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
         <button
@@ -484,16 +490,18 @@ function AgentActionsSection({ ticket, isAssignedToMe, isTechnicianDispatched, r
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
             <p style={{ fontWeight: "600", fontSize: "14px", color: "#111827" }}>
-              {isTechnicianDispatched ? `Technician: ${ticket.technician}` : "Dispatch Technician"}
+              {isTechnicianDispatched
+                ? t("pages.ticketSidebar.technicianLabel", { name: ticket.technician })
+                : t("pages.ticketSidebar.dispatchTechnician")}
             </p>
             <MdEngineering size={16} color="#9CA3AF" />
           </div>
           <p style={{ fontSize: "12px", color: "#6B7280" }}>
             {resolved
-              ? "Resolved tickets cannot be dispatched"
+              ? t("pages.ticketSidebar.resolvedCannotDispatch")
               : isTechnicianDispatched
-                ? "Technician assigned"
-                : "Assign a field technician to this ticket"}
+                ? t("pages.ticketSidebar.technicianAssigned")
+                : t("pages.ticketSidebar.assignFieldTechnician")}
           </p>
         </button>
       </div>
@@ -534,6 +542,7 @@ function AdminActionsSection({
   onSelectTechnician,
   onDispatchTechnician,
 }) {
+  const { t } = useTranslation();
   const currentPriority = ticket.priority || "Normal";
   const currentIntent = getIntentLabel(ticket.intent) || "Unclassified";
   const intentOptions = getActiveIntentNames();
@@ -541,7 +550,7 @@ function AdminActionsSection({
   return (
     <>
       <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: "#9CA3AF", marginBottom: "8px" }}>
-        Admin Actions
+        {t("pages.ticketSidebar.adminActions")}
       </p>
       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
         {/* ── Assign to CS Agent ── */}
@@ -573,12 +582,14 @@ function AdminActionsSection({
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
             <p style={{ fontWeight: "600", fontSize: "14px", color: "#111827" }}>
-              {ticket.solver || "Assign to CS Agent"}
+              {ticket.solver || t("pages.ticketSidebar.assignToCsAgent")}
             </p>
             <MdPersonAdd size={16} color={ticket.solver ? O[500] : "#9CA3AF"} />
           </div>
           <p style={{ fontSize: "12px", color: "#6B7280" }}>
-            {ticket.solver ? `Currently: ${ticket.solver}` : "Assign a CS agent to handle this ticket"}
+            {ticket.solver
+              ? t("pages.ticketSidebar.currentlyLabel", { name: ticket.solver })
+              : t("pages.ticketSidebar.assignCsAgentDesc")}
           </p>
         </button>
 
@@ -625,12 +636,16 @@ function AdminActionsSection({
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
             <p style={{ fontWeight: "600", fontSize: "14px", color: "#111827" }}>
-              {isTechnicianDispatched ? `Technician: ${ticket.technician}` : "Dispatch Technician"}
+              {isTechnicianDispatched
+                ? t("pages.ticketSidebar.technicianLabel", { name: ticket.technician })
+                : t("pages.ticketSidebar.dispatchTechnician")}
             </p>
             <MdEngineering size={16} color={isTechnicianDispatched ? O[500] : "#9CA3AF"} />
           </div>
           <p style={{ fontSize: "12px", color: "#6B7280" }}>
-            {isTechnicianDispatched ? "Click to change technician" : "Assign a field technician to this ticket"}
+            {isTechnicianDispatched
+              ? t("pages.ticketSidebar.clickToChangeTechnician")
+              : t("pages.ticketSidebar.assignFieldTechnician")}
           </p>
         </button>
 
@@ -679,7 +694,7 @@ function AdminActionsSection({
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
               <p style={{ fontWeight: "600", fontSize: "14px", color: "#111827" }}>
-                {changingPriority ? "Changing..." : currentPriority}
+                {changingPriority ? t("pages.ticketSidebar.changing") : currentPriority}
               </p>
               {changingPriority ? (
                 <MdSync size={16} color={O[500]} style={{ animation: "mtd-spin 0.9s linear infinite" }} />
@@ -688,7 +703,7 @@ function AdminActionsSection({
               )}
             </div>
             <p style={{ fontSize: "12px", color: "#6B7280" }}>
-              Ticket Priority
+              {t("pages.ticketSidebar.ticketPriority")}
             </p>
           </button>
 
@@ -771,7 +786,7 @@ function AdminActionsSection({
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
               <p style={{ fontWeight: "600", fontSize: "14px", color: getIntentColor(ticket.intent) }}>
-                {changingIntent ? "Changing..." : currentIntent}
+                {changingIntent ? t("pages.ticketSidebar.changing") : currentIntent}
               </p>
               {changingIntent ? (
                 <MdSync size={16} color={O[500]} style={{ animation: "mtd-spin 0.9s linear infinite" }} />
@@ -780,7 +795,7 @@ function AdminActionsSection({
               )}
             </div>
             <p style={{ fontSize: "12px", color: "#6B7280" }}>
-              Issue Detected
+              {t("pages.ticketSidebar.issueDetected")}
             </p>
           </button>
 
@@ -838,6 +853,7 @@ function AdminActionsSection({
 }
 
 function AgentAssignPanel({ csAgents, agentSearch, selectedAgent, assigningAgent, onSearch, onSelect, onAssign, onCancel }) {
+  const { t } = useTranslation();
   const filtered = csAgents.filter(
     (agent) =>
       !agentSearch ||
@@ -856,11 +872,11 @@ function AgentAssignPanel({ csAgents, agentSearch, selectedAgent, assigningAgent
       }}
     >
       <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: "#9CA3AF", marginBottom: "8px" }}>
-        Select CS Agent
+        {t("pages.ticketSidebar.selectCsAgent")}
       </p>
       <input
         type="text"
-        placeholder="Search by name or email..."
+        placeholder={t("pages.ticketSidebar.searchNameEmail")}
         value={agentSearch}
         onChange={(e) => onSearch(e.target.value)}
         style={{
@@ -902,7 +918,7 @@ function AgentAssignPanel({ csAgents, agentSearch, selectedAgent, assigningAgent
           </div>
         ))}
         {filtered.length === 0 && (
-          <div style={{ padding: "8px 10px", color: "#9CA3AF", fontSize: "12px" }}>No CS agents found</div>
+          <div style={{ padding: "8px 10px", color: "#9CA3AF", fontSize: "12px" }}>{t("pages.ticketSidebar.noCsAgentsFound")}</div>
         )}
       </div>
       {selectedAgent && (
@@ -917,7 +933,7 @@ function AgentAssignPanel({ csAgents, agentSearch, selectedAgent, assigningAgent
           }}
         >
           <div style={{ display: "flex", gap: "8px", marginBottom: "2px" }}>
-            <span style={{ color: O[500], fontWeight: "600" }}>Selected:</span>
+            <span style={{ color: O[500], fontWeight: "600" }}>{t("pages.ticketSidebar.selectedLabel")}</span>
             <span style={{ color: "#333", fontWeight: "600" }}>{selectedAgent.name}</span>
           </div>
           {selectedAgent.email && (
@@ -940,7 +956,7 @@ function AgentAssignPanel({ csAgents, agentSearch, selectedAgent, assigningAgent
             cursor: "pointer",
           }}
         >
-          Cancel
+          {t("pages.ticketSidebar.cancel")}
         </button>
         <button
           onClick={onAssign}
@@ -964,7 +980,7 @@ function AgentAssignPanel({ csAgents, agentSearch, selectedAgent, assigningAgent
           {assigningAgent && (
             <MdSync size={13} style={{ animation: "mtd-spin 0.9s linear infinite" }} />
           )}
-          {assigningAgent ? "Assigning..." : "Assign"}
+          {assigningAgent ? t("pages.ticketSidebar.assigning") : t("pages.ticketSidebar.assign")}
         </button>
       </div>
     </div>
@@ -973,6 +989,7 @@ function AgentAssignPanel({ csAgents, agentSearch, selectedAgent, assigningAgent
 
 function DispatchPanel({ technicians, technicianSearch, selectedTechnician, dispatchingTech, currentTechnician, onSearch, onSelect, onDispatch, onCancel }) {
   const isReplacing = Boolean(currentTechnician);
+  const { t } = useTranslation();
 
   const filteredTechnicians = technicians.filter((tech) => {
     if (!technicianSearch) return true;
@@ -994,16 +1011,16 @@ function DispatchPanel({ technicians, technicianSearch, selectedTechnician, disp
       }}
     >
       <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: "#9CA3AF", marginBottom: "8px" }}>
-        {isReplacing ? "Change Technician" : "Select Technician"}
+        {isReplacing ? t("pages.ticketSidebar.changeTechnician") : t("pages.ticketSidebar.selectTechnician")}
       </p>
       {isReplacing && (
         <div style={{ background: O[50], padding: "8px 10px", borderRadius: "8px", marginBottom: "8px", fontSize: "12px", color: "#6B7280" }}>
-          Current: <strong style={{ color: O[700] }}>{currentTechnician}</strong>
+          {t("pages.ticketSidebar.currentLabel")} <strong style={{ color: O[700] }}>{currentTechnician}</strong>
         </div>
       )}
       <input
         type="text"
-        placeholder="Search by name, email, or skill..."
+        placeholder={t("pages.ticketSidebar.searchNameEmail")}
         value={technicianSearch}
         onChange={(e) => onSearch(e.target.value)}
         style={{
@@ -1049,7 +1066,7 @@ function DispatchPanel({ technicians, technicianSearch, selectedTechnician, disp
             </div>
           ))}
           {filteredTechnicians.length === 0 && (
-            <div style={{ padding: "8px 10px", color: "#9CA3AF", fontSize: "12px" }}>No technicians found</div>
+            <div style={{ padding: "8px 10px", color: "#9CA3AF", fontSize: "12px" }}>{t("pages.ticketSidebar.noTechniciansFound")}</div>
           )}
         </div>
       )}
@@ -1065,7 +1082,7 @@ function DispatchPanel({ technicians, technicianSearch, selectedTechnician, disp
           }}
         >
           <div style={{ display: "flex", gap: "8px", marginBottom: "2px" }}>
-            <span style={{ color: O[500], fontWeight: "600" }}>Selected:</span>
+            <span style={{ color: O[500], fontWeight: "600" }}>{t("pages.ticketSidebar.selectedLabel")}</span>
             <span style={{ color: "#333", fontWeight: "600" }}>{selectedTechnician.name}</span>
           </div>
           {selectedTechnician.email && (
@@ -1089,7 +1106,7 @@ function DispatchPanel({ technicians, technicianSearch, selectedTechnician, disp
             cursor: "pointer",
           }}
         >
-          Cancel
+          {t("pages.ticketSidebar.cancel")}
         </button>
         <button
           onClick={onDispatch}
@@ -1113,7 +1130,7 @@ function DispatchPanel({ technicians, technicianSearch, selectedTechnician, disp
           {dispatchingTech && (
             <MdSync size={13} style={{ animation: "mtd-spin 0.9s linear infinite" }} />
           )}
-          {dispatchingTech ? "Dispatching..." : isReplacing ? "Change" : "Dispatch"}
+          {dispatchingTech ? t("pages.ticketSidebar.dispatching") : isReplacing ? t("pages.ticketSidebar.change") : t("pages.ticketSidebar.dispatch")}
         </button>
       </div>
     </div>
@@ -1216,6 +1233,7 @@ function SkillBadgeList({ skills }) {
 }
 
 function StellaHelpPanel({ stellaSummary, summarizing, loadingDots, typewriterIndex, typewriterDone, onClick }) {
+  const { t } = useTranslation();
   return (
     <div
       onClick={!stellaSummary && !summarizing ? onClick : undefined}
@@ -1263,32 +1281,32 @@ function StellaHelpPanel({ stellaSummary, summarizing, loadingDots, typewriterIn
           <MdAutoAwesome size={14} />
         </div>
         <span style={{ fontWeight: "700", fontSize: "14px", color: "#111827", letterSpacing: "-0.01em", flex: 1 }}>
-          Stella Help
+          {t("pages.ticketSidebar.stellaHelp")}
         </span>
         {!stellaSummary && !summarizing && (
           <span style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: O[500], background: O[100], padding: "3px 8px", borderRadius: "4px" }}>
-            Tap
+            {t("pages.ticketSidebar.tap")}
           </span>
         )}
         {summarizing && (
           <span style={{ fontSize: "11px", color: O[500], fontWeight: "600", display: "flex", alignItems: "center", gap: "4px" }}>
-            Generating{loadingDots}
+            {t("pages.ticketSidebar.generating", { dots: loadingDots })}
           </span>
         )}
       </div>
       <div style={{ fontSize: "13px", color: stellaSummary ? "#374151" : "#6B7280", lineHeight: 1.6 }}>
         {stellaSummary
-          ? <>{stellaSummary.slice(0, typewriterIndex)}{!typewriterDone && <span style={{ color: O[500], fontWeight: 700, animation: "mtd-blink 1s step-end infinite" }}>|</span>}</>
+          ? <>{stellaSummary.slice(0, typewriterIndex)}{!typewriterDone && <span style={{ /* ... */ }}>|</span>}</>
           : summarizing
-            ? `Reading your conversation${loadingDots}`
-            : "Tap to get an AI summary of your conversation"}
+            ? t("pages.ticketSidebar.readingConversation", { dots: loadingDots })
+            : t("pages.ticketSidebar.tapToSummary")}
       </div>
       {!stellaSummary && !summarizing && (
         <div style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "8px" }}>
           <div style={{ width: "4px", height: "4px", borderRadius: "50%", background: O[300] }} />
           <div style={{ width: "4px", height: "4px", borderRadius: "50%", background: O[300] }} />
           <div style={{ width: "4px", height: "4px", borderRadius: "50%", background: O[300] }} />
-          <span style={{ fontSize: "11px", color: "#9CA3AF", marginLeft: "4px" }}>Understand your ticket at a glance</span>
+          <span style={{ fontSize: "11px", color: "#9CA3AF", marginLeft: "4px" }}>{t("pages.ticketSidebar.understandAtGlance")}</span>
         </div>
       )}
     </div>
@@ -1296,10 +1314,11 @@ function StellaHelpPanel({ stellaSummary, summarizing, loadingDots, typewriterIn
 }
 
 function CustomerInfoSection({ role, ticket, customerTier, getTierStyle, downloadingId, attachments, onViewAttachment }) {
+  const { t } = useTranslation();
   return (
     <div style={{ padding: role === "customer" ? "25px 20px 20px" : "20px", flex: role === "customer" ? "none" : 1, order: role === "customer" ? 1 : 2 }}>
       <h3 style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: "#9CA3AF", marginBottom: "16px" }}>
-        {role === "customer" ? "Ticket Info" : "Customer Info"}
+        {role === "customer" ? t("pages.ticketSidebar.ticketInfo") : t("pages.ticketSidebar.customerInfo")}
       </h3>
 
       {role !== "customer" && (
@@ -1352,7 +1371,7 @@ function CustomerInfoSection({ role, ticket, customerTier, getTierStyle, downloa
                 {getTierStyle(customerTier.tierName, customerTier.tierColor).label}
               </span>
             ) : (
-              <p style={{ fontSize: "12px", color: O[500], fontWeight: "500" }}>— No tier —</p>
+              <p style={{ fontSize: "12px", color: O[500], fontWeight: "500" }}>{t("pages.ticketSidebar.noTier")}</p>
             )}
           </div>
         </div>
@@ -1360,18 +1379,18 @@ function CustomerInfoSection({ role, ticket, customerTier, getTierStyle, downloa
 
       <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
         <div style={{ background: "#F9FAFB", padding: "12px", borderRadius: "12px", border: "1px solid #F3F4F6" }}>
-          <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", color: "#9CA3AF", marginBottom: "4px" }}>Subject</p>
+          <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", color: "#9CA3AF", marginBottom: "4px" }}>{t("pages.ticketSidebar.subject")}</p>
           <p style={{ fontSize: "13px", color: "#374151", fontWeight: "500" }}>{ticket.subject || "-"}</p>
         </div>
         <div style={{ background: "#F9FAFB", padding: "12px", borderRadius: "12px", border: "1px solid #F3F4F6" }}>
-          <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", color: "#9CA3AF", marginBottom: "4px" }}>Description</p>
+          <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", color: "#9CA3AF", marginBottom: "4px" }}>{t("pages.ticketSidebar.description")}</p>
           <p style={{ fontSize: "13px", color: "#374151", lineHeight: 1.5, whiteSpace: "pre-wrap" }}>{ticket.description || "-"}</p>
         </div>
 
         <div style={{ background: "#F9FAFB", padding: "12px", borderRadius: "12px", border: "1px solid #F3F4F6" }}>
-          <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", color: "#9CA3AF", marginBottom: "6px" }}>Attachments</p>
+          <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", color: "#9CA3AF", marginBottom: "6px" }}>{t("pages.ticketSidebar.attachments")}</p>
           {attachments.length === 0 ? (
-            <p style={{ fontSize: "13px", color: "#9CA3AF" }}>No files</p>
+            <p style={{ fontSize: "13px", color: "#9CA3AF" }}>{t("pages.ticketSidebar.noFiles")}</p>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
               {attachments.map((file) => (
@@ -1400,7 +1419,7 @@ function CustomerInfoSection({ role, ticket, customerTier, getTierStyle, downloa
                       {file.fileName ?? file.name ?? "Attachment"}
                     </div>
                     <div style={{ color: "#9CA3AF", fontSize: "11px", marginTop: "1px" }}>
-                      {downloadingId === file.id ? "Loading..." : "Click to view"}
+                      {downloadingId === file.id ? t("pages.ticketSidebar.loadingAttachment") : t("pages.ticketSidebar.clickToView")}
                     </div>
                   </div>
                 </button>
@@ -1423,6 +1442,7 @@ function formatCountdown(ms) {
 }
 
 function SlaCountdown({ slaDeadline, formatTicketDateTime }) {
+  const { t } = useTranslation();
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -1432,13 +1452,13 @@ function SlaCountdown({ slaDeadline, formatTicketDateTime }) {
   }, [slaDeadline]);
 
   if (!slaDeadline) {
-    return <span style={{ fontSize: "12px", fontWeight: "500", color: "#9CA3AF" }}>No SLA</span>;
+    return <span style={{ fontSize: "12px", fontWeight: "500", color: "#9CA3AF" }}>{t("pages.ticketSidebar.noSla")}</span>;
   }
 
   const remainingMs = new Date(slaDeadline).getTime() - now;
 
   if (remainingMs <= 0) {
-    return <span style={{ fontSize: "12px", fontWeight: "600", color: "#DC2626" }}>SLA Breached</span>;
+    return <span style={{ fontSize: "12px", fontWeight: "600", color: "#DC2626" }}>{t("pages.ticketSidebar.slaBreached")}</span>;
   }
 
   const remainingMinutes = remainingMs / 60000;
@@ -1450,7 +1470,7 @@ function SlaCountdown({ slaDeadline, formatTicketDateTime }) {
         {formatCountdown(remainingMs)}
       </div>
       <div style={{ fontSize: "11px", color: "#9CA3AF", marginTop: "2px" }}>
-        Due {formatTicketDateTime(slaDeadline)}
+        {t("pages.ticketSidebar.due", { date: formatTicketDateTime(slaDeadline) })}
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import { MdArrowBack, MdMoreVert } from "react-icons/md";
 import { O } from "./ticketTheme";
 import { Badge } from "./TicketShared";
+import { useTranslation } from "react-i18next";
 
 export default function TicketHeader({
   ticket,
@@ -16,6 +17,7 @@ export default function TicketHeader({
   onBack,
   formatTicketDate,
 }) {
+  const { t } = useTranslation();
   return (
     <div
       style={{
@@ -71,7 +73,7 @@ export default function TicketHeader({
             </h1>
             <Badge type={ticket.status}>{ticket.status}</Badge>
             <span style={{ fontSize: "11px", color: "#9CA3AF" }}>
-              Created {formatTicketDate(ticket.createdAt)}
+              {t("pages.ticketHeader.created")} {formatTicketDate(ticket.createdAt)}
             </span>
           </div>
           <h2 style={{ fontSize: "13px", fontWeight: "500", color: "#374151" }}>
@@ -102,7 +104,7 @@ export default function TicketHeader({
                     transition: "all 0.15s",
                   }}
                 >
-                  {assigning ? "Assigning..." : "Assign to me"}
+                  {assigning ? t("pages.ticketHeader.assigning") : t("pages.ticketHeader.assignToMe")}
                 </button>
               ) : ticket.solver && !isAssignedToMe ? (
                 <>
@@ -125,7 +127,7 @@ export default function TicketHeader({
                     onMouseEnter={(e) => { e.currentTarget.style.background = O[600]; }}
                     onMouseLeave={(e) => { e.currentTarget.style.background = O[500]; }}
                   >
-                    {assigning ? "Taking over..." : "Take Over"}
+                    {assigning ? t("pages.ticketHeader.takingOver") : t("pages.ticketHeader.takeOver")}
                   </button>
                   <div style={{ height: "24px", width: "1px", background: "#E5E7EB", flexShrink: 0 }} />
                   <button
@@ -142,7 +144,7 @@ export default function TicketHeader({
                       cursor: "default",
                     }}
                   >
-                    Assigned to {ticket.solver}
+                    {t("pages.ticketHeader.assignedTo", { name: ticket.solver })}
                   </button>
                 </>
               ) : (
@@ -160,7 +162,7 @@ export default function TicketHeader({
                     cursor: "default",
                   }}
                 >
-                  Assigned to you
+                  {t("pages.ticketHeader.assignedToYou")}
                 </button>
               )
             ) : (
@@ -189,12 +191,16 @@ export default function TicketHeader({
                 }}
               >
                 {assigning
-                  ? "Assigning..."
+                  ? t("pages.ticketHeader.assigning")
                   : isAssignedToMe
-                    ? "Assigned to you"
+                    ? t("pages.ticketHeader.assignedToYou")
                     : isAssignedToOther
-                      ? `Assigned to ${role === "technician" ? ticket.technician : ticket.solver}`
-                      : "Assign to me"}
+                      ? t("pages.ticketHeader.assignedTo", {
+                          name: role === "technician"
+                            ? ticket.technician
+                            : ticket.solver,
+                        })
+                      : t("pages.ticketHeader.assignToMe")}
               </button>
             )}
             <div style={{ height: "24px", width: "1px", background: "#E5E7EB" }} />
@@ -217,7 +223,7 @@ export default function TicketHeader({
                 transition: "all 0.15s",
               }}
             >
-              {resolved ? "Resolved" : resolvingTicket ? "Resolving..." : "Resolve Ticket"}
+              {resolved ? t("pages.ticketHeader.resolved") : resolvingTicket ? t("pages.ticketHeader.resolving") : t("pages.ticketHeader.resolveTicket")}
             </button>
           </>
         )}
