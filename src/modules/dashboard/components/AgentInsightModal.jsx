@@ -15,8 +15,8 @@ export default function AgentInsightModal({ agent, open, onClose }) {
 
   if (!agent) return null;
 
-  const reasonStyle =
-    REASON_STYLE[agent.topReasonKey] ?? REASON_STYLE.consistentPerformance;
+  // const reasonStyle =
+  //   REASON_STYLE[agent.topReasonKey] ?? REASON_STYLE.consistentPerformance;
 
   const responseTime =
     agent?.avgResponseTimeSec != null
@@ -59,7 +59,7 @@ export default function AgentInsightModal({ agent, open, onClose }) {
         </div>
 
         {/* Reason tag */}
-        <div
+        {/* <div
           style={{
             display: "inline-block",
             padding: "6px 14px",
@@ -72,7 +72,7 @@ export default function AgentInsightModal({ agent, open, onClose }) {
           }}
         >
           {t(`pages.dashboard.topReason.${agent.topReasonKey}`)}
-        </div>
+        </div> */}
 
         {/* Stats grid */}
         <div
