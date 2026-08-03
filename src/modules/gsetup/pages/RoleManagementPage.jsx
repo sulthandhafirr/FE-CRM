@@ -18,6 +18,7 @@ import {
   Typography,
 } from "@mui/material";
 import { MdAdd, MdDeleteOutline, MdEdit, MdGroup } from "react-icons/md";
+import { useTranslation } from "react-i18next";
 import GeneralSetupSectionPage, {
   ConfirmDialog,
   SectionFooter,
@@ -42,7 +43,10 @@ function buildPermissionSummary(permissions) {
   return Object.values(permissions || {}).filter(Boolean).length;
 }
 
+const GROUP_KEYS = ["ticket", "ai", "administration", "reports"];
+
 function RoleManagementContent({ settings, updateSettings, theme, showToast }) {
+  const { t } = useTranslation();
   const [roleDialog, setRoleDialog] = useState({ open: false, mode: "create", roleId: "" });
   const [roleDraft, setRoleDraft] = useState(createRoleDraft());
   const [saving, setSaving] = useState(false);
@@ -60,7 +64,7 @@ function RoleManagementContent({ settings, updateSettings, theme, showToast }) {
 
   const commitRole = useCallback(async () => {
     if (!roleDraft.roleName.trim()) {
-      showToast("Role name is required.", "error");
+      showToast(t("pages.gsetup.roleManagement.toastNameRequired"), "error");
       return;
     }
 
@@ -72,22 +76,22 @@ function RoleManagementContent({ settings, updateSettings, theme, showToast }) {
           ...section,
           roles: section.roles.map((r) => (r.id === roleDialog.roleId ? updated : r)),
         }));
-        showToast("Role updated.");
+        showToast(t("pages.gsetup.roleManagement.toastUpdated"));
       } else {
         const created = await createRoleApi(roleDraft);
         updateSettings("roleManagement", (section) => ({
           ...section,
           roles: [...section.roles, created],
         }));
-        showToast("Role created.");
+        showToast(t("pages.gsetup.roleManagement.toastCreated"));
       }
       closeRoleDialog();
     } catch {
-      showToast("Failed to save role. Please try again.", "error");
+      showToast(t("pages.gsetup.roleManagement.toastSaveFailed"), "error");
     } finally {
       setSaving(false);
     }
-  }, [roleDraft, roleDialog, updateSettings, showToast, closeRoleDialog]);
+  }, [roleDraft, roleDialog, updateSettings, showToast, closeRoleDialog, t]);
 
   const handleDeleteRole = useCallback(
     (role) => {
@@ -95,8 +99,8 @@ function RoleManagementContent({ settings, updateSettings, theme, showToast }) {
 
       setDeleteDialog({
         open: true,
-        title: "Delete role?",
-        description: `This will remove "${role.roleName}" permanently. Users assigned to it should be reassigned first.`,
+        title: t("pages.gsetup.roleManagement.deleteTitle"),
+        description: t("pages.gsetup.roleManagement.deleteDesc", { name: role.roleName }),
         onConfirm: async () => {
           try {
             await deleteRoleApi(role.id);
@@ -104,15 +108,15 @@ function RoleManagementContent({ settings, updateSettings, theme, showToast }) {
               ...section,
               roles: section.roles.filter((item) => item.id !== role.id),
             }));
-            showToast("Role deleted.");
+            showToast(t("pages.gsetup.roleManagement.toastDeleted"));
           } catch {
-            showToast("Failed to delete role.", "error");
+            showToast(t("pages.gsetup.roleManagement.toastDeleteFailed"), "error");
           }
           setDeleteDialog({ open: false, title: "", description: "", onConfirm: null });
         },
       });
     },
-    [updateSettings, showToast],
+    [updateSettings, showToast, t],
   );
 
   const closeDeleteDialog = useCallback(() => {
@@ -135,14 +139,14 @@ function RoleManagementContent({ settings, updateSettings, theme, showToast }) {
       const apiRoles = await fetchRolesFromApi();
       if (apiRoles !== null) {
         updateSettings("roleManagement", { roles: apiRoles });
-        showToast("Role list refreshed from server.");
+        showToast(t("pages.gsetup.roleManagement.toastRefreshed"));
       }
     } catch {
-      showToast("Failed to refresh roles.", "error");
+      showToast(t("pages.gsetup.roleManagement.toastRefreshFailed"), "error");
     } finally {
       setSaving(false);
     }
-  }, [updateSettings, showToast]);
+  }, [updateSettings, showToast, t]);
 
   const roles = settings.roleManagement?.roles ?? [];
 
@@ -150,8 +154,8 @@ function RoleManagementContent({ settings, updateSettings, theme, showToast }) {
     <Stack spacing={2.5}>
       <SettingsPanel
         icon={MdGroup}
-        title="Role Management"
-        subtitle="Create roles, assign permissions, and manage access without leaving the admin console."
+        title={t("pages.gsetup.roleManagement.title")}
+        subtitle={t("pages.gsetup.roleManagement.subtitle")}
         theme={theme}
         actions={
           <Button
@@ -160,7 +164,7 @@ function RoleManagementContent({ settings, updateSettings, theme, showToast }) {
             startIcon={<MdAdd size={18} />}
             sx={ACCENT_BUTTON_SX(theme)}
           >
-            Create Role
+            {t("pages.gsetup.roleManagement.createRole")}
           </Button>
         }
       >
@@ -169,7 +173,12 @@ function RoleManagementContent({ settings, updateSettings, theme, showToast }) {
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  {["Role Name", "Number of Users", "Permissions", "Actions"].map((header) => (
+                  {[
+                    t("pages.gsetup.roleManagement.colRoleName"),
+                    t("pages.gsetup.roleManagement.colUserCount"),
+                    t("pages.gsetup.roleManagement.colPermissions"),
+                    t("pages.gsetup.roleManagement.colActions"),
+                  ].map((header) => (
                     <TableCell key={header} sx={TABLE_HEADER_CELL_SX(theme)}>
                       {header}
                     </TableCell>
@@ -184,7 +193,7 @@ function RoleManagementContent({ settings, updateSettings, theme, showToast }) {
                         {role.roleName}
                         {role.isSystem && (
                           <Chip
-                            label="System"
+                            label={t("pages.gsetup.roleManagement.system")}
                             size="small"
                             sx={{
                               fontSize: 10,
@@ -204,7 +213,9 @@ function RoleManagementContent({ settings, updateSettings, theme, showToast }) {
                         size="small"
                         sx={{ borderRadius: "999px", fontWeight: 700, textTransform: "none" }}
                       >
-                        {buildPermissionSummary(role.permissions)} permissions enabled
+                        {t("pages.gsetup.roleManagement.permissionsEnabled", {
+                          count: buildPermissionSummary(role.permissions),
+                        })}
                       </Button>
                     </TableCell>
                     <TableCell>
@@ -232,7 +243,7 @@ function RoleManagementContent({ settings, updateSettings, theme, showToast }) {
                 {roles.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={4} align="center" sx={{ py: 6, color: theme.subtext }}>
-                      No roles defined yet. Click "Create Role" to add one.
+                      {t("pages.gsetup.roleManagement.empty")}
                     </TableCell>
                   </TableRow>
                 )}
@@ -243,8 +254,8 @@ function RoleManagementContent({ settings, updateSettings, theme, showToast }) {
           <SectionFooter
             theme={theme}
             onSave={handleRefresh}
-            saveLabel="Refresh from Server"
-            helperText="Changes are saved immediately. Click refresh to reload the latest data."
+            saveLabel={t("pages.gsetup.roleManagement.refreshFromServer")}
+            helperText={t("pages.gsetup.roleManagement.helper")}
             loading={saving}
           />
         </Stack>
@@ -252,7 +263,11 @@ function RoleManagementContent({ settings, updateSettings, theme, showToast }) {
 
       <CrudDialog
         open={roleDialog.open}
-        title={roleDialog.mode === "edit" ? "Edit Role" : "Create Role"}
+        title={
+          roleDialog.mode === "edit"
+            ? t("pages.gsetup.roleManagement.editRole")
+            : t("pages.gsetup.roleManagement.createRole")
+        }
         onClose={closeRoleDialog}
         onSave={commitRole}
         theme={theme}
@@ -266,34 +281,34 @@ function RoleManagementContent({ settings, updateSettings, theme, showToast }) {
             }}
           >
             <TextField
-              label="Role Name"
+              label={t("pages.gsetup.roleManagement.colRoleName")}
               value={roleDraft.roleName}
               onChange={(event) =>
                 setRoleDraft((prev) => ({ ...prev, roleName: event.target.value }))
               }
               fullWidth
               disabled={roleDraft.isSystem}
-              helperText={roleDraft.isSystem ? "System role names cannot be changed." : ""}
+              helperText={roleDraft.isSystem ? t("pages.gsetup.roleManagement.roleNameLocked") : ""}
             />
             <TextField
               type="number"
-              label="Number of Users"
+              label={t("pages.gsetup.roleManagement.colUserCount")}
               value={roleDraft.userCount}
               disabled
               inputProps={{ min: 0 }}
               fullWidth
-              helperText="Auto-computed from server"
+              helperText={t("pages.gsetup.roleManagement.userCountAuto")}
             />
           </Box>
 
           <Divider />
 
-          {PERMISSION_GROUPS.map((group) => (
+          {PERMISSION_GROUPS.map((group, index) => (
             <Box key={group.title}>
               <Typography
                 sx={{ fontSize: 13, fontWeight: 800, color: theme.text, mb: 1.25 }}
               >
-                {group.title}
+                {t(`pages.gsetup.roleManagement.permissions.groups.${GROUP_KEYS[index]}`)}
               </Typography>
               <Box
                 sx={{
@@ -316,7 +331,7 @@ function RoleManagementContent({ settings, updateSettings, theme, showToast }) {
                         }}
                       />
                     }
-                    label={permission.label}
+                    label={t(`pages.gsetup.roleManagement.permissions.items.${permission.key}`)}
                   />
                 ))}
               </Box>
@@ -329,8 +344,8 @@ function RoleManagementContent({ settings, updateSettings, theme, showToast }) {
         open={deleteDialog.open}
         title={deleteDialog.title}
         description={deleteDialog.description}
-        confirmLabel="Delete"
-        cancelLabel="Cancel"
+        confirmLabel={t("pages.gsetup.common.delete")}
+        cancelLabel={t("pages.gsetup.common.cancel")}
         onClose={closeDeleteDialog}
         onConfirm={() => deleteDialog.onConfirm?.()}
         theme={theme}
@@ -340,10 +355,12 @@ function RoleManagementContent({ settings, updateSettings, theme, showToast }) {
 }
 
 export default function RoleManagementPage() {
+  const { t } = useTranslation();
+
   return (
     <GeneralSetupSectionPage
-      title="Role Management"
-      subtitle="Create roles, assign permissions, and manage access without leaving the admin console."
+      title={t("pages.gsetup.roleManagement.title")}
+      subtitle={t("pages.gsetup.roleManagement.subtitle")}
       ContentComponent={RoleManagementContent}
     />
   );

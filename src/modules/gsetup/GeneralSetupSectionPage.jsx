@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Alert,
   Box,
@@ -33,6 +34,8 @@ export function createGeneralSetupThemeTokens() {
 }
 
 function SettingsPageShell({ title, subtitle, actions, children, theme }) {
+  const { t } = useTranslation();
+
   return (
     <Box
       sx={{
@@ -58,10 +61,10 @@ function SettingsPageShell({ title, subtitle, actions, children, theme }) {
               sx={{ mb: 1, color: theme.subtext }}
             >
               <Typography sx={{ fontSize: 13, fontWeight: 700, color: theme.subtext }}>
-                Dashboard
+                {t("pages.gsetup.breadcrumb.dashboard")}
               </Typography>
               <Typography sx={{ fontSize: 13, fontWeight: 700, color: theme.subtext }}>
-                General Setup
+                {t("pages.gsetup.breadcrumb.generalSetup")}
               </Typography>
               <Typography sx={{ fontSize: 13, fontWeight: 700, color: theme.text }}>
                 {title}
@@ -75,7 +78,7 @@ function SettingsPageShell({ title, subtitle, actions, children, theme }) {
                 startIcon={<MdArrowBack size={18} />}
                 sx={{ borderRadius: "12px", fontWeight: 800, minHeight: 42 }}
               >
-                Back
+                {t("pages.gsetup.common.back")}
               </Button>
               <Box>
                 <Typography
@@ -174,11 +177,14 @@ export function SettingsPanel({ title, subtitle, icon: Icon, actions, children, 
 export function SectionFooter({
   theme,
   onSave,
-  saveLabel = "Save Changes",
+  saveLabel,
   helperText,
   loading = false,
   secondaryAction,
 }) {
+  const { t } = useTranslation();
+  const resolvedSaveLabel = saveLabel ?? t("pages.gsetup.common.saveChanges");
+
   return (
     <Stack
       direction={{ xs: "column", sm: "row" }}
@@ -202,7 +208,7 @@ export function SectionFooter({
             px: 2.5,
           }}
         >
-          {saveLabel}
+          {resolvedSaveLabel}
         </Button>
       </Stack>
     </Stack>

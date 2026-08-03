@@ -1,15 +1,17 @@
 import { useNavigate } from "react-router-dom";
 import { ROUTE } from "../../../app/routes";
+import { useTranslation } from "react-i18next";
 
 export default function AdminTicketSelectorPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const ticketViews = [
     {
       key: "active",
-      title: "Active Tickets",
-      badge: "ACTIVE",
-      description: "View and manage ongoing active customer tickets.",
+      title: t("pages.ticketSelector.activeTitle"),
+      badge: t("pages.ticketSelector.activeBadge"),
+      description: t("pages.ticketSelector.activeDesc"),
       route: ROUTE.adminTicketActive,
       color: "#FF8040",
       bg: "#fff4ee",
@@ -17,9 +19,9 @@ export default function AdminTicketSelectorPage() {
     },
     {
       key: "solved",
-      title: "Solved Tickets",
-      badge: "SOLVED",
-      description: "View resolved and completed support tickets.",
+      title: t("pages.ticketSelector.solvedTitle"),
+      badge: t("pages.ticketSelector.solvedBadge"),
+      description: t("pages.ticketSelector.solvedDesc"),
       route: ROUTE.adminTicketSolved,
       color: "#16a34a",
       bg: "#f0fdf4",
@@ -118,7 +120,7 @@ export default function AdminTicketSelectorPage() {
               {view.description}
             </p>
             <div style={{ color: view.color, fontWeight: "600", fontSize: "14px" }}>
-              Open View
+              {t("pages.ticketSelector.openView")}
             </div>
           </div>
         ))}

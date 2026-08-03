@@ -18,6 +18,7 @@ import {
   TextField,
 } from "@mui/material";
 import { MdAdd, MdDeleteOutline, MdEdit, MdChecklist } from "react-icons/md";
+import { useTranslation } from "react-i18next";
 import GeneralSetupSectionPage, {
   ConfirmDialog,
   SectionFooter,
@@ -37,6 +38,7 @@ function buildNewStatusId(statusName) {
 }
 
 function TicketStatusContent({ settings, updateSettings, saveSettings, theme, showToast }) {
+  const { t } = useTranslation();
   const [statusDialog, setStatusDialog] = useState({
     open: false,
     mode: "create",
@@ -67,7 +69,7 @@ function TicketStatusContent({ settings, updateSettings, saveSettings, theme, sh
 
   const commitStatus = useCallback(() => {
     if (!statusDraft.name.trim()) {
-      showToast("Status name is required.", "error");
+      showToast(t("pages.gsetup.ticketStatus.toastNameRequired"), "error");
       return;
     }
 
@@ -88,14 +90,14 @@ function TicketStatusContent({ settings, updateSettings, saveSettings, theme, sh
     });
 
     closeStatusDialog();
-  }, [statusDraft, statusDialog, updateSettings, showToast, closeStatusDialog]);
+  }, [statusDraft, statusDialog, updateSettings, showToast, closeStatusDialog, t]);
 
   const handleDeleteStatus = useCallback(
     (status) => {
       setDeleteDialog({
         open: true,
-        title: "Delete status?",
-        description: `This will remove ${status.name} from the workflow. Existing tickets keep their current value.`,
+        title: t("pages.gsetup.ticketStatus.deleteTitle"),
+        description: t("pages.gsetup.ticketStatus.deleteDesc", { name: status.name }),
         onConfirm: () => {
           updateSettings("ticketStatus", (section) => ({
             ...section,
@@ -107,11 +109,11 @@ function TicketStatusContent({ settings, updateSettings, saveSettings, theme, sh
             description: "",
             onConfirm: null,
           });
-          showToast("Status deleted.");
+          showToast(t("pages.gsetup.ticketStatus.toastDeleted"));
         },
       });
     },
-    [updateSettings, showToast],
+    [updateSettings, showToast, t],
   );
 
   const closeDeleteDialog = useCallback(() => {
@@ -140,13 +142,13 @@ function TicketStatusContent({ settings, updateSettings, saveSettings, theme, sh
         ticketStatus: updated,
       };
       updateSettings("ticketStatus", updated);
-      saveSettings(nextSettings, "Ticket status settings saved.");
+      saveSettings(nextSettings, t("pages.gsetup.ticketStatus.toastSaved"));
     } catch {
-      showToast("Failed to save ticket status settings.", "error");
+      showToast(t("pages.gsetup.ticketStatus.toastSaveFailed"), "error");
     } finally {
       setSaving(false);
     }
-  }, [settings, updateSettings, saveSettings, showToast]);
+  }, [settings, updateSettings, saveSettings, showToast, t]);
 
   const { ticketStatus: ts } = settings;
 
@@ -154,8 +156,8 @@ function TicketStatusContent({ settings, updateSettings, saveSettings, theme, sh
     <Stack spacing={2.5}>
       <SettingsPanel
         icon={MdChecklist}
-        title="Ticket Status"
-        subtitle="Edit statuses, colors, reopen behavior, and auto-close policy for ticket flow."
+        title={t("pages.gsetup.ticketStatus.title")}
+        subtitle={t("pages.gsetup.ticketStatus.subtitle")}
         theme={theme}
         actions={
           <Button
@@ -164,7 +166,7 @@ function TicketStatusContent({ settings, updateSettings, saveSettings, theme, sh
             startIcon={<MdAdd size={18} />}
             sx={{ borderRadius: "12px", fontWeight: 800 }}
           >
-            Add Status
+            {t("pages.gsetup.ticketStatus.addStatus")}
           </Button>
         }
       >
@@ -173,7 +175,12 @@ function TicketStatusContent({ settings, updateSettings, saveSettings, theme, sh
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  {["Status Name", "Color Badge", "Active", "Actions"].map((header) => (
+                  {[
+                    t("pages.gsetup.ticketStatus.colStatusName"),
+                    t("pages.gsetup.ticketStatus.colColorBadge"),
+                    t("pages.gsetup.ticketStatus.colActive"),
+                    t("pages.gsetup.ticketStatus.colActions"),
+                  ].map((header) => (
                     <TableCell key={header} sx={TABLE_HEADER_CELL_SX(theme)}>
                       {header}
                     </TableCell>
@@ -205,7 +212,7 @@ function TicketStatusContent({ settings, updateSettings, saveSettings, theme, sh
                       >
                         {STATUS_COLOR_OPTIONS.map((colorOption) => (
                           <MenuItem key={colorOption.value} value={colorOption.value}>
-                            {colorOption.label}
+                            {t(`pages.gsetup.ticketStatus.statusColors.${colorOption.value}`)}
                           </MenuItem>
                         ))}
                       </TextField>
@@ -280,21 +287,25 @@ function TicketStatusContent({ settings, updateSettings, saveSettings, theme, sh
             theme={theme}
             onSave={handleSave}
             loading={saving}
-            helperText="Statuses drive the CRM workflow and remain editable without rebuilding the UI."
+            helperText={t("pages.gsetup.ticketStatus.helper")}
           />
         </Stack>
       </SettingsPanel>
 
       <CrudDialog
         open={statusDialog.open}
-        title={statusDialog.mode === "edit" ? "Edit Status" : "Add Status"}
+        title={
+          statusDialog.mode === "edit"
+            ? t("pages.gsetup.ticketStatus.editStatus")
+            : t("pages.gsetup.ticketStatus.addStatus")
+        }
         onClose={closeStatusDialog}
         onSave={commitStatus}
         theme={theme}
       >
         <Stack spacing={2}>
           <TextField
-            label="Status Name"
+            label={t("pages.gsetup.ticketStatus.colStatusName")}
             value={statusDraft.name}
             onChange={(event) =>
               setStatusDraft((prev) => ({ ...prev, name: event.target.value }))
@@ -302,9 +313,9 @@ function TicketStatusContent({ settings, updateSettings, saveSettings, theme, sh
             fullWidth
           />
           <FormControl fullWidth>
-            <InputLabel>Color Badge</InputLabel>
+            <InputLabel>{t("pages.gsetup.ticketStatus.colColorBadge")}</InputLabel>
             <Select
-              label="Color Badge"
+              label={t("pages.gsetup.ticketStatus.colColorBadge")}
               value={statusDraft.color}
               onChange={(event) =>
                 setStatusDraft((prev) => ({ ...prev, color: event.target.value }))
@@ -312,7 +323,7 @@ function TicketStatusContent({ settings, updateSettings, saveSettings, theme, sh
             >
               {STATUS_COLOR_OPTIONS.map((colorOption) => (
                 <MenuItem key={colorOption.value} value={colorOption.value}>
-                  {colorOption.label}
+                  {t(`pages.gsetup.ticketStatus.statusColors.${colorOption.value}`)}
                 </MenuItem>
               ))}
             </Select>
@@ -327,7 +338,7 @@ function TicketStatusContent({ settings, updateSettings, saveSettings, theme, sh
                 sx={{ ...SWITCH_SX, "--switch-color": theme.accent }}
               />
             }
-            label="Active"
+            label={t("pages.gsetup.ticketStatus.colActive")}
           />
         </Stack>
       </CrudDialog>
@@ -336,8 +347,8 @@ function TicketStatusContent({ settings, updateSettings, saveSettings, theme, sh
         open={deleteDialog.open}
         title={deleteDialog.title}
         description={deleteDialog.description}
-        confirmLabel="Delete"
-        cancelLabel="Cancel"
+        confirmLabel={t("pages.gsetup.common.delete")}
+        cancelLabel={t("pages.gsetup.common.cancel")}
         onClose={closeDeleteDialog}
         onConfirm={() => deleteDialog.onConfirm?.()}
         theme={theme}
@@ -347,10 +358,12 @@ function TicketStatusContent({ settings, updateSettings, saveSettings, theme, sh
 }
 
 export default function TicketStatusPage() {
+  const { t } = useTranslation();
+
   return (
     <GeneralSetupSectionPage
-      title="Ticket Status"
-      subtitle="Customize workflow statuses, colors, reopening behavior, and auto close timing."
+      title={t("pages.gsetup.ticketStatus.title")}
+      subtitle={t("pages.gsetup.ticketStatus.subtitlePage")}
       ContentComponent={TicketStatusContent}
     />
   );

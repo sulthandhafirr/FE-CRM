@@ -23,6 +23,7 @@ import {
   TextField,
 } from "@mui/material";
 import { MdBolt, MdEdit, MdPsychology, MdSearch } from "react-icons/md";
+import { useTranslation } from "react-i18next";
 import GeneralSetupSectionPage, { DialogField, SectionFooter, SettingsPanel } from "../GeneralSetupSectionPage";
 import { PRIORITY_OPTIONS, URGENCY_OPTIONS } from "../gsetup.service";
 import {
@@ -34,19 +35,20 @@ import {
 
 const EMPTY_DIALOG = { open: false, intentId: "", value: "" };
 
-const INTENT_TABLE_HEADERS = [
-  "Intent Name",
-  "Display Name",
-  "Description",
-  "Default Priority",
-  "Status",
-  "Manual Override",
-  "Actions",
+const INTENT_TABLE_HEADER_KEYS = [
+  "intentName",
+  "displayName",
+  "description",
+  "defaultPriority",
+  "status",
+  "manualOverride",
+  "actions",
 ];
 
 // ── Intent Row ───────────────────────────────────────────────────────
 
 function IntentRow({ intent, onUpdate, onEditDescription, theme }) {
+  const { t } = useTranslation();
   const handleChange = useCallback(
     (field) => (event) => {
       const value = event.target.type === "checkbox" ? event.target.checked : event.target.value;
@@ -82,7 +84,7 @@ function IntentRow({ intent, onUpdate, onEditDescription, theme }) {
             minWidth: 0,
           }}
         >
-          {intent.description ? "Edit description" : "Add description"}
+          {intent.description ? t("pages.gsetup.issuePriority.editDescription") : t("pages.gsetup.issuePriority.addDescription")}
         </Button>
       </TableCell>
 
@@ -134,9 +136,11 @@ function IntentRow({ intent, onUpdate, onEditDescription, theme }) {
 // ── Description Dialog ──────────────────────────────────────────────
 
 function DescriptionDialog({ dialog, onClose, onChange, onSave, theme }) {
+  const { t } = useTranslation();
+
   return (
     <Dialog open={dialog.open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle sx={{ fontWeight: 800 }}>Edit Intent Description</DialogTitle>
+      <DialogTitle sx={{ fontWeight: 800 }}>{t("pages.gsetup.issuePriority.dialogTitle")}</DialogTitle>
       <DialogContent sx={{ pt: 1.5 }}>
         <TextField
           multiline
@@ -144,11 +148,11 @@ function DescriptionDialog({ dialog, onClose, onChange, onSave, theme }) {
           fullWidth
           value={dialog.value}
           onChange={(event) => onChange(event.target.value)}
-          placeholder="Describe how this intent should be interpreted by the AI model."
+          placeholder={t("pages.gsetup.issuePriority.dialogPlaceholder")}
         />
       </DialogContent>
       <DialogActions sx={{ p: 2.5, pt: 0 }}>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose}>{t("pages.gsetup.issuePriority.cancel")}</Button>
         <Button
           onClick={onSave}
           variant="contained"
@@ -157,7 +161,7 @@ function DescriptionDialog({ dialog, onClose, onChange, onSave, theme }) {
             "&:hover": { background: theme.accentHover },
           }}
         >
-          Save
+          {t("pages.gsetup.issuePriority.save")}
         </Button>
       </DialogActions>
     </Dialog>
@@ -167,6 +171,7 @@ function DescriptionDialog({ dialog, onClose, onChange, onSave, theme }) {
 // ── Intent Management Panel ─────────────────────────────────────────
 
 function IntentManagementPanel({ settings, updateSettings, theme }) {
+  const { t } = useTranslation();
   const [intentQuery, setIntentQuery] = useState("");
   const [intentPage, setIntentPage] = useState(0);
   const [intentRowsPerPage, setIntentRowsPerPage] = useState(5);
@@ -235,16 +240,21 @@ function IntentManagementPanel({ settings, updateSettings, theme }) {
     <>
       <SettingsPanel
         icon={MdPsychology}
-        title="Intent Management"
-        subtitle="Manage labels, descriptions, priorities, and manual override controls for ticket intents."
+        title={t("pages.gsetup.issuePriority.intentTitle")}
+        subtitle={t("pages.gsetup.issuePriority.intentSubtitle")}
         theme={theme}
-        actions={<Chip label={`Enabled intents: ${enabledCount}`} sx={{ fontWeight: 700 }} />}
+        actions={
+          <Chip
+            label={t("pages.gsetup.issuePriority.enabledIntents", { count: enabledCount })}
+            sx={{ fontWeight: 700 }}
+          />
+        }
       >
         <Stack spacing={2.25}>
           <TextField
             value={intentQuery}
             onChange={handleQueryChange}
-            placeholder="Search intent"
+            placeholder={t("pages.gsetup.issuePriority.searchIntent")}
             size="small"
             fullWidth
             InputProps={{
@@ -260,9 +270,9 @@ function IntentManagementPanel({ settings, updateSettings, theme }) {
             <Table size="small" stickyHeader>
               <TableHead>
                 <TableRow>
-                  {INTENT_TABLE_HEADERS.map((header) => (
-                    <TableCell key={header} sx={TABLE_HEADER_CELL_SX(theme)}>
-                      {header}
+                  {INTENT_TABLE_HEADER_KEYS.map((headerKey) => (
+                    <TableCell key={headerKey} sx={TABLE_HEADER_CELL_SX(theme)}>
+                      {t(`pages.gsetup.issuePriority.intentHeaders.${headerKey}`)}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -284,7 +294,7 @@ function IntentManagementPanel({ settings, updateSettings, theme }) {
                       colSpan={7}
                       sx={{ py: 6, textAlign: "center", color: theme.subtext }}
                     >
-                      No intents found for your search.
+                      {t("pages.gsetup.issuePriority.noIntents")}
                     </TableCell>
                   </TableRow>
                 )}
@@ -321,6 +331,7 @@ function IntentManagementPanel({ settings, updateSettings, theme }) {
 // ── Urgency Management Panel ────────────────────────────────────────
 
 function UrgencyManagementPanel({ settings, updateSettings, theme }) {
+  const { t } = useTranslation();
   const handleToggle = useCallback(
     (field) => (event) => {
       updateSettings("urgencyManagement", (section) => ({
@@ -368,12 +379,14 @@ function UrgencyManagementPanel({ settings, updateSettings, theme }) {
   return (
     <SettingsPanel
       icon={MdBolt}
-      title="Urgency Management"
-      subtitle="Control AI urgency thresholds, sentiment boost, keyword boost, and intent mapping."
+      title={t("pages.gsetup.issuePriority.urgencyTitle")}
+      subtitle={t("pages.gsetup.issuePriority.urgencySubtitle")}
       theme={theme}
       actions={
         <Chip
-          label={`${um.confidenceThreshold}% confidence threshold`}
+          label={t("pages.gsetup.issuePriority.confidenceChip", {
+            percent: um.confidenceThreshold,
+          })}
           sx={{ fontWeight: 700 }}
         />
       }
@@ -389,7 +402,7 @@ function UrgencyManagementPanel({ settings, updateSettings, theme }) {
                 sx={{ ...SWITCH_SX, "--switch-color": theme.accent }}
               />
             }
-            label="Enable AI Urgency Prediction"
+            label={t("pages.gsetup.issuePriority.enableAiUrgency")}
           />
           <FormControlLabel
             control={
@@ -399,7 +412,7 @@ function UrgencyManagementPanel({ settings, updateSettings, theme }) {
                 sx={{ ...SWITCH_SX, "--switch-color": theme.accent }}
               />
             }
-            label="Enable Sentiment Priority Boost"
+            label={t("pages.gsetup.issuePriority.enableSentimentBoost")}
           />
           <FormControlLabel
             control={
@@ -409,14 +422,14 @@ function UrgencyManagementPanel({ settings, updateSettings, theme }) {
                 sx={{ ...SWITCH_SX, "--switch-color": theme.accent }}
               />
             }
-            label="Enable Keyword Priority Boost"
+            label={t("pages.gsetup.issuePriority.enableKeywordBoost")}
           />
         </Stack>
 
         {/* Confidence slider */}
         <Stack>
           <Stack direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
-            <Chip label="Confidence Threshold" size="small" sx={{ fontWeight: 700 }} />
+            <Chip label={t("pages.gsetup.issuePriority.confidenceThreshold")} size="small" sx={{ fontWeight: 700 }} />
             <Chip label={`${um.confidenceThreshold}%`} size="small" />
           </Stack>
           <Slider
@@ -434,7 +447,7 @@ function UrgencyManagementPanel({ settings, updateSettings, theme }) {
           <Table size="small">
             <TableHead>
               <TableRow>
-                {["Intent", "Default Urgency"].map((header) => (
+                {[t("pages.gsetup.issuePriority.intent"), t("pages.gsetup.issuePriority.defaultUrgency")].map((header) => (
                   <TableCell key={header} sx={TABLE_HEADER_CELL_SX(theme)}>
                     {header}
                   </TableCell>
@@ -468,8 +481,8 @@ function UrgencyManagementPanel({ settings, updateSettings, theme }) {
 
         {/* Keyword boost */}
         <DialogField
-          label="Keyword Boost"
-          helperText="Enter one keyword or phrase per line. Matching tickets will be boosted one urgency level."
+          label={t("pages.gsetup.issuePriority.keywordBoost")}
+          helperText={t("pages.gsetup.issuePriority.keywordBoostHelper")}
           theme={theme}
         >
           <TextField
@@ -489,6 +502,8 @@ function UrgencyManagementPanel({ settings, updateSettings, theme }) {
 // ── Combined Content ────────────────────────────────────────────────
 
 function IssueAndPriorityContent({ settings, updateSettings, saveSettings, theme }) {
+  const { t } = useTranslation();
+
   return (
     <Stack spacing={2.5}>
       <IntentManagementPanel
@@ -503,18 +518,20 @@ function IssueAndPriorityContent({ settings, updateSettings, saveSettings, theme
       />
       <SectionFooter
         theme={theme}
-        onSave={() => saveSettings(settings, "Issue & priority settings saved.")}
-        helperText="Changes are stored locally for this CRM session and can later be wired to the backend."
+        onSave={() => saveSettings(settings, t("pages.gsetup.issuePriority.toastSaved"))}
+        helperText={t("pages.gsetup.issuePriority.helper")}
       />
     </Stack>
   );
 }
 
 export default function IssueAndPriorityManagementPage() {
+  const { t } = useTranslation();
+
   return (
     <GeneralSetupSectionPage
-      title="Issue and Priority Management"
-      subtitle="Configure AI labels, priority thresholds, priority defaults, and keyword boosts in one place."
+      title={t("pages.gsetup.issuePriority.title")}
+      subtitle={t("pages.gsetup.issuePriority.subtitle")}
       ContentComponent={IssueAndPriorityContent}
     />
   );

@@ -6,6 +6,7 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions,
 } from "@mui/material";
 import { MdLayers, MdAdd, MdEdit, MdDelete, MdKeyboardArrowUp, MdKeyboardArrowDown } from "react-icons/md";
+import { useTranslation } from "react-i18next";
 import GeneralSetupSectionPage, { SettingsPanel } from "../GeneralSetupSectionPage";
 import { fetchCompanyTiers, createTierApi, updateTierApi, deleteTierApi, updateTierLevelApi } from "../gsetup.service";
 
@@ -82,6 +83,7 @@ function LevelCell({ tier, maxLevel, disabled, onChangeLevel }) {
 }
 
 function TierSettingsContent({ theme, showToast }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTier, setEditingTier] = useState(null);
@@ -144,12 +146,12 @@ function TierSettingsContent({ theme, showToast }) {
 
   const deleteMutation = useMutation({
     mutationFn: (id) => deleteTierApi(id),
-    onSuccess: () => { invalidate(); showToast("Successfully deleted tier."); },
-    onError: (err) => showToast(err?.response?.data?.message ?? "Failed to delete tier.", "error"),
+    onSuccess: () => { invalidate(); showToast(t("pages.gsetup.tierSettings.toastDeleted")); },
+    onError: (err) => showToast(err?.response?.data?.message ?? t("pages.gsetup.tierSettings.toastDeleteFailed"), "error"),
   });
 
   const handleDelete = (tier) => {
-    if (window.confirm(`Delete tier "${tier.tierName}"? Users still using this tier must be unassigned first.`)) {
+    if (window.confirm(t("pages.gsetup.tierSettings.deleteConfirm", { name: tier.tierName }))) {
       deleteMutation.mutate(tier.id);
     }
   };
@@ -158,7 +160,7 @@ function TierSettingsContent({ theme, showToast }) {
   const handleChangeLevel = (tier, newLevel) => {
     levelMutation.mutate(
       { id: tier.id, newLevel },
-      { onSuccess: invalidate, onError: (err) => showToast(err?.response?.data?.message ?? "Failed to update level.", "error") },
+      { onSuccess: invalidate, onError: (err) => showToast(err?.response?.data?.message ?? t("pages.gsetup.tierSettings.toastLevelFailed"), "error") },
     );
   };
 
@@ -175,7 +177,7 @@ function TierSettingsContent({ theme, showToast }) {
           await levelMutation.mutateAsync({ id: editingTier.id, newLevel: parsedLevel });
         }
         invalidate();
-        showToast("Successfully updated tier.");
+        showToast(t("pages.gsetup.tierSettings.toastUpdated"));
       } else {
         const created = await createMutation.mutateAsync({ name, color: tierColor });
         const defaultLevel = maxLevel + 1;
@@ -183,11 +185,11 @@ function TierSettingsContent({ theme, showToast }) {
           await levelMutation.mutateAsync({ id: created.id, newLevel: parsedLevel });
         }
         invalidate();
-        showToast("Successfully added tier.");
+        showToast(t("pages.gsetup.tierSettings.toastAdded"));
       }
       closeDialog();
     } catch (err) {
-      showToast(err?.response?.data?.message ?? "Failed to save tier.", "error");
+      showToast(err?.response?.data?.message ?? t("pages.gsetup.tierSettings.toastSaveFailed"), "error");
     } finally {
       setSubmitting(false);
     }
@@ -199,8 +201,8 @@ function TierSettingsContent({ theme, showToast }) {
   return (
     <SettingsPanel
       icon={MdLayers}
-      title="Tier Settings"
-      subtitle="Manage custom customer tier lists for your company."
+      title={t("pages.gsetup.tierSettings.title")}
+      subtitle={t("pages.gsetup.tierSettings.subtitle")}
       theme={theme}
       actions={
         <Button
@@ -209,7 +211,7 @@ function TierSettingsContent({ theme, showToast }) {
           onClick={openCreateDialog}
           sx={{ borderRadius: "12px", fontWeight: 800, background: theme.accent }}
         >
-          Add Tier
+          {t("pages.gsetup.tierSettings.addTier")}
         </Button>
       }
     >
@@ -217,17 +219,17 @@ function TierSettingsContent({ theme, showToast }) {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ fontWeight: 700, color: theme.accent, width: 100 }}>Level</TableCell>
-              <TableCell sx={{ fontWeight: 700, color: theme.accent }}>Tier Name</TableCell>
-              <TableCell sx={{ fontWeight: 700, color: theme.accent, width: 120 }} align="right">Action</TableCell>
+              <TableCell sx={{ fontWeight: 700, color: theme.accent, width: 100 }}>{t("pages.gsetup.tierSettings.level")}</TableCell>
+              <TableCell sx={{ fontWeight: 700, color: theme.accent }}>{t("pages.gsetup.tierSettings.tierName")}</TableCell>
+              <TableCell sx={{ fontWeight: 700, color: theme.accent, width: 120 }} align="right">{t("pages.gsetup.tierSettings.action")}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {isLoading && (
-              <TableRow><TableCell colSpan={3} sx={{ textAlign: "center", py: 4, color: theme.subtext }}>Loading...</TableCell></TableRow>
+              <TableRow><TableCell colSpan={3} sx={{ textAlign: "center", py: 4, color: theme.subtext }}>{t("pages.gsetup.tierSettings.loading")}</TableCell></TableRow>
             )}
             {!isLoading && sortedTiers.length === 0 && (
-              <TableRow><TableCell colSpan={3} sx={{ textAlign: "center", py: 4, color: theme.subtext }}>No tiers available.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={3} sx={{ textAlign: "center", py: 4, color: theme.subtext }}>{t("pages.gsetup.tierSettings.empty")}</TableCell></TableRow>
             )}
             {sortedTiers.map((tier) => (
               <TableRow key={tier.id} hover>
@@ -265,37 +267,37 @@ function TierSettingsContent({ theme, showToast }) {
       </TableContainer>
 
       <Typography sx={{ mt: 2, fontSize: 13, color: theme.subtext }}>
-        Tiers currently in use by users cannot be deleted, remove the assignment first on the Performance &gt; Customer page.
+        {t("pages.gsetup.tierSettings.footerNote")}
       </Typography>
 
       <Dialog open={dialogOpen} onClose={closeDialog} fullWidth maxWidth="xs">
         <DialogTitle sx={{ fontWeight: 800 }}>
-          {editingTier ? "Edit Tier" : "Add New Tier"}
+          {editingTier ? t("pages.gsetup.tierSettings.editTier") : t("pages.gsetup.tierSettings.addNewTier")}
         </DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
             fullWidth
-            label="Tier Name"
+            label={t("pages.gsetup.tierSettings.tierName")}
             value={tierName}
             onChange={(e) => setTierName(e.target.value)}
             sx={{ mt: 1, mb: 2.5 }}
-            placeholder="e.g., Platinum"
+            placeholder={t("pages.gsetup.tierSettings.tierNamePlaceholder")}
           />
 
           <TextField
             fullWidth
             type="number"
-            label="Level"
+            label={t("pages.gsetup.tierSettings.level")}
             value={tierLevel}
             onChange={(e) => setTierLevel(e.target.value)}
             inputProps={{ min: 1, max: levelInputMax }}
-            helperText={`Higher level means higher tier. Max level: ${levelInputMax}.`}
+            helperText={t("pages.gsetup.tierSettings.levelHelper", { max: levelInputMax })}
             sx={{ mb: 2.5 }}
           />
 
           <Typography sx={{ fontSize: 13, fontWeight: 700, color: "#374151", mb: 1 }}>
-            Warna Tier
+            {t("pages.gsetup.tierSettings.tierColor")}
           </Typography>
           <Stack direction="row" spacing={1} sx={{ mb: 1.5, flexWrap: "wrap", gap: 1 }}>
             {PRESET_COLORS.map((c) => (
@@ -319,20 +321,20 @@ function TierSettingsContent({ theme, showToast }) {
             />
             <TextField size="small" value={tierColor} onChange={(e) => setTierColor(e.target.value)} sx={{ flex: 1 }} />
             <Chip
-              label="Preview"
+              label={t("pages.gsetup.tierSettings.preview")}
               sx={{ background: `${tierColor}20`, color: tierColor, border: `1.5px solid ${tierColor}`, fontWeight: 700 }}
             />
           </Stack>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={closeDialog}>Batal</Button>
+          <Button onClick={closeDialog}>{t("pages.gsetup.common.cancel")}</Button>
           <Button
             variant="contained"
             onClick={handleSubmit}
             disabled={!tierName.trim() || submitting}
             sx={{ background: theme.accent, fontWeight: 800 }}
           >
-            Simpan
+            {t("pages.gsetup.common.save")}
           </Button>
         </DialogActions>
       </Dialog>
@@ -341,10 +343,12 @@ function TierSettingsContent({ theme, showToast }) {
 }
 
 export default function TierSettingsPage() {
+  const { t } = useTranslation();
+
   return (
     <GeneralSetupSectionPage
-      title="Tier Settings"
-      subtitle="Manage custom customer tier lists for your company."
+      title={t("pages.gsetup.tierSettings.title")}
+      subtitle={t("pages.gsetup.tierSettings.subtitle")}
       ContentComponent={TierSettingsContent}
     />
   );

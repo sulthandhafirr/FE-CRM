@@ -14,6 +14,7 @@ import {
   Button
 } from "@mui/material";
 import { MdGavel } from "react-icons/md";
+import { useTranslation } from "react-i18next";
 import GeneralSetupSectionPage, {
   SectionFooter,
   SettingsPanel,
@@ -85,6 +86,7 @@ function SlaRulesContent({
   slaApiLoading,
 }) {
   const [saving, setSaving] = useState(false);
+  const { t } = useTranslation();
 
   const updateSlaRule = useCallback(
     (priority, field, value) => {
@@ -130,13 +132,13 @@ function SlaRulesContent({
         slaRules: updated,
       };
       updateSettings("slaRules", updated);
-      saveSettings(nextSettings, "SLA rules saved.");
+      saveSettings(nextSettings, t("pages.gsetup.slaRules.toastSaved"));
     } catch {
-      showToast("Failed to save SLA rules.", "error");
+      showToast(t("pages.gsetup.slaRules.toastSaveFailed"), "error");
     } finally {
       setSaving(false);
     }
-  }, [settings, updateSettings, saveSettings, showToast]);
+  }, [settings, updateSettings, saveSettings, showToast, t]);
 
   const handleResetToDefault = useCallback(() => {
     updateSettings("slaRules", (section) => ({
@@ -155,12 +157,14 @@ function SlaRulesContent({
     <Stack spacing={2.5}>
       <SettingsPanel
         icon={MdGavel}
-        title="SLA Rules"
-        subtitle="Set first response and resolution targets per priority and enable proactive monitoring."
+        title={t("pages.gsetup.slaRules.title")}
+        subtitle={t("pages.gsetup.slaRules.subtitle")}
         theme={theme}
         actions={
           <Chip
-            label={`Notify ${settings.slaRules.notifyBeforeBreachedMinutes} min before breach`}
+            label={t("pages.gsetup.slaRules.notifyChip", {
+              minutes: settings.slaRules.notifyBeforeBreachedMinutes,
+            })}
             sx={{ fontWeight: 700 }}
           />
         }
@@ -171,9 +175,9 @@ function SlaRulesContent({
               <TableHead>
                 <TableRow>
                   {[
-                    "Priority",
+                    t("pages.gsetup.slaRules.priority"),
                     // "First Response Time (hours)", // hidden column
-                    "Resolution Time (hours)",
+                    t("pages.gsetup.slaRules.resolutionHours"),
                   ].map((header) => (
                     <TableCell key={header} sx={TABLE_HEADER_CELL_SX(theme)}>
                       {header}
@@ -203,12 +207,12 @@ function SlaRulesContent({
                   sx={{ ...SWITCH_SX, "--switch-color": theme.accent }}
                 />
               }
-              label="Enable SLA Monitoring"
+              label={t("pages.gsetup.slaRules.enableMonitoring")}
             />
             <TextField
               type="text"
               inputMode="numeric"
-              label="Notify Before SLA Breach (minutes)"
+              label={t("pages.gsetup.slaRules.notifyMinutes")}
               value={settings.slaRules.notifyBeforeBreachedMinutes}
               onChange={handleNotifyChange}
               disabled={!settings.slaRules.enableSlaMonitoring}
@@ -220,14 +224,14 @@ function SlaRulesContent({
             theme={theme}
             onSave={handleSave}
             loading={saving}
-            helperText="SLA monitoring supports proactive breach warnings and priority-based targets."
+            helperText={t("pages.gsetup.slaRules.helper")}
             secondaryAction={
               <Button
                 variant="outlined"
                 onClick={handleResetToDefault}
                 sx={{ borderRadius: "12px", fontWeight: 800, minHeight: 44 }}
               >
-                Reset to Default
+                {t("pages.gsetup.slaRules.resetToDefault")}
               </Button>
             }
           />
@@ -238,10 +242,12 @@ function SlaRulesContent({
 }
 
 export default function SlaRulesPage() {
+  const { t } = useTranslation();
+
   return (
     <GeneralSetupSectionPage
-      title="SLA Rules"
-      subtitle="Set first response and resolution targets per priority and enable proactive monitoring."
+      title={t("pages.gsetup.slaRules.title")}
+      subtitle={t("pages.gsetup.slaRules.subtitle")}
       ContentComponent={SlaRulesContent}
     />
   );

@@ -138,7 +138,8 @@
         "position": "Posisi (Opsional)",
         "positionPlaceholder": "contoh: Teknisi Senior",
         "skills": "Keahlian (Opsional)",
-        "skillsPlaceholder": "contoh: JavaScript"
+        "skillsPlaceholder": "contoh: JavaScript",
+        "addSkillOption": "Tambah \"{{name}}\""
       },
       "errors": {
         "nameRequired": "Nama harus diisi",
@@ -233,6 +234,216 @@
       "adminTicketView": "Tampilan Tiket Admin",
       "generalSetup": "Pengaturan Umum"
     },
+    "gsetup": {
+      "breadcrumb": {
+        "dashboard": "Dasbor",
+        "generalSetup": "Pengaturan Umum"
+      },
+      "common": {
+        "back": "Kembali",
+        "cancel": "Batal",
+        "save": "Simpan",
+        "saveChanges": "Simpan Perubahan",
+        "delete": "Hapus",
+        "confirm": "Konfirmasi",
+        "loading": "Memuat...",
+        "openView": "Buka Tampilan"
+      },
+      "nav": {
+        "companySettings": {
+          "badge": "Org",
+          "title": "Pengaturan Perusahaan",
+          "description": "Atur profil perusahaan, pengaturan default lokal, hari kerja, dan penomoran tiket."
+        },
+        "ticketStatus": {
+          "badge": "Alur",
+          "title": "Status Tiket",
+          "description": "Ubah status, warna, perilaku buka ulang, dan kebijakan tutup otomatis untuk alur tiket."
+        },
+        "slaRules": {
+          "badge": "SLA",
+          "title": "Aturan SLA",
+          "description": "Tetapkan target respons pertama dan resolusi per prioritas serta notifikasi SLA."
+        },
+        "tierSettings": {
+          "badge": "Loyalitas",
+          "title": "Pengaturan Tier",
+          "description": "Kelola tier loyalitas pelanggan seperti Bronze, Silver, Gold, atau tier khusus."
+        }
+      },
+      "companySettings": {
+        "title": "Pengaturan Perusahaan",
+        "subtitle": "Atur detail organisasi, preferensi lokal, dan jadwal kerja default.",
+        "loading": "Memuat pengaturan perusahaan...",
+        "chip": "Profil perusahaan",
+        "companyName": "Nama Perusahaan",
+        "supportEmail": "Email Dukungan",
+        "phoneNumber": "Nomor Telepon",
+        "timezone": "Zona Waktu",
+        "companyLogo": "Logo Perusahaan",
+        "logoHelp": "Unggah logo persegi untuk tampilan admin dan ekspor bermerek.",
+        "uploadLogo": "Unggah Logo",
+        "remove": "Hapus",
+        "workingDays": "Hari Kerja",
+        "workingHours": "Jam Kerja",
+        "workingHoursHelp": "Tetapkan jendela operasional dukungan default.",
+        "start": "Mulai",
+        "end": "Selesai",
+        "helper": "Pengaturan perusahaan memengaruhi branding, lokalisasi, dan default jadwal kerja.",
+        "toastSaved": "Pengaturan perusahaan disimpan.",
+        "toastSaveFailed": "Gagal menyimpan pengaturan perusahaan.",
+        "toastLogoOk": "Logo berhasil diunggah.",
+        "toastLogoFail": "Gagal mengunggah logo."
+      },
+      "roleManagement": {
+        "title": "Manajemen Peran",
+        "subtitle": "Buat peran, atur izin, dan kelola akses tanpa keluar dari konsol admin.",
+        "createRole": "Buat Peran",
+        "editRole": "Ubah Peran",
+        "colRoleName": "Nama Peran",
+        "colUserCount": "Jumlah Pengguna",
+        "colPermissions": "Izin",
+        "colActions": "Aksi",
+        "system": "Sistem",
+        "permissionsEnabled": "{{count}} izin diaktifkan",
+        "empty": "Belum ada peran. Klik \"Buat Peran\" untuk menambahkan.",
+        "refreshFromServer": "Muat Ulang dari Server",
+        "helper": "Perubahan disimpan langsung. Klik muat ulang untuk memuat data terbaru.",
+        "roleNameLocked": "Nama peran sistem tidak dapat diubah.",
+        "userCountAuto": "Dihitung otomatis dari server",
+        "deleteTitle": "Hapus peran?",
+        "deleteDesc": "Ini akan menghapus \"{{name}}\" secara permanen. Pengguna yang ditugaskan sebaiknya dipindahkan dulu.",
+        "toastNameRequired": "Nama peran wajib diisi.",
+        "toastUpdated": "Peran diperbarui.",
+        "toastCreated": "Peran dibuat.",
+        "toastSaveFailed": "Gagal menyimpan peran. Silakan coba lagi.",
+        "toastDeleted": "Peran dihapus.",
+        "toastDeleteFailed": "Gagal menghapus peran.",
+        "toastRefreshed": "Daftar peran dimuat ulang dari server.",
+        "toastRefreshFailed": "Gagal memuat ulang peran.",
+        "permissions": {
+          "groups": {
+            "ticket": "Izin Tiket",
+            "ai": "Izin AI",
+            "administration": "Administrasi",
+            "reports": "Laporan"
+          },
+          "items": {
+            "viewTickets": "Lihat Tiket",
+            "createTickets": "Buat Tiket",
+            "editTickets": "Ubah Tiket",
+            "deleteTickets": "Hapus Tiket",
+            "overrideIntent": "Ganti Isu",
+            "overrideUrgency": "Ganti Urgensi",
+            "manageUsers": "Kelola Pengguna",
+            "manageRoles": "Kelola Peran",
+            "manageGeneralSetup": "Kelola Pengaturan Umum",
+            "exportReports": "Ekspor Laporan",
+            "viewAnalytics": "Lihat Analitik"
+          }
+        }
+      },
+      "slaRules": {
+        "title": "Aturan SLA",
+        "subtitle": "Tetapkan target respons pertama dan resolusi per prioritas serta aktifkan pemantauan proaktif.",
+        "notifyChip": "Beri tahu {{minutes}} menit sebelum pelanggaran",
+        "priority": "Prioritas",
+        "resolutionHours": "Waktu Resolusi (jam)",
+        "enableMonitoring": "Aktifkan Pemantauan SLA",
+        "notifyMinutes": "Beri Tahu Sebelum Pelanggaran SLA (menit)",
+        "helper": "Pemantauan SLA mendukung peringatan pelanggaran proaktif dan target berbasis prioritas.",
+        "resetToDefault": "Atur Ulang ke Default",
+        "toastSaved": "Aturan SLA disimpan.",
+        "toastSaveFailed": "Gagal menyimpan aturan SLA."
+      },
+      "ticketStatus": {
+        "title": "Status Tiket",
+        "subtitle": "Ubah status, warna, perilaku buka ulang, dan kebijakan tutup otomatis untuk alur tiket.",
+        "subtitlePage": "Sesuaikan status alur kerja, warna, perilaku buka ulang, dan waktu tutup otomatis.",
+        "addStatus": "Tambah Status",
+        "editStatus": "Ubah Status",
+        "colStatusName": "Nama Status",
+        "colColorBadge": "Lencana Warna",
+        "colActive": "Aktif",
+        "colActions": "Aksi",
+        "helper": "Status menggerakkan alur kerja CRM dan tetap dapat diubah tanpa membangun ulang UI.",
+        "deleteTitle": "Hapus status?",
+        "deleteDesc": "Ini akan menghapus {{name}} dari alur kerja. Tiket yang ada tetap mempertahankan nilainya saat ini.",
+        "toastNameRequired": "Nama status wajib diisi.",
+        "toastDeleted": "Status dihapus.",
+        "toastSaved": "Pengaturan status tiket disimpan.",
+        "toastSaveFailed": "Gagal menyimpan pengaturan status tiket.",
+        "statusColors": {
+          "slate": "Abu-abu",
+          "blue": "Biru",
+          "amber": "Kuning",
+          "green": "Hijau",
+          "red": "Merah",
+          "purple": "Ungu"
+        }
+      },
+      "tierSettings": {
+        "title": "Pengaturan Tier",
+        "subtitle": "Kelola daftar tier pelanggan khusus untuk perusahaan Anda.",
+        "addTier": "Tambah Tier",
+        "editTier": "Ubah Tier",
+        "addNewTier": "Tambah Tier Baru",
+        "level": "Level",
+        "tierName": "Nama Tier",
+        "tierNamePlaceholder": "misal, Platinum",
+        "action": "Aksi",
+        "loading": "Memuat...",
+        "empty": "Belum ada tier.",
+        "footerNote": "Tier yang sedang digunakan oleh pengguna tidak dapat dihapus, lepaskan penugasannya dulu di halaman Performa > Pelanggan.",
+        "levelHelper": "Level lebih tinggi berarti tier lebih tinggi. Level maks: {{max}}.",
+        "tierColor": "Warna Tier",
+        "preview": "Pratinjau",
+        "deleteConfirm": "Hapus tier \"{{name}}\"? Pengguna yang masih memakai tier ini harus dilepas penugasannya dulu.",
+        "toastDeleted": "Berhasil menghapus tier.",
+        "toastDeleteFailed": "Gagal menghapus tier.",
+        "toastLevelFailed": "Gagal memperbarui level.",
+        "toastUpdated": "Berhasil memperbarui tier.",
+        "toastAdded": "Berhasil menambahkan tier.",
+        "toastSaveFailed": "Gagal menyimpan tier."
+      },
+      "issuePriority": {
+        "title": "Manajemen Isu dan Prioritas",
+        "subtitle": "Atur label AI, ambang prioritas, default prioritas, dan penguatan kata kunci dalam satu tempat.",
+        "intentHeaders": {
+          "intentName": "Nama Isu",
+          "displayName": "Nama Tampilan",
+          "description": "Deskripsi",
+          "defaultPriority": "Prioritas Default",
+          "status": "Status",
+          "manualOverride": "Ganti Manual",
+          "actions": "Aksi"
+        },
+        "editDescription": "Ubah deskripsi",
+        "addDescription": "Tambah deskripsi",
+        "dialogTitle": "Ubah Deskripsi Isu",
+        "dialogPlaceholder": "Jelaskan bagaimana isu ini harus diinterpretasikan oleh model AI.",
+        "cancel": "Batal",
+        "save": "Simpan",
+        "intentTitle": "Manajemen Isu",
+        "intentSubtitle": "Kelola label, deskripsi, prioritas, dan kontrol ganti manual untuk isu tiket.",
+        "enabledIntents": "Isu aktif: {{count}}",
+        "searchIntent": "Cari isu",
+        "noIntents": "Tidak ada isu yang cocok dengan pencarian Anda.",
+        "urgencyTitle": "Manajemen Urgensi",
+        "urgencySubtitle": "Kontrol ambang urgensi AI, penguatan sentimen, penguatan kata kunci, dan pemetaan isu.",
+        "confidenceChip": "ambang kepercayaan {{percent}}%",
+        "enableAiUrgency": "Aktifkan Prediksi Urgensi AI",
+        "enableSentimentBoost": "Aktifkan Penguatan Prioritas Sentimen",
+        "enableKeywordBoost": "Aktifkan Penguatan Prioritas Kata Kunci",
+        "confidenceThreshold": "Ambang Kepercayaan",
+        "intent": "Isu",
+        "defaultUrgency": "Urgensi Default",
+        "keywordBoost": "Penguatan Kata Kunci",
+        "keywordBoostHelper": "Masukkan satu kata kunci atau frasa per baris. Tiket yang cocok akan dinaikkan satu tingkat urgensi.",
+        "toastSaved": "Pengaturan isu & prioritas disimpan.",
+        "helper": "Perubahan disimpan secara lokal untuk sesi CRM ini dan dapat dihubungkan ke backend nanti."
+      }
+    },
     "notificationBell": {
       "title": "Notifikasi",
       "unread": "{{count}} belum dibaca",
@@ -314,6 +525,7 @@
       "rankOf": "Peringkat {{rank}} dari {{total}} agen",
       "myAvgResponseTime": "Rata-Rata Waktu Respons Saya",
       "myAvgResolutionTime": "Rata-Rata Waktu Resolusi Saya",
+      "noTicketsFound": "Tidak ada tiket ditemukan",
       "previewId": "ID",
       "previewSubject": "Subjek",
       "previewStatus": "Status",
@@ -334,8 +546,8 @@
       "ticketPriorityLabels": {
         "low": "Rendah",
         "normal": "Normal",
-        "High": "Tinggi",
-        "Critical": "Kritis"
+        "high": "Tinggi",
+        "critical": "Kritis"
       },
       "topReason": {
         "slowResponse": "lambat merespons",
@@ -653,6 +865,38 @@
         "invalidImageType": "Pilih gambar JPG, PNG, atau WebP",
         "imageTooLarge": "Ukuran gambar maksimal 5 MB"
       }
+    },
+    "performance": {
+      "openView": "Buka Tampilan",
+      "noData": "Tidak ada data",
+      "ticketsCount": "Tiket: {{count}}",
+      "cards": {
+        "csAgent": {
+          "title": "Agen CS",
+          "description": "Lihat performa agen CS dan tiket yang ditangani."
+        },
+        "technician": {
+          "title": "Teknisi",
+          "description": "Lihat performa teknisi dan tiket yang diselesaikan."
+        },
+        "customer": {
+          "title": "Pelanggan",
+          "description": "Lihat statistik dan riwayat tiket terkait pelanggan."
+        }
+      }
+    },
+    "ticketSelector": {
+      "activeTitle": "Tiket Aktif",
+      "activeBadge": "AKTIF",
+      "activeDesc": "Lihat dan kelola tiket pelanggan aktif yang sedang berjalan.",
+      "solvedTitle": "Tiket Selesai",
+      "solvedBadge": "SELESAI",
+      "solvedDesc": "Lihat tiket dukungan yang telah diselesaikan.",
+      "openView": "Buka Tampilan"
+    },
+    "ticketCard": {
+      "view": "Lihat",
+      "handler": "Penangan: {{name}}"
     },
     "dateFilter": {
       "today": "Hari Ini",

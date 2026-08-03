@@ -1,7 +1,9 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function PerformanceCard({ badge, title, description, route, color = "#FF8040", bg = "#fff4ee", border = "#fcd9bc" }) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   return (
     <div
       onClick={() => navigate(route)}
@@ -44,7 +46,7 @@ export default function PerformanceCard({ badge, title, description, route, colo
       </div>
       <h3 style={{ fontSize: "24px", fontWeight: "700", color: "#1a202c", margin: "0 0 10px" }}>{title}</h3>
       <p style={{ fontSize: "14px", color: "#6b7280", margin: "0 0 20px", lineHeight: "1.6" }}>{description}</p>
-      <div style={{ color, fontWeight: "600", fontSize: "14px" }}>Open View</div>
+      <div style={{ color, fontWeight: "600", fontSize: "14px" }}>{t("pages.performance.openView")}</div>
     </div>
   );
 }

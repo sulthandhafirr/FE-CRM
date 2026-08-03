@@ -727,10 +727,12 @@ export function AdminTicketListPage({ mode = "active" }) {
                 color: "#FF8040",
               }}
             >
-              <MdSupportAgent size={16} /> You
+              <MdSupportAgent size={16} /> {t("pages.agentTicket.you")}
             </span>
           ) : (
-            <span style={{ color: "#999", fontSize: "13px" }}>Unassigned</span>
+            <span style={{ color: "#999", fontSize: "13px" }}>
+              {t("pages.agentTicket.unassigned")}
+            </span>
           )}
         </TableCell>
         <TableCell>{formatTicketDate(ticket.createdAt)}</TableCell>

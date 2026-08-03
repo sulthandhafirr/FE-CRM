@@ -1,6 +1,8 @@
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, TablePagination } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 export default function PerformanceTable({ columns = [], rows = [], orderBy, order, onSort, page, rowsPerPage, onPageChange, onRowsPerPageChange }) {
+  const { t } = useTranslation();
   const start = page * rowsPerPage;
   const pageRows = rows.slice(start, start + rowsPerPage);
 
@@ -32,7 +34,7 @@ export default function PerformanceTable({ columns = [], rows = [], orderBy, ord
             {rows.length === 0 && (
               <TableRow>
                 <TableCell colSpan={columns.length} sx={{ textAlign: "center", py: 4, color: "#999" }}>
-                  No data
+                  {t("pages.performance.noData")}
                 </TableCell>
               </TableRow>
             )}

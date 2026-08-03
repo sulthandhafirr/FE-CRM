@@ -432,11 +432,12 @@ const TierDropdownCell = ({ user, tiers }) => {
 // ─── page ────────────────────────────────────────────────────────────────────
 
 export default function AdminUserPerformancePage() {
+  const { t } = useTranslation();
   const cards = [
     {
       badge: "CS",
-      title: "CS Agent",
-      description: "View CS agent performance and handled tickets.",
+      title: t("pages.performance.cards.csAgent.title"),
+      description: t("pages.performance.cards.csAgent.description"),
       route: ROUTE.adminPerformanceCsAgent,
       color: "#FF8040",
       bg: "#fff4ee",
@@ -444,8 +445,8 @@ export default function AdminUserPerformancePage() {
     },
     {
       badge: "TECH",
-      title: "Technician",
-      description: "View technician performance and resolved tickets.",
+      title: t("pages.performance.cards.technician.title"),
+      description: t("pages.performance.cards.technician.description"),
       route: ROUTE.adminPerformanceTechnician,
       color: "#8b5cf6",
       bg: "#f5f3ff",
@@ -453,8 +454,8 @@ export default function AdminUserPerformancePage() {
     },
     {
       badge: "CUST",
-      title: "Customer",
-      description: "View customer-related ticket stats and history.",
+      title: t("pages.performance.cards.customer.title"),
+      description: t("pages.performance.cards.customer.description"),
       route: ROUTE.adminPerformanceCustomer,
       color: "#3b82f6",
       bg: "#eff6ff",

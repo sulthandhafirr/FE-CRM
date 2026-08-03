@@ -138,7 +138,8 @@
         "position": "Position (Optional)",
         "positionPlaceholder": "e.g. Senior Technician",
         "skills": "Skills (Optional)",
-        "skillsPlaceholder": "e.g. JavaScript"
+        "skillsPlaceholder": "e.g. JavaScript",
+        "addSkillOption": "Add \"{{name}}\""
       },
       "errors": {
         "nameRequired": "Name is required",
@@ -232,6 +233,216 @@
       "technicianTicketView": "Technician Ticket View",
       "adminTicketView": "Admin Ticket View",
       "generalSetup": "General Setup"
+    },
+    "gsetup": {
+      "breadcrumb": {
+        "dashboard": "Dashboard",
+        "generalSetup": "General Setup"
+      },
+      "common": {
+        "back": "Back",
+        "cancel": "Cancel",
+        "save": "Save",
+        "saveChanges": "Save Changes",
+        "delete": "Delete",
+        "confirm": "Confirm",
+        "loading": "Loading...",
+        "openView": "Open View"
+      },
+      "nav": {
+        "companySettings": {
+          "badge": "Org",
+          "title": "Company Settings",
+          "description": "Configure company profile, locale defaults, working days, and ticket numbering."
+        },
+        "ticketStatus": {
+          "badge": "Workflow",
+          "title": "Ticket Status",
+          "description": "Edit statuses, colors, reopen behavior, and auto-close policy for ticket flow."
+        },
+        "slaRules": {
+          "badge": "SLA",
+          "title": "SLA Rules",
+          "description": "Set first response and resolution targets per priority and SLA notifications."
+        },
+        "tierSettings": {
+          "badge": "Loyalty",
+          "title": "Tier Settings",
+          "description": "Manage customer loyalty tiers such as Bronze, Silver, Gold, or custom tiers."
+        }
+      },
+      "companySettings": {
+        "title": "Company Settings",
+        "subtitle": "Configure organization details, locale preferences, and default working schedule.",
+        "loading": "Loading company settings...",
+        "chip": "Company profile",
+        "companyName": "Company Name",
+        "supportEmail": "Support Email",
+        "phoneNumber": "Phone Number",
+        "timezone": "Timezone",
+        "companyLogo": "Company Logo",
+        "logoHelp": "Upload a square logo for the admin experience and branded exports.",
+        "uploadLogo": "Upload Logo",
+        "remove": "Remove",
+        "workingDays": "Working Days",
+        "workingHours": "Working Hours",
+        "workingHoursHelp": "Set the default support operating window.",
+        "start": "Start",
+        "end": "End",
+        "helper": "Company settings influence branding, localization, and working schedule defaults.",
+        "toastSaved": "Company settings saved.",
+        "toastSaveFailed": "Failed to save company settings.",
+        "toastLogoOk": "Logo uploaded successfully.",
+        "toastLogoFail": "Failed to upload logo."
+      },
+      "roleManagement": {
+        "title": "Role Management",
+        "subtitle": "Create roles, assign permissions, and manage access without leaving the admin console.",
+        "createRole": "Create Role",
+        "editRole": "Edit Role",
+        "colRoleName": "Role Name",
+        "colUserCount": "Number of Users",
+        "colPermissions": "Permissions",
+        "colActions": "Actions",
+        "system": "System",
+        "permissionsEnabled": "{{count}} permissions enabled",
+        "empty": "No roles defined yet. Click \"Create Role\" to add one.",
+        "refreshFromServer": "Refresh from Server",
+        "helper": "Changes are saved immediately. Click refresh to reload the latest data.",
+        "roleNameLocked": "System role names cannot be changed.",
+        "userCountAuto": "Auto-computed from server",
+        "deleteTitle": "Delete role?",
+        "deleteDesc": "This will remove \"{{name}}\" permanently. Users assigned to it should be reassigned first.",
+        "toastNameRequired": "Role name is required.",
+        "toastUpdated": "Role updated.",
+        "toastCreated": "Role created.",
+        "toastSaveFailed": "Failed to save role. Please try again.",
+        "toastDeleted": "Role deleted.",
+        "toastDeleteFailed": "Failed to delete role.",
+        "toastRefreshed": "Role list refreshed from server.",
+        "toastRefreshFailed": "Failed to refresh roles.",
+        "permissions": {
+          "groups": {
+            "ticket": "Ticket Permissions",
+            "ai": "AI Permissions",
+            "administration": "Administration",
+            "reports": "Reports"
+          },
+          "items": {
+            "viewTickets": "View Tickets",
+            "createTickets": "Create Tickets",
+            "editTickets": "Edit Tickets",
+            "deleteTickets": "Delete Tickets",
+            "overrideIntent": "Override Intent",
+            "overrideUrgency": "Override Urgency",
+            "manageUsers": "Manage Users",
+            "manageRoles": "Manage Roles",
+            "manageGeneralSetup": "Manage General Setup",
+            "exportReports": "Export Reports",
+            "viewAnalytics": "View Analytics"
+          }
+        }
+      },
+      "slaRules": {
+        "title": "SLA Rules",
+        "subtitle": "Set first response and resolution targets per priority and enable proactive monitoring.",
+        "notifyChip": "Notify {{minutes}} min before breach",
+        "priority": "Priority",
+        "resolutionHours": "Resolution Time (hours)",
+        "enableMonitoring": "Enable SLA Monitoring",
+        "notifyMinutes": "Notify Before SLA Breach (minutes)",
+        "helper": "SLA monitoring supports proactive breach warnings and priority-based targets.",
+        "resetToDefault": "Reset to Default",
+        "toastSaved": "SLA rules saved.",
+        "toastSaveFailed": "Failed to save SLA rules."
+      },
+      "ticketStatus": {
+        "title": "Ticket Status",
+        "subtitle": "Edit statuses, colors, reopen behavior, and auto-close policy for ticket flow.",
+        "subtitlePage": "Customize workflow statuses, colors, reopening behavior, and auto close timing.",
+        "addStatus": "Add Status",
+        "editStatus": "Edit Status",
+        "colStatusName": "Status Name",
+        "colColorBadge": "Color Badge",
+        "colActive": "Active",
+        "colActions": "Actions",
+        "helper": "Statuses drive the CRM workflow and remain editable without rebuilding the UI.",
+        "deleteTitle": "Delete status?",
+        "deleteDesc": "This will remove {{name}} from the workflow. Existing tickets keep their current value.",
+        "toastNameRequired": "Status name is required.",
+        "toastDeleted": "Status deleted.",
+        "toastSaved": "Ticket status settings saved.",
+        "toastSaveFailed": "Failed to save ticket status settings.",
+        "statusColors": {
+          "slate": "Slate",
+          "blue": "Blue",
+          "amber": "Amber",
+          "green": "Green",
+          "red": "Red",
+          "purple": "Purple"
+        }
+      },
+      "tierSettings": {
+        "title": "Tier Settings",
+        "subtitle": "Manage custom customer tier lists for your company.",
+        "addTier": "Add Tier",
+        "editTier": "Edit Tier",
+        "addNewTier": "Add New Tier",
+        "level": "Level",
+        "tierName": "Tier Name",
+        "tierNamePlaceholder": "e.g., Platinum",
+        "action": "Action",
+        "loading": "Loading...",
+        "empty": "No tiers available.",
+        "footerNote": "Tiers currently in use by users cannot be deleted, remove the assignment first on the Performance > Customer page.",
+        "levelHelper": "Higher level means higher tier. Max level: {{max}}.",
+        "tierColor": "Tier Color",
+        "preview": "Preview",
+        "deleteConfirm": "Delete tier \"{{name}}\"? Users still using this tier must be unassigned first.",
+        "toastDeleted": "Successfully deleted tier.",
+        "toastDeleteFailed": "Failed to delete tier.",
+        "toastLevelFailed": "Failed to update level.",
+        "toastUpdated": "Successfully updated tier.",
+        "toastAdded": "Successfully added tier.",
+        "toastSaveFailed": "Failed to save tier."
+      },
+      "issuePriority": {
+        "title": "Issue and Priority Management",
+        "subtitle": "Configure AI labels, priority thresholds, priority defaults, and keyword boosts in one place.",
+        "intentHeaders": {
+          "intentName": "Intent Name",
+          "displayName": "Display Name",
+          "description": "Description",
+          "defaultPriority": "Default Priority",
+          "status": "Status",
+          "manualOverride": "Manual Override",
+          "actions": "Actions"
+        },
+        "editDescription": "Edit description",
+        "addDescription": "Add description",
+        "dialogTitle": "Edit Intent Description",
+        "dialogPlaceholder": "Describe how this intent should be interpreted by the AI model.",
+        "cancel": "Cancel",
+        "save": "Save",
+        "intentTitle": "Intent Management",
+        "intentSubtitle": "Manage labels, descriptions, priorities, and manual override controls for ticket intents.",
+        "enabledIntents": "Enabled intents: {{count}}",
+        "searchIntent": "Search intent",
+        "noIntents": "No intents found for your search.",
+        "urgencyTitle": "Urgency Management",
+        "urgencySubtitle": "Control AI urgency thresholds, sentiment boost, keyword boost, and intent mapping.",
+        "confidenceChip": "{{percent}}% confidence threshold",
+        "enableAiUrgency": "Enable AI Urgency Prediction",
+        "enableSentimentBoost": "Enable Sentiment Priority Boost",
+        "enableKeywordBoost": "Enable Keyword Priority Boost",
+        "confidenceThreshold": "Confidence Threshold",
+        "intent": "Intent",
+        "defaultUrgency": "Default Urgency",
+        "keywordBoost": "Keyword Boost",
+        "keywordBoostHelper": "Enter one keyword or phrase per line. Matching tickets will be boosted one urgency level.",
+        "toastSaved": "Issue & priority settings saved.",
+        "helper": "Changes are stored locally for this CRM session and can later be wired to the backend."
+      }
     },
     "notificationBell": {
       "title": "Notifications",
@@ -654,6 +865,38 @@
         "invalidImageType": "Please choose a JPG, PNG, or WebP image",
         "imageTooLarge": "Image must be less than 5 MB"
       }
+    },
+    "performance": {
+      "openView": "Open View",
+      "noData": "No data",
+      "ticketsCount": "Tickets: {{count}}",
+      "cards": {
+        "csAgent": {
+          "title": "CS Agent",
+          "description": "View CS agent performance and handled tickets."
+        },
+        "technician": {
+          "title": "Technician",
+          "description": "View technician performance and resolved tickets."
+        },
+        "customer": {
+          "title": "Customer",
+          "description": "View customer-related ticket stats and history."
+        }
+      }
+    },
+    "ticketSelector": {
+      "activeTitle": "Active Tickets",
+      "activeBadge": "ACTIVE",
+      "activeDesc": "View and manage ongoing active customer tickets.",
+      "solvedTitle": "Solved Tickets",
+      "solvedBadge": "SOLVED",
+      "solvedDesc": "View resolved and completed support tickets.",
+      "openView": "Open View"
+    },
+    "ticketCard": {
+      "view": "View",
+      "handler": "Handler: {{name}}"
     },
     "dateFilter": {
       "today": "Today",

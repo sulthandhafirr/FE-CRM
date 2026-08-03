@@ -1,9 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { Box, Paper, Stack, Typography } from "@mui/material";
+import { useTranslation } from "react-i18next";
 import { createGeneralSetupThemeTokens } from "../GeneralSetupSectionPage";
 import { GENERAL_SETUP_MODULES } from "../gsetup.navigation";
 
 function ModuleCard({ module, theme, onNavigate }) {
+  const { t } = useTranslation();
   const accent = module.accent ?? theme.accent;
   const accentBg = module.accentBg ?? "#fff4ee";
   const accentBorder = module.accentBorder ?? "#fcd9bc";
@@ -48,18 +50,18 @@ function ModuleCard({ module, theme, onNavigate }) {
           width: "fit-content",
         }}
       >
-        {module.badge}
+        {t(`pages.gsetup.nav.${module.key}.badge`)}
       </Box>
       <Typography sx={{ fontSize: 24, fontWeight: 700, color: theme.text, mb: 1 }}>
-        {module.title}
+        {t(`pages.gsetup.nav.${module.key}.title`)}
       </Typography>
       <Typography
         sx={{ fontSize: 14, color: theme.subtext, lineHeight: 1.6, mb: 2.5, flex: 1 }}
       >
-        {module.description}
+        {t(`pages.gsetup.nav.${module.key}.description`)}
       </Typography>
       <Typography sx={{ color: accent, fontWeight: 600, fontSize: 14 }}>
-        Open View
+        {t("pages.gsetup.common.openView")}
       </Typography>
     </Paper>
   );

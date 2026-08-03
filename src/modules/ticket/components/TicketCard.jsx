@@ -1,6 +1,9 @@
 import { getStatusColor, getPriorityColor, formatTicketDate } from "../ticket.schema";
+import { useTranslation } from "react-i18next";
 
-export default function TicketCard({ ticket, onAction, actionLabel = "View" }) {
+export default function TicketCard({ ticket, onAction, actionLabel }) {
+  const { t } = useTranslation();
+  const label = actionLabel ?? t("pages.ticketCard.view");
   return (
     <div
       style={{
@@ -44,7 +47,9 @@ export default function TicketCard({ ticket, onAction, actionLabel = "View" }) {
             </span>
           )}
           {ticket.handler && (
-            <span style={{ color: "#999" }}>Handler: {ticket.handler}</span>
+            <span style={{ color: "#999" }}>
+              {t("pages.ticketCard.handler", { name: ticket.handler })}
+            </span>
           )}
         </div>
       </div>
@@ -64,7 +69,7 @@ export default function TicketCard({ ticket, onAction, actionLabel = "View" }) {
             whiteSpace: "nowrap",
           }}
         >
-          {actionLabel}
+          {label}
         </button>
       )}
     </div>

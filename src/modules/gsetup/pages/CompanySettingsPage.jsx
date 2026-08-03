@@ -15,6 +15,7 @@ import {
   Typography,
 } from "@mui/material";
 import { MdBusiness, MdUploadFile } from "react-icons/md";
+import { useTranslation } from "react-i18next";
 import GeneralSetupSectionPage, { DialogField, SectionFooter, SettingsPanel } from "../GeneralSetupSectionPage";
 import {
   TIMEZONE_OPTIONS,
@@ -26,6 +27,7 @@ import {
 import { GRID_2_SX } from "../components/gsetup.styles";
 
 function CompanySettingsContent({ settings, updateSettings, saveSettings, showToast, theme, fileInputRef }) {
+  const { t } = useTranslation();
   const [fileName, setFileName] = useState("");
   const [saving, setSaving] = useState(false);
   const [loadingApi, setLoadingApi] = useState(true);
@@ -67,16 +69,16 @@ function CompanySettingsContent({ settings, updateSettings, saveSettings, showTo
         companySettings: updated,
       };
       updateSettings("companySettings", updated);
-      saveSettings(nextSettings, "Company settings saved.");
+      saveSettings(nextSettings, t("pages.gsetup.companySettings.toastSaved"));
 
       /* Notify RealtimeClock to pick up the new timezone immediately */
       window.dispatchEvent(new Event("company-tz-changed"));
     } catch {
-      showToast("Failed to save company settings.", "error");
+      showToast(t("pages.gsetup.companySettings.toastSaveFailed"), "error");
     } finally {
       setSaving(false);
     }
-  }, [settings, updateSettings, saveSettings, showToast]);
+  }, [settings, updateSettings, saveSettings, showToast, t]);
 
   const handleFieldChange = useCallback(
     (field) => (event) => {
@@ -112,9 +114,9 @@ function CompanySettingsContent({ settings, updateSettings, saveSettings, showTo
         ...section,
         logoDataUrl: logoUrl,
       }));
-      showToast("Logo uploaded successfully.");
+      showToast(t("pages.gsetup.companySettings.toastLogoOk"));
     } catch {
-      showToast("Failed to upload logo.", "error");
+      showToast(t("pages.gsetup.companySettings.toastLogoFail"), "error");
       setFileName("");
     }
 
@@ -135,13 +137,13 @@ function CompanySettingsContent({ settings, updateSettings, saveSettings, showTo
       <Stack spacing={2.5}>
         <SettingsPanel
           icon={MdBusiness}
-          title="Company Settings"
-          subtitle="Loading company settings..."
+          title={t("pages.gsetup.companySettings.title")}
+          subtitle={t("pages.gsetup.companySettings.loading")}
           theme={theme}
         >
           <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
             <Typography sx={{ color: theme.subtext, fontSize: 14 }}>
-              Loading company settings...
+              {t("pages.gsetup.companySettings.loading")}
             </Typography>
           </Box>
         </SettingsPanel>
@@ -153,35 +155,35 @@ function CompanySettingsContent({ settings, updateSettings, saveSettings, showTo
     <Stack spacing={2.5}>
       <SettingsPanel
         icon={MdBusiness}
-        title="Company Settings"
-        subtitle="Configure organization details, locale preferences, and default working schedule."
+        title={t("pages.gsetup.companySettings.title")}
+        subtitle={t("pages.gsetup.companySettings.subtitle")}
         theme={theme}
-        actions={<Chip label="Company profile" sx={{ fontWeight: 700 }} />}
+        actions={<Chip label={t("pages.gsetup.companySettings.chip")} sx={{ fontWeight: 700 }} />}
       >
         <Stack spacing={2.5}>
           <Box sx={GRID_2_SX}>
             <TextField
-              label="Company Name"
+              label={t("pages.gsetup.companySettings.companyName")}
               value={s.companyName}
               onChange={handleFieldChange("companyName")}
               fullWidth
             />
             <TextField
-              label="Support Email"
+              label={t("pages.gsetup.companySettings.supportEmail")}
               type="email"
               value={s.supportEmail}
               onChange={handleFieldChange("supportEmail")}
               fullWidth
             />
             <TextField
-              label="Phone Number"
+              label={t("pages.gsetup.companySettings.phoneNumber")}
               value={s.phoneNumber}
               onChange={handleFieldChange("phoneNumber")}
               fullWidth
             />
             <FormControl fullWidth>
-              <InputLabel>Timezone</InputLabel>
-              <Select label="Timezone" value={s.timezone} onChange={handleFieldChange("timezone")}>
+              <InputLabel>{t("pages.gsetup.companySettings.timezone")}</InputLabel>
+              <Select label={t("pages.gsetup.companySettings.timezone")} value={s.timezone} onChange={handleFieldChange("timezone")}>
                 {TIMEZONE_OPTIONS.map((timezone) => (
                   <MenuItem key={timezone} value={timezone}>
                     {timezone}
@@ -201,7 +203,7 @@ function CompanySettingsContent({ settings, updateSettings, saveSettings, showTo
             }}
           >
             <Typography sx={{ fontSize: 13, fontWeight: 800, color: theme.text, mb: 1.5 }}>
-              Company Logo
+              {t("pages.gsetup.companySettings.companyLogo")}
             </Typography>
             <Stack direction={{ xs: "column", sm: "row" }} spacing={2} alignItems="center">
               <Box
@@ -231,7 +233,7 @@ function CompanySettingsContent({ settings, updateSettings, saveSettings, showTo
               </Box>
               <Stack spacing={1} sx={{ flex: 1, width: "100%" }}>
                 <Typography sx={{ fontSize: 13, color: theme.subtext }}>
-                  Upload a square logo for the admin experience and branded exports.
+                  {t("pages.gsetup.companySettings.logoHelp")}
                 </Typography>
                 <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
                   <Button
@@ -240,14 +242,14 @@ function CompanySettingsContent({ settings, updateSettings, saveSettings, showTo
                     startIcon={<MdUploadFile size={18} />}
                     sx={{ borderRadius: "12px", fontWeight: 800 }}
                   >
-                    Upload Logo
+                    {t("pages.gsetup.companySettings.uploadLogo")}
                   </Button>
                   <Button
                     variant="text"
                     onClick={clearLogo}
                     sx={{ borderRadius: "12px", fontWeight: 800, color: theme.accent }}
                   >
-                    Remove
+                    {t("pages.gsetup.companySettings.remove")}
                   </Button>
                 </Stack>
                 <input
@@ -268,7 +270,7 @@ function CompanySettingsContent({ settings, updateSettings, saveSettings, showTo
 
           {/* Working days & hours */}
           <Box sx={GRID_2_SX}>
-            <DialogField label="Working Days" theme={theme}>
+            <DialogField label={t("pages.gsetup.companySettings.workingDays")} theme={theme}>
               <FormGroup row sx={{ gap: 0.5 }}>
                 {WORKING_DAY_OPTIONS.map((day) => (
                   <FormControlLabel
@@ -290,14 +292,14 @@ function CompanySettingsContent({ settings, updateSettings, saveSettings, showTo
             </DialogField>
 
             <DialogField
-              label="Working Hours"
-              helperText="Set the default support operating window."
+              label={t("pages.gsetup.companySettings.workingHours")}
+              helperText={t("pages.gsetup.companySettings.workingHoursHelp")}
               theme={theme}
             >
               <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
                 <TextField
                   type="time"
-                  label="Start"
+                  label={t("pages.gsetup.companySettings.start")}
                   value={s.workingHoursStart}
                   onChange={handleFieldChange("workingHoursStart")}
                   fullWidth
@@ -305,7 +307,7 @@ function CompanySettingsContent({ settings, updateSettings, saveSettings, showTo
                 />
                 <TextField
                   type="time"
-                  label="End"
+                  label={t("pages.gsetup.companySettings.end")}
                   value={s.workingHoursEnd}
                   onChange={handleFieldChange("workingHoursEnd")}
                   fullWidth
@@ -319,7 +321,7 @@ function CompanySettingsContent({ settings, updateSettings, saveSettings, showTo
             theme={theme}
             onSave={handleSave}
             loading={saving}
-            helperText="Company settings influence branding, localization, and working schedule defaults."
+            helperText={t("pages.gsetup.companySettings.helper")}
           />
         </Stack>
       </SettingsPanel>
@@ -328,10 +330,12 @@ function CompanySettingsContent({ settings, updateSettings, saveSettings, showTo
 }
 
 export default function CompanySettingsPage() {
+  const { t } = useTranslation();
+
   return (
     <GeneralSetupSectionPage
-      title="Company Settings"
-      subtitle="Configure organization details, locale preferences, and default working schedule."
+      title={t("pages.gsetup.companySettings.title")}
+      subtitle={t("pages.gsetup.companySettings.subtitle")}
       ContentComponent={CompanySettingsContent}
     />
   );

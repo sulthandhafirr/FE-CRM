@@ -169,7 +169,7 @@ export default function TicketChatMessage({ comment, user, role, ticket, norm, f
                 border: `1px solid ${techBlueBorder}`,
               }}
             >
-              Technician
+              {t("roles.technician")}
             </span>
           )}
           {showAgentLabel && (
@@ -186,7 +186,7 @@ export default function TicketChatMessage({ comment, user, role, ticket, norm, f
                 border: `1px solid ${agentOrangeBorder}`,
               }}
             >
-              CS Agent
+              {t("roles.cs_agent")}
             </span>
           )}
           {showCustomerLabel && (
@@ -203,7 +203,7 @@ export default function TicketChatMessage({ comment, user, role, ticket, norm, f
                 border: `1px solid ${customerGreenBorder}`,
               }}
             >
-              Customer
+              {t("roles.customer")}
             </span>
           )}
           <span
