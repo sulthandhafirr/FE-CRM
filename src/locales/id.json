@@ -519,6 +519,7 @@
       "leaderboardScore": "Skor Rata-rata",
       "leaderboardResponseTime": "Rata-rata respons",
       "leaderboardResolutionTime": "Rata-rata resolusi",
+      "currentWorkingTickets": "Tiket yang dikerjakan Saat Ini",
       "agentPerformanceTitle": "Performa Saya",
       "agentPerformanceSubtitle": "Posisi Anda saat ini berdasarkan tiket yang diselesaikan.",
       "rankOf": "Peringkat {{rank}} dari {{total}} agen",

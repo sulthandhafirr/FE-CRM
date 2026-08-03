@@ -148,6 +148,21 @@ export default function AgentInsightModal({ agent, open, onClose }) {
               {resolutionTime}
             </div>
           </div>
+          <div
+            style={{
+              background: "#fafafa",
+              border: "1px solid #f0f0f0",
+              borderRadius: "10px",
+              padding: "12px 14px",
+            }}
+          >
+            <div style={{ fontSize: "11px", color: "#777", fontWeight: "600" }}>
+              {t("pages.dashboard.currentWorkingTickets")}
+            </div>
+            <div style={{ fontSize: "18px", fontWeight: "700", color: "#333" }}>
+              {agent.currentWorkingTickets}
+            </div>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

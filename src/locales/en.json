@@ -519,6 +519,7 @@
       "leaderboardScore": "Avg Score",
       "leaderboardResponseTime": "Avg response",
       "leaderboardResolutionTime": "Avg resolution",
+      "currentWorkingTickets": "Current Working Tickets",
       "agentPerformanceTitle": "My Performance",
       "agentPerformanceSubtitle": "Your current standing based on resolved tickets.",
       "rankOf": "Rank {{rank}} of {{total}} agents",
