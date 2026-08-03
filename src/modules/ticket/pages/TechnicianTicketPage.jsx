@@ -33,9 +33,11 @@ export default function TechnicianTicketPage() {
   const { data: tickets = [], isLoading: loading } = useQuery({
     queryKey: ["my-tickets"],
     queryFn: getMyTickets,
-    staleTime: 1000 * 60 * 5,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+    refetchOnMount: "always",
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true,
   });
 
   const handleRequestSort = (property) => {
