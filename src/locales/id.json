@@ -100,7 +100,9 @@
       "attachments": "Lampiran",
       "noFiles": "Tidak ada file",
       "loadingAttachment": "Memuat...",
-      "clickToView": "Klik untuk melihat"
+      "clickToView": "Klik untuk melihat",
+      "expectedResolution": "Perkiraan Penyelesaian",
+      "slaDelayed": "Ini membutuhkan sedikit lebih banyak waktu — tim kami sedang menanganinya."
     },
     "ticketReply": {
       "type": "Ketik balasan Anda atau gunakan asisten AI (/ai)",

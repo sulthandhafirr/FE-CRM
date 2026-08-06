@@ -1321,6 +1321,15 @@ function CustomerInfoSection({ role, ticket, customerTier, getTierStyle, downloa
         {role === "customer" ? t("pages.ticketSidebar.ticketInfo") : t("pages.ticketSidebar.customerInfo")}
       </h3>
 
+      {role === "customer" && ticket.status !== "Solved" && ticket.slaDeadline && (
+        <div style={{ background: "#F9FAFB", padding: "12px", borderRadius: "12px", border: "1px solid #F3F4F6", marginBottom: "16px" }}>
+          <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", color: "#9CA3AF", marginBottom: "6px" }}>
+            {t("pages.ticketSidebar.expectedResolution")}
+          </p>
+          <CustomerSlaNotice slaDeadline={ticket.slaDeadline} />
+        </div>
+      )}
+
       {role !== "customer" && (
         <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}>
           <div
@@ -1428,6 +1437,34 @@ function CustomerInfoSection({ role, ticket, customerTier, getTierStyle, downloa
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+function CustomerSlaNotice({ slaDeadline }) {
+  const [isPast, setIsPast] = useState(false);
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    const check = () => setIsPast(new Date(slaDeadline).getTime() < Date.now());
+    const timeoutId = setTimeout(check, 0);
+    const intervalId = setInterval(check, 60000);
+    return () => {
+      clearTimeout(timeoutId);
+      clearInterval(intervalId);
+    };
+  }, [slaDeadline]);
+
+  return (
+    <div>
+      <p style={{ fontSize: "13px", color: "#374151", fontWeight: "500" }}>
+        {formatTicketDateTime(slaDeadline)}
+      </p>
+      {isPast && (
+        <p style={{ fontSize: "12px", color: "#D97706", marginTop: "4px" }}>
+          {t("pages.ticketSidebar.slaDelayed")}
+        </p>
+      )}
     </div>
   );
 }
