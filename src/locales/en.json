@@ -102,7 +102,7 @@
       "loadingAttachment": "Loading...",
       "clickToView": "Click to view",
       "expectedResolution": "Expected Resolution",
-      "slaDelayed": "This is taking a bit longer than expected — our team is on it."
+      "slaDelayed": "This is taking a bit longer than expected, our team is on it."
     },
     "ticketReply": {
       "type": "Type your reply or use AI assistant (/ai)",
