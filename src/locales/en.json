@@ -8,7 +8,8 @@
     "generalSetup": "General Setup",
     "menu": "Menu (ultrauser)",
     "changeRole": "Change Role",
-    "profile": "Profile"
+    "profile": "Profile",
+    "payment": "Payment"
   },
   "common": {
     "logout": "Logout",
@@ -911,6 +912,26 @@
       "filterByDate": "Filter by Date",
       "clear": "Clear",
       "apply": "Apply"
+    },
+    "payment": {
+      "title": "Payment",
+      "paymentId": "Payment ID",
+      "orderId": "Order ID",
+      "ticket": "Ticket",
+      "customer": "Customer",
+      "amount": "Amount",
+      "status": "Status",
+      "dueDate": "Due Date",
+      "paidAt": "Paid At",
+      "overdue": "Overdue",
+      "noPayments": "No payments found.",
+      "details": "Details",
+      "action":"Action",
+      "statuses": {
+        "pending": "Pending",
+        "paid": "Paid",
+        "failed": "Failed"
+      }
     }
   }
 }
