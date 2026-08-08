@@ -23,6 +23,8 @@ import {
   isPaymentOverdue,
   // formatPaymentStatus,
 } from "../payment/payment.schema";
+import { ROUTE } from "../../app/routes";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function PaymentPage() {
   const { t } = useTranslation();
@@ -33,6 +35,7 @@ export default function PaymentPage() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [search, setSearch] = useState("");
+  const { role } = useAuth();
 
   const { data: payments = [], isLoading: loading } = useQuery({
     queryKey: ["payments"],
@@ -58,6 +61,25 @@ export default function PaymentPage() {
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
+  };
+
+  const getTicketRoute = (role, ticketId) => {
+    switch (role) {
+      case "customer":
+        return ROUTE.customerTicketDetail.replace(":ticketId", ticketId);
+
+      case "cs_agent":
+        return ROUTE.agentTicketDetail.replace(":ticketId", ticketId);
+
+      case "technician":
+        return ROUTE.technicianTicketDetail.replace(":ticketId", ticketId);
+
+      case "admin":
+        return ROUTE.adminTicketDetail.replace(":ticketId", ticketId);
+
+      default:
+        return null;
+    }
   };
 
   const filteredPayments = useMemo(() => {
@@ -191,7 +213,7 @@ export default function PaymentPage() {
                 <Table>
                   <TableHead>
                     <TableRow sx={{ borderBottom: "2px solid #f0f0f0" }}>
-                      <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
+                      {/* <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
                         <TableSortLabel
                           active={orderBy === "id"}
                           direction={orderBy === "id" ? order : "asc"}
@@ -199,6 +221,14 @@ export default function PaymentPage() {
                         >
                           {t("pages.payment.paymentId")}
                         </TableSortLabel>
+                      </TableCell> */}
+                      <TableCell
+                        sx={{
+                          color: "#FF8040",
+                          fontWeight: 700,
+                        }}
+                      >
+                        No
                       </TableCell>
 
                       <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
@@ -275,7 +305,7 @@ export default function PaymentPage() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {paginatedPayments.map((payment) => {
+                    {paginatedPayments.map((payment, index) => {
                       const overdue = isPaymentOverdue(payment);
 
                       return (
@@ -284,7 +314,7 @@ export default function PaymentPage() {
                           sx={{ borderBottom: "1px solid #f0f0f0" }}
                         >
                           <TableCell sx={{ color: "#666", fontSize: "13px" }}>
-                            {payment.id}
+                            {safePage * rowsPerPage + index + 1}
                           </TableCell>
                           <TableCell
                             sx={{
@@ -329,11 +359,16 @@ export default function PaymentPage() {
 
                           <TableCell>
                             <button
-                              onClick={() =>
-                                navigate(
-                                  `/dashboard/customer/ticket/${payment.ticketId}`,
-                                )
-                              }
+                              onClick={() => {
+                                const path = getTicketRoute(
+                                  role,
+                                  payment.ticketId,
+                                );
+
+                                if (path) {
+                                  navigate(path);
+                                }
+                              }}
                               style={{
                                 background: "#FF8040",
                                 color: "white",

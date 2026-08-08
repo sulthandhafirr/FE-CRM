@@ -103,7 +103,10 @@
       "loadingAttachment": "Memuat...",
       "clickToView": "Klik untuk melihat",
       "expectedResolution": "Perkiraan Penyelesaian",
-      "slaDelayed": "Ini membutuhkan sedikit lebih banyak waktu, tim kami sedang menanganinya."
+      "slaDelayed": "Ini membutuhkan sedikit lebih banyak waktu, tim kami sedang menanganinya.",
+      "billing": "Penagihan",
+      "billable": "Dapat Ditagih",
+      "takeBillingFirst": "Ambil tiket ini terlebih dahulu untuk mengatur penagihan"
     },
     "ticketReply": {
       "type": "Ketik balasan Anda atau gunakan asisten AI (/ai)",
