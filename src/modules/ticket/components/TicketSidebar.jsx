@@ -527,6 +527,7 @@ function AgentActionsSection({
           disabled={!isAssignedToMe}
           onOpenModal={onOpenBillingModal}
           resolved={resolved}
+          paymentStatus={ticket.paymentStatus}
         />
       </div>
     </>
@@ -583,6 +584,7 @@ function AdminActionsSection({
           billItems={billItems}
           disabled={resolved}
           onOpenModal={onOpenBillingModal}
+          paymentStatus={ticket.paymentStatus}
         />
         {/* ── Assign to CS Agent ── */}
         <button
@@ -1503,9 +1505,54 @@ function CustomerSlaNotice({ slaDeadline }) {
   );
 }
 
-function BillingSummaryCard({ billItems = [], disabled, onOpenModal, resolved }) {
+function BillingSummaryCard({ billItems = [], disabled, onOpenModal, resolved, paymentStatus }) {
   const total = billItems.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
   const hasItems = billItems.length > 0;
+  const isLocked = paymentStatus === "pending" || paymentStatus === "paid";
+
+  if (isLocked) {
+    return (
+      <div
+        style={{
+          background: "white",
+          padding: "12px",
+          borderRadius: "12px",
+          border: "1px solid #E5E7EB",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+        }}
+      >
+        <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: "#9CA3AF", marginBottom: "8px" }}>
+          Billing
+        </p>
+
+        {billItems.map((item, i) => (
+          <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: "#374151", marginBottom: "4px" }}>
+            <span>{item.name}</span>
+            <span>Rp {Number(item.amount).toLocaleString("id-ID")}</span>
+          </div>
+        ))}
+
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", fontWeight: "700", color: "#111827", padding: "8px 0", borderTop: "1px solid #E5E7EB", marginTop: "6px", marginBottom: "8px" }}>
+          <span>Total</span>
+          <span>Rp {total.toLocaleString("id-ID")}</span>
+        </div>
+
+        <div
+          style={{
+            textAlign: "center",
+            padding: "6px",
+            borderRadius: "8px",
+            fontSize: "12px",
+            fontWeight: "600",
+            background: paymentStatus === "paid" ? "#F0FDF4" : "#FFF7ED",
+            color: paymentStatus === "paid" ? "#16A34A" : "#D97706",
+          }}
+        >
+          {paymentStatus === "paid" ? "✓ Paid" : "Payment Pending"}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <button
