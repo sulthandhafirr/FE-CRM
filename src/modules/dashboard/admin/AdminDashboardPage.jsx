@@ -43,7 +43,7 @@ export default function AdminDashboardPage() {
     staleTime: 0,
     refetchOnWindowFocus: true,
     refetchInterval: 5000,
-    refetchIntervalInBackground: true,
+    refetchIntervalInBackground: false,
   });
 
   const { data: trend, isLoading: trendLoading } = useQuery({
@@ -52,7 +52,7 @@ export default function AdminDashboardPage() {
     staleTime: 0,
     refetchOnWindowFocus: true,
     refetchInterval: 5000,
-    refetchIntervalInBackground: true,
+    refetchIntervalInBackground: false,
   });
 
   const handleDateApply = (startDate, endDate) => {

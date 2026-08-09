@@ -44,7 +44,7 @@ export default function PaymentPage() {
     refetchOnWindowFocus: true,
     refetchOnMount: "always",
     refetchInterval: 5000,
-    refetchIntervalInBackground: true,
+    refetchIntervalInBackground: false,
   });
 
   const handleRequestSort = (property) => {

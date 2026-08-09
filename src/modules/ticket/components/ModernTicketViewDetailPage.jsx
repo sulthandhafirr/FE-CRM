@@ -86,17 +86,15 @@ export default function ModernTicketViewDetailPage() {
     staleTime: 0,
     refetchOnWindowFocus: true,
     refetchInterval: 5000,
-    refetchIntervalInBackground: true,
+    refetchIntervalInBackground: false,
   });
 
   const { data: comments = [] } = useQuery({
     queryKey: ["ticket-comments", ticketId],
     queryFn: () => getTicketComments(ticketId),
     enabled: Boolean(ticketId),
-    staleTime: 0,
-    refetchOnWindowFocus: true,
-    refetchInterval: 3000,
-    refetchIntervalInBackground: true,
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
   });
 
   const { data: technicians = [] } = useQuery({
@@ -577,10 +575,14 @@ export default function ModernTicketViewDetailPage() {
       const { token } = await createPayment(ticketId);
       window.snap.pay(token, {
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: ["ticket-detail", ticketId] });
+          queryClient.invalidateQueries({
+            queryKey: ["ticket-detail", ticketId],
+          });
         },
         onPending: () => {
-          queryClient.invalidateQueries({ queryKey: ["ticket-detail", ticketId] });
+          queryClient.invalidateQueries({
+            queryKey: ["ticket-detail", ticketId],
+          });
         },
         onError: () => {
           alert("Payment failed. Please try again.");

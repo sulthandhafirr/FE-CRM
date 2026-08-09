@@ -43,7 +43,7 @@ export default function CustomerTicketViewDetailPage() {
     staleTime: 0,
     refetchOnWindowFocus: true,
     refetchInterval: 5000,
-    refetchIntervalInBackground: true,
+    refetchIntervalInBackground: false,
   });
 
   const attachments = useMemo(() => ticket?.attachments || [], [ticket]);
@@ -56,10 +56,8 @@ export default function CustomerTicketViewDetailPage() {
     queryKey: ["ticket-comments", ticketId],
     queryFn: () => getTicketComments(ticketId),
     enabled: Boolean(ticketId),
-    staleTime: 0,
-    refetchOnWindowFocus: true,
-    refetchInterval: 3000,
-    refetchIntervalInBackground: true,
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
   });
 
   const { mutateAsync: submitComment, isPending: isSubmittingComment } =

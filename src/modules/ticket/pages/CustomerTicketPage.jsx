@@ -37,7 +37,7 @@ export default function CustomerTicketPage() {
     refetchOnWindowFocus: true,
     refetchOnMount: "always",
     refetchInterval: 5000,
-    refetchIntervalInBackground: true,
+    refetchIntervalInBackground: false,
   });
 
   const handleRequestSort = (property) => {

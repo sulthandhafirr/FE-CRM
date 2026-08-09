@@ -322,7 +322,7 @@ export function AdminTicketListPage({ mode = "active" }) {
     refetchOnWindowFocus: true,
     refetchOnMount: false,
     refetchInterval: 5000,
-    refetchIntervalInBackground: true,
+    refetchIntervalInBackground: false,
   });
 
   const { data: csAgents = [] } = useQuery({
@@ -347,10 +347,8 @@ export function AdminTicketListPage({ mode = "active" }) {
     queryKey: ["ticket-comments", selectedTicketId],
     queryFn: () => getTicketComments(selectedTicketId),
     enabled: Boolean(selectedTicketId) && currentPage === "detail",
-    staleTime: 0,
-    refetchOnWindowFocus: true,
-    refetchInterval: 3000,
-    refetchIntervalInBackground: true,
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
   });
 
   useQuery({
