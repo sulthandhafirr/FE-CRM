@@ -1,0 +1,166 @@
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import {
+  MdConfirmationNumber,
+  MdCheckCircle,
+  MdHourglassTop,
+} from "react-icons/md";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import ChatFab from "../../../components/ui/ChatFab";
+import { getDashboardStats } from "../dashboard.service";
+import { useAuth } from "../../../hooks/useAuth";
+import TicketStatusDonutChart from "../chart/TicketStatusDonutChart";
+import TicketIntentDonutChart from "../chart/TicketIntentDonutChart";
+import TicketPriorityDonutChart from "../chart/TicketPriorityDonutChart";
+import DateRangeFilter from "../components/DateRangeFilter";
+import { StatCard } from "../components/StatCard";
+import TicketPreviewModal from "../components/TicketPreviewModal";
+import { ROUTE } from "../../../app/routes";
+
+export default function TechnicianDashboardPage() {
+  const { t } = useTranslation();
+  const { name } = useAuth();
+  const navigate = useNavigate();
+  const [dateRange, setDateRange] = useState({
+    startDate: null,
+    endDate: null,
+  });
+  const [previewFilters, setPreviewFilters] = useState(null);
+  const [previewTitle, setPreviewTitle] = useState("");
+
+  const { data: stats, isLoading: statsLoading } = useQuery({
+    queryKey: ["dashboard-stats", dateRange.startDate, dateRange.endDate],
+    queryFn: () => getDashboardStats(dateRange.startDate, dateRange.endDate),
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+  });
+
+  const handleDateApply = (startDate, endDate) => {
+    setDateRange({ startDate, endDate });
+  };
+
+  const openPreview = (filters, title) => {
+    setPreviewFilters(filters);
+    setPreviewTitle(title);
+  };
+
+  const handleDetailClick = (ticket) => {
+    navigate(ROUTE.technicianTicketDetail.replace(":ticketId", ticket.id));
+  };
+
+  return (
+    <div>
+      <style>{`
+        .stat-card:hover {
+          box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1) !important;
+        }
+      `}</style>
+
+      <div
+        style={{
+          padding: "24px 30px",
+          flex: 1,
+          overflowY: "auto",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-end",
+            marginBottom: "24px",
+          }}
+        >
+          <div>
+            <div
+              style={{
+                fontSize: "24px",
+                fontWeight: "700",
+                color: "#111827",
+                letterSpacing: "-0.025em",
+              }}
+            >
+              {t("pages.dashboard.welcome")}, {name ?? "#"}
+            </div>
+            <div
+              style={{ fontSize: "14px", color: "#6B7280", marginTop: "4px" }}
+            >
+              {t("pages.dashboard.supportOperationsOverview")}
+            </div>
+          </div>
+          <div>
+            <DateRangeFilter onApply={handleDateApply} />
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: "16px",
+            marginBottom: "24px",
+          }}
+        >
+          <StatCard
+            title={t("pages.dashboard.activeTicket")}
+            value={stats?.activeTicket}
+            icon={MdHourglassTop}
+            loading={statsLoading}
+          />
+          <StatCard
+            title={t("pages.dashboard.solvedTicket")}
+            value={stats?.solvedTicket}
+            icon={MdCheckCircle}
+            loading={statsLoading}
+          />
+          <StatCard
+            title={t("pages.dashboard.totalTicket")}
+            value={stats?.totalMyTicket}
+            icon={MdConfirmationNumber}
+            loading={statsLoading}
+          />
+        </div>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+            gap: "16px",
+          }}
+        >
+          <TicketPriorityDonutChart
+            ticketByPriority={stats?.ticketByPriority}
+            loading={statsLoading}
+            onSliceClick={(priority) =>
+              openPreview({ priority, ...dateRange }, `Tickets: ${priority}`)
+            }
+          />
+          <TicketStatusDonutChart
+            ticketByStatus={stats?.ticketByStatus}
+            loading={statsLoading}
+            onSliceClick={(status) =>
+              openPreview({ status, ...dateRange }, `Tickets: ${status}`)
+            }
+          />
+          <TicketIntentDonutChart
+            ticketByIntent={stats?.ticketByIntent}
+            loading={statsLoading}
+            onSliceClick={(intentKey) =>
+              openPreview({ intentKey, ...dateRange }, `Tickets: ${intentKey}`)
+            }
+          />
+        </div>
+      </div>
+
+      <ChatFab />
+      <TicketPreviewModal
+        open={!!previewFilters}
+        onClose={() => setPreviewFilters(null)}
+        title={previewTitle}
+        filters={previewFilters}
+        onDetailClick={handleDetailClick}
+      />
+    </div>
+  );
+}
