@@ -1605,7 +1605,6 @@ function BillingSummaryCard({ billItems = [], disabled, onOpenModal, resolved, p
 }
 
 function PaymentSection({ ticket, onPayNow, payingNow }) {
-  if (!ticket.isBillable) return null;
 
   let items = [];
   try {
@@ -1616,6 +1615,26 @@ function PaymentSection({ ticket, onPayNow, payingNow }) {
 
   const isPaid = ticket.paymentStatus === "paid";
   const isPending = ticket.paymentStatus === "pending";
+
+  const [isOverdue, setIsOverdue] = useState(false);
+
+  useEffect(() => {
+    const check = () => {
+      if (!ticket.paymentDueDate || isPaid) {
+        setIsOverdue(false);
+        return;
+      }
+      setIsOverdue(new Date(ticket.paymentDueDate).getTime() < Date.now());
+    };
+    const timeoutId = setTimeout(check, 0);
+    const intervalId = setInterval(check, 60000);
+    return () => {
+      clearTimeout(timeoutId);
+      clearInterval(intervalId);
+    };
+  }, [ticket.paymentDueDate, isPaid]);
+
+  if (!ticket.isBillable) return null;
 
   return (
     <div style={{ background: "#F9FAFB", padding: "12px", borderRadius: "12px", border: "1px solid #F3F4F6", marginBottom: "16px" }}>
@@ -1630,10 +1649,17 @@ function PaymentSection({ ticket, onPayNow, payingNow }) {
         </div>
       ))}
 
-      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", fontWeight: "700", color: "#111827", padding: "8px 0", borderTop: "1px solid #E5E7EB", marginTop: "6px", marginBottom: "10px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", fontWeight: "700", color: "#111827", padding: "8px 0", borderTop: "1px solid #E5E7EB", marginTop: "6px", marginBottom: !isPaid && ticket.paymentDueDate ? "8px" : "10px" }}>
         <span>Total</span>
         <span>Rp {Number(ticket.billAmount || 0).toLocaleString("id-ID")}</span>
       </div>
+
+      {!isPaid && ticket.paymentDueDate && (
+        <p style={{ fontSize: "12px", color: isOverdue ? "#DC2626" : "#6B7280", marginBottom: "10px", fontWeight: isOverdue ? "600" : "400" }}>
+          {isOverdue ? "Overdue since " : "Due by "}
+          {new Date(ticket.paymentDueDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+        </p>
+      )}
 
       {isPaid ? (
         <div style={{ textAlign: "center", padding: "8px", background: "#F0FDF4", borderRadius: "8px", color: "#16A34A", fontWeight: "600", fontSize: "13px" }}>
