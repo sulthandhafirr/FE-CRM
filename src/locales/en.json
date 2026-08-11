@@ -604,6 +604,7 @@
       "empty": "None",
       "columns": {
         "ticketId": "Ticket ID",
+        "rating": "Rating",
         "subject": "Subject",
         "status": "Status",
         "solvedBy": "Solved By",
@@ -684,12 +685,18 @@
       "loading": "Loading...",
       "clickToView": "Click to view",
       "timeline": "Timeline",
+      "howWasYourExperience": "How was your support experience?",
+      "thanksForRating": "Thanks for your rating!",
+      "ratingCommentPlaceholder": "Leave a comment (optional)",
+      "submitRating": "Submit Rating",
       "noTimeline": "No timeline events yet.",
       "unknownSender": "Unknown sender",
+      "feedbackFrom": "Feedback from {{name}}",
       "errors": {
         "download": "Failed to download attachment. Please try again.",
         "submit": "Failed to submit response. Please try again.",
-        "loadTimeline": "Failed to load timeline."
+        "loadTimeline": "Failed to load timeline.",
+        "submitRating": "Failed to submit rating. Please try again."
       }
     },
     "agentTicketDetail": {
@@ -821,6 +828,7 @@
       "empty": "No tickets found.",
       "columns": {
         "ticketId": "Ticket ID",
+        "rating": "Rating",
         "subject": "Subject",
         "priority": "Priority",
         "customer": "Customer",

@@ -205,3 +205,19 @@ export const getDuplicateCounts = async (threshold = 0.75) => {
   const response = await api.get("/api/tickets/duplicate-counts", { params: { threshold } });
   return response.data; // { "ticketId": count, ... }
 };
+
+
+export const getTicketRating = async (ticketId) => {
+  const response = await api.get(`/api/tickets/${ticketId}/rating`);
+  return response.data;
+};
+
+export const submitTicketRating = async (ticketId, { rate, message }) => {
+  const { data } = await api.post(`/api/tickets/${ticketId}/rating`, { rate, message });
+  return data;
+};
+
+export const getTicketRatingsSummary = async () => {
+  const response = await api.get("/api/tickets/ratings/summary");
+  return response.data;
+};

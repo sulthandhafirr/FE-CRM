@@ -10,6 +10,7 @@ import {
   MdCheckCircle,
   MdDelete,
   MdKeyboardArrowDown,
+  MdStar,
 } from "react-icons/md";
 import {
   Paper,
@@ -25,6 +26,7 @@ import {
 } from "@mui/material";
 import ChatFab from "../../../../components/ui/ChatFab";
 import SearchBar from "../../../../components/ui/SearchBar";
+import RatingSummary from "../../components/RatingSummary";
 import LoadingSpinner from "../../../../components/ui/LoadingSpinner";
 import {
   getAllTickets,
@@ -36,6 +38,7 @@ import {
   uploadTicketAttachment,
   resolveTicket,
   getTechnicians,
+  getTicketRatingsSummary,
 } from "../../ticket.service";
 import { getUsersByRole } from "../../../profile/profile.service";
 import {
@@ -60,6 +63,27 @@ function getCommentIdFromResponse(result) {
 function toTimeMs(value) {
   const ts = new Date(value ?? "").getTime();
   return Number.isNaN(ts) ? null : ts;
+}
+
+function RatingCell({ value }) {
+  if (value == null) {
+    return <span style={{ color: "#999", fontSize: "13px" }}>-</span>;
+  }
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "3px",
+        color: "#FF8040",
+        fontWeight: 600,
+        fontSize: "13px",
+      }}
+    >
+      <MdStar size={14} color="#FF8040" />
+      {value.toFixed ? value.toFixed(1) : value}
+    </span>
+  );
 }
 
 function InlineDropdown({
@@ -190,6 +214,11 @@ function sortTicketsFn(list, ob, o) {
     if (ob === "id") {
       aValue = Number(aValue);
       bValue = Number(bValue);
+    }
+    if (ob === "rating") {
+      // Belum dirating ("-") dianggap lebih kecil dari bintang 1
+      aValue = aValue == null ? 0 : Number(aValue);
+      bValue = bValue == null ? 0 : Number(bValue);
     }
 
     if (aValue == null) aValue = "";
@@ -337,6 +366,13 @@ export function AdminTicketListPage({ mode = "active" }) {
     queryFn: getTechnicians,
     staleTime: 1000 * 60 * 10,
     refetchOnWindowFocus: false,
+  });
+
+  const { data: ratingsSummary } = useQuery({
+    queryKey: ["ticket-ratings-summary"],
+    queryFn: getTicketRatingsSummary,
+    enabled: isSolvedMode && currentPage === "list",
+    staleTime: 1000 * 60,
   });
 
   const {
@@ -612,6 +648,7 @@ export function AdminTicketListPage({ mode = "active" }) {
     { id: "status", label: t("pages.agentTicket.columns.status") },
     { id: "solver", label: t("pages.agentTicket.columns.assignedTo") },
     { id: "createdAt", label: t("pages.agentTicket.columns.createdAt") },
+    { id: "rating", label: "Rating" },
   ];
 
   const pageTitle = isSolvedMode ? "Solved Tickets" : "Active Tickets";
@@ -734,6 +771,9 @@ export function AdminTicketListPage({ mode = "active" }) {
           )}
         </TableCell>
         <TableCell>{formatTicketDate(ticket.createdAt)}</TableCell>
+        <TableCell>
+          <RatingCell value={ticket.rating} />
+        </TableCell>
         <TableCell>
           <button
             onClick={() => openTicketDetail(ticket)}
@@ -1730,6 +1770,14 @@ export function AdminTicketListPage({ mode = "active" }) {
 
         {currentPage === "list" && (
           <>
+            {isSolvedMode && ratingsSummary && (
+              <RatingSummary
+                average={ratingsSummary.average}
+                totalRatings={ratingsSummary.totalRatings}
+                reviewCount={ratingsSummary.reviewCount}
+                breakdown={ratingsSummary.breakdown}
+              />
+            )}
             <div
               style={{
                 display: "flex",
@@ -1800,7 +1848,7 @@ export function AdminTicketListPage({ mode = "active" }) {
                         {sortedTickets.length === 0 && (
                           <TableRow>
                             <TableCell
-                              colSpan={8}
+                              colSpan={9}
                               sx={{ textAlign: "center", py: 4, color: "#999" }}
                             >
                               {t("pages.agentTicket.empty")}

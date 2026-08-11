@@ -19,6 +19,7 @@ import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import { getTicketHistory } from "../ticket/ticket.service";
 import { formatTicketDate } from "../ticket/ticket.schema";
 import { ROUTE } from "../../app/routes";
+import RatingCell from "../ticket/components/RatingCell";
 
 export default function CustomerHistoryPage() {
   const { t } = useTranslation();
@@ -35,7 +36,7 @@ export default function CustomerHistoryPage() {
     queryFn: getTicketHistory,
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnMount: true,
   });
 
   const handleRequestSort = (property) => {
@@ -77,6 +78,12 @@ export default function CustomerHistoryPage() {
         if (orderBy === "id") {
           aValue = Number(aValue);
           bValue = Number(bValue);
+        }
+
+        // ── tambahan: rating null dianggap paling rendah, bukan "" ──
+        if (orderBy === "rating") {
+          aValue = aValue == null ? -1 : Number(aValue);
+          bValue = bValue == null ? -1 : Number(bValue);
         }
 
         if (aValue === null || aValue === undefined) aValue = "";
@@ -250,6 +257,15 @@ export default function CustomerHistoryPage() {
                         </TableSortLabel>
                       </TableCell>
                       <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
+                        <TableSortLabel
+                          active={orderBy === "rating"}
+                          direction={orderBy === "rating" ? order : "asc"}
+                          onClick={() => handleRequestSort("rating")}
+                        >
+                          {t("pages.customerHistory.columns.rating")}
+                        </TableSortLabel>
+                      </TableCell>
+                      <TableCell sx={{ color: "#FF8040", fontWeight: 700 }}>
                         {t("pages.customerHistory.columns.action")}
                       </TableCell>
                     </TableRow>
@@ -270,6 +286,12 @@ export default function CustomerHistoryPage() {
                         <TableCell>{ticket.handler || "-"}</TableCell>
                         <TableCell>
                           {formatTicketDate(ticket.resolvedAt)}
+                        </TableCell>
+                        <TableCell>
+                          <RatingCell
+                            rating={ticket.rating}
+                            onRateNow={() => handleViewDetail(ticket.id)}
+                          />
                         </TableCell>
                         <TableCell>
                           <button
@@ -396,6 +418,12 @@ export default function CustomerHistoryPage() {
                       }}
                     >
                       Solved by: {ticket.handler || "Unknown"}
+                    </div>
+                    <div style={{ marginBottom: "12px" }}>
+                      <RatingCell
+                        rating={ticket.rating}
+                        onRateNow={() => handleViewDetail(ticket.id)}
+                      />
                     </div>
 
                     {/* Bottom Row: Date and Button */}

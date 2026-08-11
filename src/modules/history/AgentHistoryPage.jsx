@@ -22,6 +22,7 @@ import {
   getPriorityColor,
   formatDuration,
 } from "../ticket/ticket.schema";
+import RatingCell from "../ticket/components/RatingCell";
 
 function sortTicketsFn(list, ob, o) {
   return [...list].sort((a, b) => {
@@ -59,7 +60,7 @@ export default function AgentPerformancePage() {
     queryFn: getAgentSolvedTickets,
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnMount: true,
   });
 
   const handleRequestSort = (property) => {
@@ -105,14 +106,9 @@ export default function AgentPerformancePage() {
     { id: "customer", label: t("pages.agentPerformance.columns.customer") },
     { id: "createdAt", label: t("pages.agentPerformance.columns.createdAt") },
     { id: "resolvedAt", label: t("pages.agentPerformance.columns.resolvedAt") },
-    {
-      id: "responseTimeSec",
-      label: t("pages.agentPerformance.columns.responseTimeSec"),
-    },
-    {
-      id: "resolutionTimeSec",
-      label: t("pages.agentPerformance.columns.resolutionTimeSec"),
-    },
+    { id: "responseTimeSec", label: t("pages.agentPerformance.columns.responseTimeSec") },
+    { id: "resolutionTimeSec", label: t("pages.agentPerformance.columns.resolutionTimeSec") },
+    { id: "rating", label: t("pages.agentPerformance.columns.rating") },   // ← tambahan
   ];
 
   return (
@@ -310,6 +306,9 @@ export default function AgentPerformancePage() {
                         </TableCell>
                         <TableCell>
                           {formatDuration(ticket.resolutionTimeSec)}
+                        </TableCell>
+                        <TableCell>
+                          <RatingCell rating={ticket.rating} />
                         </TableCell>
                         <TableCell>
                           <button

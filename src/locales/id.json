@@ -604,6 +604,7 @@
       "empty": "Tidak ada data",
       "columns": {
         "ticketId": "ID Tiket",
+        "rating": "Penilaian",
         "subject": "Subjek",
         "status": "Status",
         "solvedBy": "Diselesaikan Oleh",
@@ -678,6 +679,10 @@
       "responsePlaceholder": "Tulis respons Anda...",
       "submitting": "Mengirim...",
       "submit": "Kirim",
+      "howWasYourExperience": "Bagaimana pengalaman dukungan Anda?",
+      "thanksForRating": "Terima kasih atas penilaian Anda!",
+      "ratingCommentPlaceholder": "Tulis komentar (opsional)",
+      "submitRating": "Kirim Penilaian",
       "attachments": "Lampiran",
       "noAttachments": "Tidak ada lampiran.",
       "attachFile": "Lampiran",
@@ -686,10 +691,12 @@
       "timeline": "Linimasa",
       "noTimeline": "Belum ada aktivitas linimasa.",
       "unknownSender": "Pengirim tidak dikenal",
+      "feedbackFrom": "Masukan dari {{name}}",
       "errors": {
         "download": "Gagal mengunduh lampiran. Silakan coba lagi.",
         "submit": "Gagal mengirim respons. Silakan coba lagi.",
-        "loadTimeline": "Gagal memuat linimasa."
+        "loadTimeline": "Gagal memuat linimasa.",
+        "submitRating": "Gagal mengirim penilaian. Silakan coba lagi."
       }
     },
     "agentTicketDetail": {
@@ -821,6 +828,7 @@
       "empty": "Tidak ada tiket ditemukan.",
       "columns": {
         "ticketId": "ID Tiket",
+        "rating": "Penilaian",
         "subject": "Subjek",
         "priority": "Prioritas",
         "customer": "Pelanggan",

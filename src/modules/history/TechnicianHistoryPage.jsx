@@ -18,6 +18,7 @@ import SearchBar from "../../components/ui/SearchBar";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import { getAgentSolvedTickets } from "../ticket/ticket.service";
 import { formatTicketDate, getPriorityColor } from "../ticket/ticket.schema";
+import RatingCell from "../ticket/components/RatingCell";
 
 function sortTicketsFn(list, ob, o) {
   return [...list].sort((a, b) => {
@@ -55,7 +56,7 @@ export default function TechnicianPerformancePage() {
     queryFn: getAgentSolvedTickets,
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnMount: true,
   });
 
   const handleRequestSort = (property) => {
@@ -98,6 +99,7 @@ export default function TechnicianPerformancePage() {
     { id: "customer", label: t("pages.agentPerformance.columns.customer") },
     { id: "createdAt", label: t("pages.agentPerformance.columns.createdAt") },
     { id: "resolvedAt", label: t("pages.agentPerformance.columns.resolvedAt") },
+    { id: "rating", label: t("pages.agentPerformance.columns.rating") },
   ];
 
   return (
@@ -289,6 +291,9 @@ export default function TechnicianPerformancePage() {
                         </TableCell>
                         <TableCell sx={{ color: "#22c55e", fontWeight: 600 }}>
                           {formatTicketDate(ticket.resolvedAt)}
+                        </TableCell>
+                        <TableCell>
+                          <RatingCell rating={ticket.rating} />
                         </TableCell>
                         <TableCell>
                           <button

@@ -34,6 +34,7 @@ import TicketChatMessage from "./TicketChatMessage";
 import TicketReplyComposer from "./TicketReplyComposer";
 import TicketSidebar from "./TicketSidebar";
 import TicketBillingModal from "./TicketBillingModal";
+import TicketRatingCard from "./TicketRatingCard";
 
 export default function ModernTicketViewDetailPage() {
   const { t } = useTranslation();
@@ -100,12 +101,14 @@ export default function ModernTicketViewDetailPage() {
   const { data: technicians = [] } = useQuery({
     queryKey: ["technicians"],
     queryFn: getTechnicians,
+    enabled: role === "cs_agent" || role === "admin",
     staleTime: 1000 * 60 * 5,
   });
 
   const { data: duplicateCounts = {} } = useQuery({
     queryKey: ["duplicate-counts"],
     queryFn: () => getDuplicateCounts(),
+    enabled: role === "cs_agent" || role === "admin",
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
   });
@@ -761,6 +764,14 @@ export default function ModernTicketViewDetailPage() {
                   )}
                 </div>
               </div>
+            )}
+            {/* ── Rating card (baru) ── */}
+            {resolved && (
+              <TicketRatingCard
+                ticketId={ticketId}
+                role={role}
+                customerName={ticket.customer}
+              />
             )}
           </div>
 
