@@ -10,6 +10,7 @@ import {
   getActiveIntentNames,
   formatTicketDateTime
 } from "../ticket.schema";
+import TicketBillingModal from "./TicketBillingModal";
 
 const getTechSkills = (tech) => {
   const raw = tech.profile_skill ?? tech.profileSkills ?? tech.skills ?? [];
@@ -64,6 +65,10 @@ export default function TicketSidebar({
   onTechnicianSearch,
   onSelectTechnician,
   onDispatchTechnician,
+  billItems,
+  onOpenBillingModal,
+  onPayNow,
+  payingNow,
   // ── Admin props ──
   resolved,
   csAgents,
@@ -291,6 +296,8 @@ export default function TicketSidebar({
               onTechnicianSearch={onTechnicianSearch}
               onSelectTechnician={onSelectTechnician}
               onDispatchTechnician={onDispatchTechnician}
+              billItems={billItems}
+              onOpenBillingModal={onOpenBillingModal}
             />
           ) : (
             <AgentActionsSection
@@ -299,6 +306,8 @@ export default function TicketSidebar({
               isTechnicianDispatched={isTechnicianDispatched}
               resolved={resolved}
               onShowDispatchPanel={onShowDispatchPanel}
+              billItems={billItems}
+              onOpenBillingModal={onOpenBillingModal}
             />
           )}
 
@@ -328,6 +337,8 @@ export default function TicketSidebar({
         downloadingId={downloadingId}
         attachments={attachments}
         onViewAttachment={onViewAttachment}
+        onPayNow={onPayNow}
+        payingNow={payingNow}
       />
     </div>
   );
@@ -454,8 +465,15 @@ function CustomerHandlerSection({ ticket }) {
   );
 }
 
-function AgentActionsSection({ ticket, isAssignedToMe, isTechnicianDispatched, resolved, onShowDispatchPanel }) {
-  const { t } = useTranslation();
+function AgentActionsSection({
+  ticket,
+  isAssignedToMe,
+  isTechnicianDispatched,
+  resolved,
+  onShowDispatchPanel,
+  billItems,
+  onOpenBillingModal,
+}) {  const { t } = useTranslation();
   return (
     <>
       <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: "#9CA3AF", marginBottom: "8px" }}>
@@ -504,6 +522,13 @@ function AgentActionsSection({ ticket, isAssignedToMe, isTechnicianDispatched, r
                 : t("pages.ticketSidebar.assignFieldTechnician")}
           </p>
         </button>
+        <BillingSummaryCard
+          billItems={billItems}
+          disabled={!isAssignedToMe}
+          onOpenModal={onOpenBillingModal}
+          resolved={resolved}
+          paymentStatus={ticket.paymentStatus}
+        />
       </div>
     </>
   );
@@ -541,6 +566,8 @@ function AdminActionsSection({
   onTechnicianSearch,
   onSelectTechnician,
   onDispatchTechnician,
+  billItems,
+  onOpenBillingModal,
 }) {
   const { t } = useTranslation();
   const currentPriority = ticket.priority || "Normal";
@@ -553,6 +580,12 @@ function AdminActionsSection({
         {t("pages.ticketSidebar.adminActions")}
       </p>
       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+        <BillingSummaryCard
+          billItems={billItems}
+          disabled={resolved}
+          onOpenModal={onOpenBillingModal}
+          paymentStatus={ticket.paymentStatus}
+        />
         {/* ── Assign to CS Agent ── */}
         <button
           onClick={showAgentPanel ? onHideAgentPanel : onShowAgentPanel}
@@ -1313,13 +1346,25 @@ function StellaHelpPanel({ stellaSummary, summarizing, loadingDots, typewriterIn
   );
 }
 
-function CustomerInfoSection({ role, ticket, customerTier, getTierStyle, downloadingId, attachments, onViewAttachment }) {
+function CustomerInfoSection({ role, ticket, customerTier, getTierStyle, downloadingId, attachments, onViewAttachment, onPayNow, payingNow }) {
   const { t } = useTranslation();
   return (
     <div style={{ padding: role === "customer" ? "25px 20px 20px" : "20px", flex: role === "customer" ? "none" : 1, order: role === "customer" ? 1 : 2 }}>
       <h3 style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: "#9CA3AF", marginBottom: "16px" }}>
         {role === "customer" ? t("pages.ticketSidebar.ticketInfo") : t("pages.ticketSidebar.customerInfo")}
       </h3>
+
+      {role === "customer" && (
+        <PaymentSection ticket={ticket} onPayNow={onPayNow} payingNow={payingNow} />
+      )}
+      {role === "customer" && ticket.status !== "Solved" && ticket.slaDeadline && (
+        <div style={{ background: "#F9FAFB", padding: "12px", borderRadius: "12px", border: "1px solid #F3F4F6", marginBottom: "16px" }}>
+          <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", color: "#9CA3AF", marginBottom: "6px" }}>
+            {t("pages.ticketSidebar.expectedResolution")}
+          </p>
+          <CustomerSlaNotice slaDeadline={ticket.slaDeadline} />
+        </div>
+      )}
 
       {role !== "customer" && (
         <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}>
@@ -1428,6 +1473,185 @@ function CustomerInfoSection({ role, ticket, customerTier, getTierStyle, downloa
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+function CustomerSlaNotice({ slaDeadline }) {
+  const [isPast, setIsPast] = useState(false);
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    const check = () => setIsPast(new Date(slaDeadline).getTime() < Date.now());
+    const timeoutId = setTimeout(check, 0);
+    const intervalId = setInterval(check, 60000);
+    return () => {
+      clearTimeout(timeoutId);
+      clearInterval(intervalId);
+    };
+  }, [slaDeadline]);
+
+  return (
+    <div>
+      <p style={{ fontSize: "13px", color: "#374151", fontWeight: "500" }}>
+        {formatTicketDateTime(slaDeadline)}
+      </p>
+      {isPast && (
+        <p style={{ fontSize: "12px", color: "#D97706", marginTop: "4px" }}>
+          {t("pages.ticketSidebar.slaDelayed")}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function BillingSummaryCard({ billItems = [], disabled, onOpenModal, resolved, paymentStatus }) {
+  const total = billItems.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+  const hasItems = billItems.length > 0;
+  const isLocked = paymentStatus === "pending" || paymentStatus === "paid";
+
+  if (isLocked) {
+    return (
+      <div
+        style={{
+          background: "white",
+          padding: "12px",
+          borderRadius: "12px",
+          border: "1px solid #E5E7EB",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+        }}
+      >
+        <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: "#9CA3AF", marginBottom: "8px" }}>
+          Billing
+        </p>
+
+        {billItems.map((item, i) => (
+          <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: "#374151", marginBottom: "4px" }}>
+            <span>{item.name}</span>
+            <span>Rp {Number(item.amount).toLocaleString("id-ID")}</span>
+          </div>
+        ))}
+
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", fontWeight: "700", color: "#111827", padding: "8px 0", borderTop: "1px solid #E5E7EB", marginTop: "6px", marginBottom: "8px" }}>
+          <span>Total</span>
+          <span>Rp {total.toLocaleString("id-ID")}</span>
+        </div>
+
+        <div
+          style={{
+            textAlign: "center",
+            padding: "6px",
+            borderRadius: "8px",
+            fontSize: "12px",
+            fontWeight: "600",
+            background: paymentStatus === "paid" ? "#F0FDF4" : "#FFF7ED",
+            color: paymentStatus === "paid" ? "#16A34A" : "#D97706",
+          }}
+        >
+          {paymentStatus === "paid" ? "✓ Paid" : "Payment Pending"}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={onOpenModal}
+      disabled={disabled || resolved}
+      style={{
+        width: "100%",
+        textAlign: "left",
+        padding: "12px",
+        borderRadius: "12px",
+        border: "1px solid #E5E7EB",
+        background: "white",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+        cursor: disabled || resolved ? "not-allowed" : "pointer",
+        opacity: disabled || resolved ? 0.6 : 1,
+        transition: "all 0.15s",
+      }}
+      onMouseEnter={(e) => {
+        if (disabled || resolved) return;
+
+        e.currentTarget.style.borderColor = O[300];
+        e.currentTarget.style.background = O[50];
+        e.currentTarget.style.boxShadow =
+          "0 2px 8px rgba(0,0,0,0.06)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = "#E5E7EB";
+        e.currentTarget.style.background = "white";
+        e.currentTarget.style.boxShadow =
+          "0 1px 3px rgba(0,0,0,0.03)";
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+        <p style={{ fontWeight: "600", fontSize: "14px", color: "#111827" }}>
+          {hasItems ? `Rp ${total.toLocaleString("id-ID")}` : "Not billed"}
+        </p>
+      </div>
+      <p style={{ fontSize: "12px", color: "#6B7280", margin: 0 }}>
+        {resolved
+          ? "Resolved ticket cannot be billed"
+          : disabled
+            ? "Take this ticket first to set billing"
+            : hasItems
+              ? `${billItems.length} item(s) - tap to edit`
+              : "Tap to add billing"}
+      </p>
+    </button>
+  );
+}
+
+function PaymentSection({ ticket, onPayNow, payingNow }) {
+  if (!ticket.isBillable) return null;
+
+  let items = [];
+  try {
+    items = ticket.billItems ? JSON.parse(ticket.billItems) : [];
+  } catch {
+    items = [];
+  }
+
+  const isPaid = ticket.paymentStatus === "paid";
+  const isPending = ticket.paymentStatus === "pending";
+
+  return (
+    <div style={{ background: "#F9FAFB", padding: "12px", borderRadius: "12px", border: "1px solid #F3F4F6", marginBottom: "16px" }}>
+      <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", color: "#9CA3AF", marginBottom: "8px" }}>
+        Payment
+      </p>
+
+      {items.map((item, i) => (
+        <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: "#374151", marginBottom: "4px" }}>
+          <span>{item.name}</span>
+          <span>Rp {Number(item.amount).toLocaleString("id-ID")}</span>
+        </div>
+      ))}
+
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", fontWeight: "700", color: "#111827", padding: "8px 0", borderTop: "1px solid #E5E7EB", marginTop: "6px", marginBottom: "10px" }}>
+        <span>Total</span>
+        <span>Rp {Number(ticket.billAmount || 0).toLocaleString("id-ID")}</span>
+      </div>
+
+      {isPaid ? (
+        <div style={{ textAlign: "center", padding: "8px", background: "#F0FDF4", borderRadius: "8px", color: "#16A34A", fontWeight: "600", fontSize: "13px" }}>
+          ✓ Paid
+        </div>
+      ) : (
+        <button
+          onClick={onPayNow}
+          disabled={payingNow}
+          style={{
+            width: "100%", padding: "10px", borderRadius: "8px", border: "none",
+            background: payingNow ? "#D1D5DB" : "#FF8040", color: "white",
+            fontWeight: "600", fontSize: "13px", cursor: payingNow ? "not-allowed" : "pointer",
+          }}
+        >
+          {payingNow ? "Processing..." : isPending ? "Continue Payment" : "Pay Now"}
+        </button>
+      )}
     </div>
   );
 }

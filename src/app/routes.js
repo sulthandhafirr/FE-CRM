@@ -49,4 +49,8 @@ export const ROUTE = {
   agentProfile: "/profile/csAgent",
   technicianProfile: "/profile/technician",
   adminProfile: "/profile/admin",
+  customerPayment: "/customer/payment",
+  agentPayment: "/agent/payment",
+  technicianPayment: "/technician/payment",
+  adminPayment: "/admin/payment",
 };

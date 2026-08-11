@@ -8,7 +8,8 @@
     "generalSetup": "Pengaturan Umum",
     "menu": "Menu (ultrauser)",
     "changeRole": "Ubah Peran",
-    "profile": "Profil"
+    "profile": "Profil",
+    "payment": "Pembayaran"
   },
   "common": {
     "logout": "Keluar",
@@ -100,7 +101,12 @@
       "attachments": "Lampiran",
       "noFiles": "Tidak ada file",
       "loadingAttachment": "Memuat...",
-      "clickToView": "Klik untuk melihat"
+      "clickToView": "Klik untuk melihat",
+      "expectedResolution": "Perkiraan Penyelesaian",
+      "slaDelayed": "Ini membutuhkan sedikit lebih banyak waktu, tim kami sedang menanganinya.",
+      "billing": "Penagihan",
+      "billable": "Dapat Ditagih",
+      "takeBillingFirst": "Ambil tiket ini terlebih dahulu untuk mengatur penagihan"
     },
     "ticketReply": {
       "type": "Ketik balasan Anda atau gunakan asisten AI (/ai)",
@@ -909,6 +915,26 @@
       "filterByDate": "Filter Tanggal",
       "clear": "Hapus",
       "apply": "Terapkan"
+    },
+    "payment": {
+      "title": "Pembayaran",
+      "paymentId": "ID Pembayaran",
+      "orderId": "ID Pesanan",
+      "ticket": "Tiket",
+      "customer": "Pelanggan",
+      "amount": "Jumlah",
+      "status": "Status",
+      "dueDate": "Jatuh Tempo",
+      "paidAt": "Tanggal Bayar",
+      "overdue": "Terlambat",
+      "noPayments": "Tidak ada pembayaran.",
+      "detail": "Detail",
+      "action":"Aksi",
+      "statuses": {
+        "pending": "Menunggu",
+        "paid": "Lunas",
+        "failed": "Gagal"
+      }
     }
   }
 }

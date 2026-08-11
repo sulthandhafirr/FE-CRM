@@ -14,6 +14,7 @@ import {
   MdWorkHistory,
   MdGroup,
   MdSettings,
+  MdOutlinePayment,
 } from "react-icons/md";
 import { supabase } from "../lib/supabase";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
@@ -47,6 +48,12 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
         icon: MdHistory,
         route: ROUTE.customerHistory,
       },
+      {
+        key: "payment",
+        label: t("nav.payment"),
+        icon: MdOutlinePayment,
+        route: ROUTE.customerPayment,
+      }
     ],
     cs_agent: [
       {
@@ -67,6 +74,12 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
         icon: MdWorkHistory,
         route: ROUTE.agentHistory,
       },
+      {
+        key: "payment",
+        label: t("nav.payment"),
+        icon: MdOutlinePayment,
+        route: ROUTE.agentPayment,
+      }
     ],
     technician: [
       {
@@ -87,6 +100,12 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
         icon: MdWorkHistory,
         route: ROUTE.technicianHistory,
       },
+      {
+        key: "payment",
+        label: t("nav.payment"),
+        icon: MdOutlinePayment,
+        route: ROUTE.technicianPayment,
+      }
     ],
     admin: [
       {
@@ -113,6 +132,12 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
         icon: MdSettings,
         route: ROUTE.adminGeneralSetup,
       },
+      {
+        key: "payment",
+        label: t("nav.payment"),
+        icon: MdOutlinePayment,
+        route: ROUTE.adminPayment,
+      }
     ],
     ultrauser: [
       {

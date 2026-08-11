@@ -39,7 +39,7 @@ export default function CustomerDashboardPage() {
     staleTime: 0,
     refetchOnWindowFocus: true,
     refetchInterval: 5000,
-    refetchIntervalInBackground: true,
+    refetchIntervalInBackground: false,
   });
 
   const handleDateApply = (startDate, endDate) => {

@@ -21,6 +21,7 @@ import {
   assignTicketToAgent,
   changeTicketPriority,
 } from "../ticket.service";
+import { createPayment } from "../../payment/payment.service";
 import { getTicketSummary, getTicketDraft } from "../ticket.ai";
 import { getUsersByRole } from "../../profile/profile.service";
 import {
@@ -32,6 +33,7 @@ import TicketHeader from "./TicketHeader";
 import TicketChatMessage from "./TicketChatMessage";
 import TicketReplyComposer from "./TicketReplyComposer";
 import TicketSidebar from "./TicketSidebar";
+import TicketBillingModal from "./TicketBillingModal";
 
 export default function ModernTicketViewDetailPage() {
   const { t } = useTranslation();
@@ -67,6 +69,10 @@ export default function ModernTicketViewDetailPage() {
   const [loadingDots, setLoadingDots] = useState("");
   const [typewriterIndex, setTypewriterIndex] = useState(0);
   const [typewriterDone, setTypewriterDone] = useState(false);
+  const [showBillingModal, setShowBillingModal] = useState(false);
+  const [billItems, setBillItems] = useState([]);
+  const [savingBilling, setSavingBilling] = useState(false);
+  const [payingNow, setPayingNow] = useState(false);
 
   // ── Queries ──
   const {
@@ -80,17 +86,15 @@ export default function ModernTicketViewDetailPage() {
     staleTime: 0,
     refetchOnWindowFocus: true,
     refetchInterval: 5000,
-    refetchIntervalInBackground: true,
+    refetchIntervalInBackground: false,
   });
 
   const { data: comments = [] } = useQuery({
     queryKey: ["ticket-comments", ticketId],
     queryFn: () => getTicketComments(ticketId),
     enabled: Boolean(ticketId),
-    staleTime: 0,
-    refetchOnWindowFocus: true,
-    refetchInterval: 3000,
-    refetchIntervalInBackground: true,
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
   });
 
   const { data: technicians = [] } = useQuery({
@@ -246,6 +250,17 @@ export default function ModernTicketViewDetailPage() {
       .subscribe();
     return () => supabase.removeChannel(channel);
   }, [ticketId, user?.id, queryClient]);
+
+  useEffect(() => {
+    if (ticket) {
+      try {
+        const parsed = ticket.billItems ? JSON.parse(ticket.billItems) : [];
+        setBillItems(parsed);
+      } catch {
+        setBillItems([]);
+      }
+    }
+  }, [ticket]);
 
   // ── Computed ──
   const norm = (v) => (v || "").trim().toLowerCase();
@@ -536,6 +551,57 @@ export default function ModernTicketViewDetailPage() {
     }
   };
 
+  const handleSaveBilling = async (validItems) => {
+    setSavingBilling(true);
+    try {
+      await updateTicket(ticketId, {
+        isBillable: validItems.length > 0,
+        billItems: validItems,
+      });
+      queryClient.invalidateQueries({ queryKey: ["ticket-detail", ticketId] });
+      queryClient.invalidateQueries({ queryKey: ["all-tickets"] });
+      setShowBillingModal(false);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update billing.");
+    } finally {
+      setSavingBilling(false);
+    }
+  };
+
+  const handlePayNow = async () => {
+    setPayingNow(true);
+    try {
+      const { token } = await createPayment(ticketId);
+      window.snap.pay(token, {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ["ticket-detail", ticketId],
+          });
+        },
+        onPending: () => {
+          queryClient.invalidateQueries({
+            queryKey: ["ticket-detail", ticketId],
+          });
+        },
+        onError: () => {
+          alert("Payment failed. Please try again.");
+        },
+        onClose: () => {
+          setPayingNow(false);
+        },
+      });
+    } catch (err) {
+      console.error(err);
+      alert(err?.response?.data?.message || "Failed to start payment.");
+      setPayingNow(false);
+    }
+  };
+
+  const handleOpenBillingModal = () => {
+    setShowBillingModal(true);
+  };
+
   // ── Render: Loading / Error ──
   if (isLoading) {
     return (
@@ -748,6 +814,12 @@ export default function ModernTicketViewDetailPage() {
           onTechnicianSearch={handleTechnicianSearch}
           onSelectTechnician={handleSelectTechnician}
           onDispatchTechnician={handleDispatchTechnician}
+          billItems={billItems}
+          onOpenBillingModal={handleOpenBillingModal}
+          savingBilling={savingBilling}
+          onSaveBilling={handleSaveBilling}
+          onPayNow={handlePayNow}
+          payingNow={payingNow}
           // ── Admin props ──
           resolved={resolved}
           csAgents={csAgents}
@@ -770,6 +842,14 @@ export default function ModernTicketViewDetailPage() {
           onToggleIntentMenu={() => setShowIntentMenu((p) => !p)}
         />
       </div>
+      {showBillingModal && (
+        <TicketBillingModal
+          initialItems={billItems}
+          savingBilling={savingBilling}
+          onSave={handleSaveBilling}
+          onClose={() => setShowBillingModal(false)}
+        />
+      )}
     </div>
   );
 }

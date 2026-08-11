@@ -62,7 +62,7 @@ export default function AgentTicketViewDetailPage() {
     refetchOnWindowFocus: true,
     refetchOnMount: "always",
     refetchInterval: 5000,
-    refetchIntervalInBackground: true,
+    refetchIntervalInBackground: false,
   });
 
   const {
@@ -77,7 +77,7 @@ export default function AgentTicketViewDetailPage() {
     refetchOnWindowFocus: true,
     refetchOnMount: "always",
     refetchInterval: 3000,
-    refetchIntervalInBackground: true,
+    refetchIntervalInBackground: false,
   });
 
   const { data: technicians = [] } = useQuery({

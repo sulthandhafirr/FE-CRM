@@ -43,6 +43,7 @@ import CustomerProfilePage from "../modules/profile/customer/CustomerProfilePage
 import AgentProfilePage from "../modules/profile/agent/AgentProfilePage";
 import TechnicianProfilePage from "../modules/profile/technician/TechnicianProfilePage";
 import AdminProfilePage from "../modules/profile/admin/AdminProfilePage";
+import PaymentPage from "../modules/payment/PaymentPage";
 
 function ProtectedRoute({ allowedRoles }) {
   const { user, role, trueRole, loading, verified } = useAuth();
@@ -101,6 +102,7 @@ export default function Router() {
             path={ROUTE.customerProfile}
             element={<CustomerProfilePage />}
           />
+          <Route path={ROUTE.customerPayment} element={<PaymentPage />} />
         </Route>
       </Route>
 
@@ -113,6 +115,7 @@ export default function Router() {
           <Route path={ROUTE.agentProfile} element={<AgentProfilePage />}/>
           <Route path={ROUTE.agentTicketDetail} element={<ModernTicketViewDetailPage />} />
           {/* <Route path={ROUTE.agentTicketDetail} element={<AgentTicketViewDetailPage />} /> */}
+          <Route path={ROUTE.agentPayment} element={<PaymentPage />} />
         </Route>
       </Route>
 
@@ -208,6 +211,7 @@ export default function Router() {
             path={ROUTE.technicianProfile}
             element={<TechnicianProfilePage />}
           />
+          <Route path={ROUTE.technicianPayment} element={<PaymentPage />} />
         </Route>
       </Route>
 
@@ -237,6 +241,7 @@ export default function Router() {
             path={ROUTE.adminProfile}
             element={<AdminProfilePage />}
           />
+          <Route path={ROUTE.adminPayment} element={<PaymentPage />} />
         </Route>
       </Route>
 

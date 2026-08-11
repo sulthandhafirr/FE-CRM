@@ -89,7 +89,7 @@ export default function AgentTicketPage() {
     refetchOnWindowFocus: true,
     refetchOnMount: "always",
     refetchInterval: 5000,
-    refetchIntervalInBackground: true,
+    refetchIntervalInBackground: false,
   });
 
   const {
