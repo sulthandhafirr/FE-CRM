@@ -286,6 +286,8 @@
         "supportEmail": "Email Dukungan",
         "phoneNumber": "Nomor Telepon",
         "timezone": "Zona Waktu",
+        "paymentDueDate": "Jatuh Tempo Pembayaran (Hari)",
+        "paymentDueDateHelp": "Jumlah hari sebelum pembayaran jatuh tempo.",
         "companyLogo": "Logo Perusahaan",
         "logoHelp": "Unggah logo persegi untuk tampilan admin dan ekspor bermerek.",
         "uploadLogo": "Unggah Logo",

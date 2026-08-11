@@ -218,6 +218,7 @@ const DEFAULT_GENERAL_SETUP = {
     workingDays: ["Mon", "Tue", "Wed", "Thu", "Fri"],
     workingHoursStart: "09:00",
     workingHoursEnd: "18:00",
+    paymentDueDays: 3,
   },
 };
 
@@ -264,6 +265,7 @@ function mapApiResponseToCompanySettings(apiData) {
     workingDays: apiData.workingDays ?? ["Mon", "Tue", "Wed", "Thu", "Fri"],
     workingHoursStart: apiData.workingHoursStart ?? "09:00",
     workingHoursEnd: apiData.workingHoursEnd ?? "18:00",
+    paymentDueDays: apiData.paymentDueDays ?? 3,
     logoDataUrl: apiData.logoUrl ?? "",
   };
 }
@@ -286,6 +288,7 @@ export async function saveCompanySettingsToApi(companySettings) {
     workingDays: companySettings.workingDays,
     workingHoursStart: companySettings.workingHoursStart,
     workingHoursEnd: companySettings.workingHoursEnd,
+    paymentDueDays: Number(companySettings.paymentDueDays),
     logoUrl: companySettings.logoDataUrl || "",
   };
   const { data } = await api.put("/api/company/settings", payload);

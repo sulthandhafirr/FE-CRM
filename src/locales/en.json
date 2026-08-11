@@ -286,6 +286,8 @@
         "supportEmail": "Support Email",
         "phoneNumber": "Phone Number",
         "timezone": "Timezone",
+        "paymentDueDate": "Payment Due Date (Days)",
+        "paymentDueDateHelp": "Number of days before the payment is due.",
         "companyLogo": "Company Logo",
         "logoHelp": "Upload a square logo for the admin experience and branded exports.",
         "uploadLogo": "Upload Logo",

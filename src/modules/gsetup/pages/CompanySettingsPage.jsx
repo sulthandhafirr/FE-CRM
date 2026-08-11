@@ -191,6 +191,15 @@ function CompanySettingsContent({ settings, updateSettings, saveSettings, showTo
                 ))}
               </Select>
             </FormControl>
+            <TextField
+              label={t("pages.gsetup.companySettings.paymentDueDate")}
+              type="number"
+              value={s.paymentDueDays}
+              onChange={handleFieldChange("paymentDueDays")}
+              helperText={t("pages.gsetup.companySettings.paymentDueDateHelp")}
+              inputProps={{ min: 1, step: 1 }}
+              fullWidth
+            />
           </Box>
 
           {/* Logo upload */}
