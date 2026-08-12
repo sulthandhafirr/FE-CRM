@@ -10,6 +10,10 @@ export function AuthProvider({ children }) {
   const [overrideRole, setOverrideRole] = useState(null);
   const [loading, setLoading] = useState(true);
   const [verified, setVerified] = useState(false);
+  // True saat user datang dari link reset password di email
+  // (event PASSWORD_RECOVERY ditangkap di sini karena subscription
+  // dipasang saat app start — sebelum supabase-js memproses hash URL)
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
 
   const fetchRole = useCallback(async (userId) => {
     const { data, error } = await supabase
@@ -53,6 +57,11 @@ export function AuthProvider({ children }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (_event === "PASSWORD_RECOVERY") {
+        setIsPasswordRecovery(true);
+      } else if (_event === "SIGNED_OUT") {
+        setIsPasswordRecovery(false);
+      }
       setUser(session?.user ?? null);
       if (session?.user) {
         fetchRole(session.user.id);
@@ -78,7 +87,19 @@ export function AuthProvider({ children }) {
   const changeRole = (newRole) => setOverrideRole(newRole);
 
   return (
-    <AuthContext.Provider value={{ user, name, role: overrideRole ?? role, trueRole: role, changeRole, loading, verified, setVerified }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        name,
+        role: overrideRole ?? role,
+        trueRole: role,
+        changeRole,
+        loading,
+        verified,
+        setVerified,
+        isPasswordRecovery,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -271,6 +271,11 @@
           "title": "SLA Rules",
           "description": "Set resolution targets per priority and SLA notifications."
         },
+        "exportSchedule": {
+          "badge": "Report",
+          "title": "Export Schedule",
+          "description": "Schedule automatic monthly data exports (tickets, users, or combined) sent by email."
+        },
         "tierSettings": {
           "badge": "Loyalty",
           "title": "Tier Settings",
@@ -363,6 +368,42 @@
         "resetToDefault": "Reset to Default",
         "toastSaved": "SLA rules saved.",
         "toastSaveFailed": "Failed to save SLA rules."
+      },
+      "exportSchedule": {
+        "title": "Export Schedule",
+        "subtitle": "Schedule automatic data exports sent by email.",
+        "activeChip": "Active",
+        "inactiveChip": "Inactive",
+        "enableSending": "Enable Automatic Export",
+        "frequency": "Frequency",
+        "frequencyDaily": "Daily",
+        "frequencyWeekly": "Weekly",
+        "frequencyMonthly": "Monthly",
+        "dayOfMonth": "Day of Month",
+        "dayHelper": "Which day each month the export runs (e.g., 30). Months without this day are skipped.",
+        "dayOfWeek": "Day of Week",
+        "days": {
+          "0": "Sunday",
+          "1": "Monday",
+          "2": "Tuesday",
+          "3": "Wednesday",
+          "4": "Thursday",
+          "5": "Friday",
+          "6": "Saturday"
+        },
+        "time": "Send Time",
+        "includeTickets": "Include Tickets (last 30 days)",
+        "includeUsers": "Include Users (last 30 days)",
+        "includeCombined": "Include Combined File (Tickets + Users in one workbook)",
+        "recipients": "Recipient Emails (comma separated)",
+        "recipientsHelper": "Leave empty to send to the company support email and all admins.",
+        "infoWindow": "Each run exports the last 30 days (rolling month) using the company timezone.",
+        "helper": "Files are attached to a single email and sent once per scheduled day.",
+        "toastDayInvalid": "Day of month must be between 1 and 31.",
+        "toastTimeRequired": "Send time is required.",
+        "toastDataRequired": "Select at least one data option.",
+        "toastSaved": "Export schedule saved.",
+        "toastSaveFailed": "Failed to save export schedule."
       },
       "ticketStatus": {
         "title": "Ticket Status",
@@ -586,6 +627,14 @@
       "login": "Login",
       "noAccount": "Don't have account?",
       "contactAdmin": "Contact admin",
+      "forgotPassword": "Forgot password?",
+      "forgotTitle": "Forgot Password",
+      "forgotSubtitle": "Enter your email address and we'll send you a link to reset your password.",
+      "sendResetLink": "Send Reset Link",
+      "sendingResetLink": "Sending...",
+      "resetLinkSent": "Reset link sent! Please check your email inbox (including spam) to reset your password.",
+      "resendIn": "You can request a new link in {{time}}.",
+      "backToLogin": "Back to Login",
       "fields": {
         "emailLabel": "Email",
         "emailPlaceholder": "Please enter your email.",
@@ -595,7 +644,38 @@
         "companyIdPlaceholder": "Please enter your Company ID."
       },
       "errors": {
-        "companyIdRequired": "Please enter Company ID"
+        "companyIdRequired": "Please enter Company ID",
+        "emailRequired": "Please enter your email",
+        "emailInvalid": "Invalid email format",
+        "resetFailed": "Failed to send reset link. Please try again.",
+        "rateLimited": "Too many requests. Please wait a moment before requesting another reset link.",
+        "hourlyLimit": "The email sending limit for this hour has been reached. Please try again later.",
+        "cooldown": "Please wait {{time}} before requesting another reset link."
+      },
+      "time": {
+        "hours": "hr",
+        "minutes": "min",
+        "seconds": "sec"
+      }
+    },
+    "resetPassword": {
+      "title": "Set New Password",
+      "subtitle": "Enter a new password for your account.",
+      "checking": "Checking your reset link...",
+      "invalidLink": "This reset link is invalid or has expired. Please request a new one.",
+      "newPasswordLabel": "New Password",
+      "newPasswordPlaceholder": "Enter your new password.",
+      "confirmPasswordLabel": "Confirm Password",
+      "confirmPasswordPlaceholder": "Re-enter your new password.",
+      "showPassword": "Show password",
+      "updatePassword": "Update Password",
+      "updating": "Updating...",
+      "success": "Password updated successfully! Redirecting to login...",
+      "backToLogin": "Back to Login",
+      "errors": {
+        "tooShort": "Password must be at least 6 characters",
+        "mismatch": "Passwords do not match",
+        "updateFailed": "Failed to update password. Please try again."
       }
     },
     "customerHistory": {

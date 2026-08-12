@@ -1,4 +1,4 @@
-import { MdBusiness, MdChecklist, MdGavel, MdGroup, MdLayers, MdPsychology } from "react-icons/md";
+import { MdBusiness, MdChecklist, MdGavel, MdGroup, MdLayers, MdOutlineScheduleSend, MdPsychology } from "react-icons/md";
 import { ROUTE } from "../../app/routes";
 
 export const GENERAL_SETUP_MODULES = [
@@ -46,6 +46,17 @@ export const GENERAL_SETUP_MODULES = [
     accentBg: "#ede9fe",
     accentBorder: "#ddd6fe",
     to: ROUTE.adminGeneralSetupSla,
+  },
+  {
+    key: "exportSchedule",
+    badge: "Report",
+    title: "Export Schedule",
+    description: "Schedule automatic monthly data exports (tickets, users, or combined) sent by email.",
+    icon: MdOutlineScheduleSend,
+    accent: "#ea580c",
+    accentBg: "#fff1eb",
+    accentBorder: "#fcd9bc",
+    to: ROUTE.adminGeneralSetupExportSchedule,
   },
   // {
   //   key: "roleManagement",

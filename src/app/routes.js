@@ -1,6 +1,7 @@
 export const ROUTE = {
   // login: "/login",
   login: "",
+  resetPassword: "/reset-password",
   register: "/register",
   customerDashboard: "/dashboard/customer",
   customerTicket: "/dashboard/customer/ticket",
@@ -43,6 +44,7 @@ export const ROUTE = {
   adminGeneralSetupSla: "/dashboard/admin/general-setup/sla",
   adminGeneralSetupRoles: "/dashboard/admin/general-setup/roles",
   adminGeneralSetupCompany: "/dashboard/admin/general-setup/company",
+  adminGeneralSetupExportSchedule: "/dashboard/admin/general-setup/export-schedule",
   adminPerformanceCsAgent: "/dashboard/admin/performance/cs-agent",
   adminPerformanceTechnician: "/dashboard/admin/performance/technician",
   adminPerformanceCustomer: "/dashboard/admin/performance/customer",
