@@ -873,7 +873,20 @@
       "passwordRequired": "Silakan isi kolom password baru",
       "passwordSecurityWarning": "Demi keamanan akun Anda, Anda perlu memasukkan password saat ini sebelum menggantinya dengan yang baru.",
       "passwordMismatch": "Password tidak cocok",
-      "passwordTooShort": "Password baru harus minimal 6 karakter",
+      "passwordTooShort": "Password baru harus minimal 8 karakter",
+      "passwordWeak": "Password baru harus mengandung huruf besar, huruf kecil, angka, dan karakter khusus",
+      "passwordCommon": "Password ini terlalu umum atau mudah ditebak",
+      "passwordContainsUserInfo": "Password tidak boleh mengandung nama atau email Anda",
+      "pwdCheck": {
+        "length": "Minimal 8 karakter",
+        "upper": "Mengandung huruf besar (A-Z)",
+        "lower": "Mengandung huruf kecil (a-z)",
+        "number": "Mengandung angka (0-9)",
+        "symbol": "Mengandung karakter khusus (!@#$...)",
+        "common": "Bukan password umum atau mudah ditebak",
+        "sequence": "Tidak berurutan atau berulang (mis. 12345678, aaaa)",
+        "userInfo": "Tidak mengandung nama atau email Anda"
+      },
       "errors": {
         "updateProfile": "Gagal memperbarui profil",
         "changePassword": "Gagal mengubah password",

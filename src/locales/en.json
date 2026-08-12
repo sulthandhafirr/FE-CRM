@@ -873,7 +873,20 @@
       "passwordRequired": "Please fill in the new password fields",
       "passwordSecurityWarning": "For your account security, you need to enter your current password before you can set a new one.",
       "passwordMismatch": "Passwords do not match",
-      "passwordTooShort": "New password must be at least 6 characters",
+      "passwordTooShort": "New password must be at least 8 characters",
+      "passwordWeak": "New password must contain uppercase, lowercase, numbers, and special characters",
+      "passwordCommon": "This password is too common or easy to guess",
+      "passwordContainsUserInfo": "Password must not contain your name or email",
+      "pwdCheck": {
+        "length": "At least 8 characters",
+        "upper": "Contains uppercase letter (A-Z)",
+        "lower": "Contains lowercase letter (a-z)",
+        "number": "Contains number (0-9)",
+        "symbol": "Contains special character (!@#$...)",
+        "common": "Not a common or easy-to-guess password",
+        "sequence": "No sequential or repeated characters (e.g. 12345678, aaaa)",
+        "userInfo": "Does not contain your name or email"
+      },
       "errors": {
         "updateProfile": "Failed to update profile",
         "changePassword": "Failed to change password",
