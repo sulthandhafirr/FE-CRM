@@ -1,6 +1,5 @@
 export const ROUTE = {
-  // login: "/login",
-  login: "",
+  login: "/",
   resetPassword: "/reset-password",
   register: "/register",
   customerDashboard: "/dashboard/customer",
