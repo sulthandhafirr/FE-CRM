@@ -1,22 +1,30 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { signInWithEmail, resetPassword } from "./login.service";
 import { useAuth } from "../../../hooks/useAuth";
+import { ROUTE } from "../../../app/routes";
 
 // Cooldown kirim ulang link reset (detik) — hindari kena rate limit Supabase
 const RESEND_COOLDOWN_SEC = 60;
 // Limit email per jam Supabase (free tier ±30/jam) — reset kira-kira tiap 1 jam
 const HOURLY_LIMIT_COOLDOWN_SEC = 3600;
-import { useNavigate } from "react-router-dom";
 
 export default function LoginForm() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [companyId, setCompanyId] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [view, setView] = useState("login");
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotSent, setForgotSent] = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+  const cooldownRef = useRef(null);
   const { setVerified } = useAuth();
 
   const handleSubmit = async (e) => {
@@ -110,6 +118,13 @@ export default function LoginForm() {
       });
     }, 1000);
   };
+
+  // Bersihkan interval countdown saat komponen unmount
+  useEffect(() => {
+    return () => {
+      if (cooldownRef.current) clearInterval(cooldownRef.current);
+    };
+  }, []);
 
   // Format durasi countdown agar mudah dibaca: "1 jam", "45 mnt 12 dtk", "10 dtk"
   const formatCooldown = (seconds) => {
@@ -520,13 +535,26 @@ export default function LoginForm() {
           }}
         >
           {t("pages.loginForm.noAccount")}{" "}
-          <span
-            style={{ color: "#374151", fontWeight: "600", cursor: "pointer" }}
+          <button
+            type="button"
+            onClick={() => navigate(ROUTE.register)}
+            style={{
+              border: "none",
+              background: "transparent",
+              color: "#374151",
+              fontWeight: "600",
+              cursor: "pointer",
+              padding: 0,
+              fontSize: "12px",
+              textDecoration: "underline",
+            }}
           >
-            {t("pages.loginForm.contactAdmin")}
-          </span>
+            {t("pages.loginForm.register")}
+          </button>
         </div>
       </form>
-    </div>
+      </>
+    )}
+  </div>
   );
 }

@@ -627,6 +627,7 @@
       "login": "Login",
       "noAccount": "Don't have account?",
       "contactAdmin": "Contact admin",
+      "register": "Register",
       "forgotPassword": "Forgot password?",
       "forgotTitle": "Forgot Password",
       "forgotSubtitle": "Enter your email address and we'll send you a link to reset your password.",

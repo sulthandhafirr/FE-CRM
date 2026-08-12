@@ -81,6 +81,12 @@ export default function Router() {
         element={user && verified ? <Navigate to={getRoleRoute(role)} /> : <LoginPage />}
       />
 
+      {/* Public Register Route */}
+      <Route
+        path={ROUTE.register}
+        element={user && verified ? <Navigate to={getRoleRoute(role)} /> : <RegisterPage />}
+      />
+
       {/* Customer Routes */}
       <Route element={<ProtectedRoute allowedRoles={["customer"]} />}>
         <Route element={<MainLayout />}>
