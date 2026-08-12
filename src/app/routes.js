@@ -1,6 +1,7 @@
 export const ROUTE = {
   // login: "/login",
   login: "",
+  register: "/register",
   customerDashboard: "/dashboard/customer",
   customerTicket: "/dashboard/customer/ticket",
   customerTicketDetail: "/dashboard/customer/ticket/:ticketId",

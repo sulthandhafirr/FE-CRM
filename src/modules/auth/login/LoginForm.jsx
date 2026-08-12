@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { signInWithEmail } from "./login.service";
 import { useAuth } from "../../../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginForm() {
   const { t } = useTranslation();
@@ -12,6 +13,7 @@ export default function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const { setVerified } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -254,11 +256,20 @@ export default function LoginForm() {
           }}
         >
           {t("pages.loginForm.noAccount")}{" "}
-          <span
-            style={{ color: "#374151", fontWeight: "600", cursor: "pointer" }}
+          <button
+            type="button"
+            onClick={() => navigate("/register")}
+            style={{
+              border: "none",
+              background: "transparent",
+              color: "#374151",
+              fontWeight: "600",
+              cursor: "pointer",
+              padding: 0,
+            }}
           >
-            {t("pages.loginForm.contactAdmin")}
-          </span>
+            Register
+          </button>
         </div>
       </form>
     </div>

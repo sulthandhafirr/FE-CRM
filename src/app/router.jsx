@@ -4,6 +4,7 @@ import { ROUTE } from "./routes";
 import { useAuth } from "../hooks/useAuth";
 import MainLayout from "../components/layout/MainLayout";
 import LoginPage from "../modules/auth/login/LoginPage";
+import RegisterPage from "../modules/auth/register/RegisterPage";
 import CustomerDashboardPage from "../modules/dashboard/customer/CustomerDashboardPage";
 import AgentDashboardPage from "../modules/dashboard/agent/AgentDashboardPage";
 import AgentTicketPage from "../modules/ticket/pages/AgentTicketPage";
@@ -77,6 +78,7 @@ export default function Router() {
         path={ROUTE.login}
         element={user && verified ? <Navigate to={getRoleRoute(role)} /> : <LoginPage />}
       />
+      <Route path={ROUTE.register} element={<RegisterPage />} />
 
       {/* Customer Routes */}
       <Route element={<ProtectedRoute allowedRoles={["customer"]} />}>

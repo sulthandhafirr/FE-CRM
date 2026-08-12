@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "../lib/supabase";
+import { api } from "../lib/api/apiClient";
 import { AuthContext } from "./AuthContext";
 
 export function AuthProvider({ children }) {
@@ -34,8 +35,15 @@ export function AuthProvider({ children }) {
       } = await supabase.auth.getUser();
       setUser(user);
       if (user) {
-        await fetchRole(user.id);
-        setVerified(true)
+        try {
+          await api.get("/api/auth/session-status");
+          await fetchRole(user.id);
+          setVerified(true);
+        } catch {
+          await supabase.auth.signOut();
+          setUser(null);
+          setVerified(false);
+        }
       }
       setLoading(false);
     };
