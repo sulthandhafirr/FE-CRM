@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../../../lib/supabase";
 import { useAuth } from "../../../hooks/useAuth";
 import { ROUTE } from "../../../app/routes";
+import { getPasswordChecks, passwordErrorKey } from "../../../utils/password";
 
 const inputStyle = {
   width: "100%",
@@ -22,14 +23,9 @@ const inputStyle = {
 export default function ResetPasswordPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { isPasswordRecovery } = useAuth();
+  const { isPasswordRecovery, user, name } = useAuth();
 
-  // checking → menunggu token recovery diproses; ready → form bisa diisi
-  // invalid → link salah/kedaluwarsa
-  //
-  // Catatan: token di URL hash biasanya sudah diproses oleh supabase-js
-  // saat app start (via AuthProvider) dan hash-nya dihapus dari URL,
-  // jadi deteksi utama memakai flag isPasswordRecovery dari AuthContext.
+  // checking | ready | invalid
   const [status, setStatus] = useState(() => {
     if (isPasswordRecovery) return "ready";
     return (window.location.hash || "").includes("type=recovery")
@@ -44,15 +40,14 @@ export default function ResetPasswordPage() {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    // Cadangan: Supabase JS client membaca token dari URL hash dan
-    // memicu event ini bila hash masih ada saat halaman ini mount
+    // Cadangan bila hash masih ada saat mount (token belum diproses)
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") setStatus("ready");
     });
 
-    // Jaga-jaga bila event belum sempat terpanggil, beri jeda singkat
+    // Jeda singkat bila event tidak sempat terpanggil
     const timer = setTimeout(() => {
       setStatus((prev) => (prev === "checking" ? "ready" : prev));
     }, 1500);
@@ -63,12 +58,15 @@ export default function ResetPasswordPage() {
     };
   }, []);
 
+  const passwordChecks = getPasswordChecks(password, name, user?.email);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    if (password.length < 6) {
-      setError(t("pages.resetPassword.errors.tooShort"));
+    const pwdErrorKey = passwordErrorKey(password, name, user?.email);
+    if (pwdErrorKey) {
+      setError(t(`pages.profile.${pwdErrorKey}`));
       return;
     }
 
@@ -138,7 +136,6 @@ export default function ResetPasswordPage() {
 
     return (
       <form onSubmit={handleSubmit}>
-        {/* New Password */}
         <div style={{ marginBottom: "14px" }}>
           <label
             style={{
@@ -161,9 +158,35 @@ export default function ResetPasswordPage() {
             onFocus={(e) => (e.target.style.borderColor = "#FF6B6B")}
             onBlur={(e) => (e.target.style.borderColor = "#d1d5db")}
           />
+
+          {password && (
+            <div
+              style={{
+                marginTop: 8,
+                display: "flex",
+                flexDirection: "column",
+                gap: 4,
+              }}
+            >
+              {passwordChecks.map((check) => (
+                <div
+                  key={check.key}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    fontSize: 12,
+                    color: check.ok ? "#10B981" : "#9CA3AF",
+                  }}
+                >
+                  <span style={{ fontSize: 12 }}>{check.ok ? "✓" : "✗"}</span>
+                  {t(`pages.profile.pwdCheck.${check.key}`)}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Confirm Password */}
         <div style={{ marginBottom: "14px" }}>
           <label
             style={{
@@ -188,7 +211,6 @@ export default function ResetPasswordPage() {
           />
         </div>
 
-        {/* Show Password Checkbox */}
         <div style={{ marginBottom: "14px" }}>
           <label
             style={{
