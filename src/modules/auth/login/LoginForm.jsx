@@ -6,7 +6,7 @@ import { useAuth } from "../../../hooks/useAuth";
 import { ROUTE } from "../../../app/routes";
 
 // Cooldown kirim ulang link reset (detik) — hindari kena rate limit Supabase
-const RESEND_COOLDOWN_SEC = 60;
+const RESEND_COOLDOWN_SEC = 180;
 // Limit email per jam Supabase (free tier ±30/jam) — reset kira-kira tiap 1 jam
 const HOURLY_LIMIT_COOLDOWN_SEC = 3600;
 

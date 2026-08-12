@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { signInWithEmail } from "../login/login.service";
 import { useAuth } from "../../../hooks/useAuth";
 import { ROUTE } from "../../../app/routes";
+import { getPasswordChecks } from "../../../utils/password";
 import { getRegistrationPlans, getRegistrationStatus, registerCompany } from "./register.service";
 import { PLANS } from "./plans";
 import FormField from "./components/FormField";
@@ -19,6 +21,7 @@ const initialForm = {
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export default function RegisterPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { setVerified } = useAuth();
   const [step, setStep] = useState(1);
@@ -33,6 +36,9 @@ export default function RegisterPage() {
   }, []);
 
   const selectedPlan = PLANS.find((item) => item.id === plan);
+
+  const passwordChecks = getPasswordChecks(form.password, form.fullName, form.email);
+  const passwordStrong = passwordChecks.every((check) => check.ok);
 
   const update = (event) => {
     const { name, value } = event.target;
@@ -122,10 +128,44 @@ export default function RegisterPage() {
           <>
             <FormField label="Full Name" name="fullName" value={form.fullName} onChange={update} />
             <FormField label="Email" name="email" type="email" value={form.email} onChange={update} />
-            <FormField label="Password" name="password" type="password" value={form.password} onChange={update} />
+            <FormField
+              label="Password"
+              name="password"
+              type="password"
+              value={form.password}
+              onChange={update}
+              hint={
+                form.password ? (
+                  <div style={checklistStyle}>
+                    {passwordChecks.map((check) => (
+                      <div
+                        key={check.key}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                          fontSize: 12,
+                          color: check.ok ? "#10B981" : "#9CA3AF",
+                        }}
+                      >
+                        <span style={{ fontWeight: 700, lineHeight: 1 }}>
+                          {check.ok ? "✓" : "✗"}
+                        </span>
+                        {t(`pages.profile.pwdCheck.${check.key}`)}
+                      </div>
+                    ))}
+                  </div>
+                ) : null
+              }
+            />
             <FormField label="Company Name" name="companyName" value={form.companyName} onChange={update} />
             <FormField label="Company Code" name="companyCode" value={form.companyCode} onChange={update} />
-            <button type="button" onClick={() => setStep(2)} style={buttonStyle}>
+            <button
+              type="button"
+              disabled={!passwordStrong}
+              onClick={() => setStep(2)}
+              style={{ ...buttonStyle, opacity: passwordStrong ? 1 : 0.5 }}
+            >
               Continue
             </button>
           </>
@@ -196,6 +236,13 @@ const subtitleStyle = {
 };
 
 const actionAreaStyle = { maxWidth: 460, margin: "0 auto" };
+
+const checklistStyle = {
+  marginTop: 8,
+  display: "flex",
+  flexDirection: "column",
+  gap: 4,
+};
 
 const errorStyle = {
   marginBottom: 14,

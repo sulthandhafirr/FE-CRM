@@ -87,6 +87,9 @@ export default function Router() {
         element={user && verified ? <Navigate to={getRoleRoute(role)} /> : <RegisterPage />}
       />
 
+      {/* Public: Reset password (diakses dari link di email) */}
+      <Route path={ROUTE.resetPassword} element={<ResetPasswordPage />} />
+
       {/* Customer Routes */}
       <Route element={<ProtectedRoute allowedRoles={["customer"]} />}>
         <Route element={<MainLayout />}>

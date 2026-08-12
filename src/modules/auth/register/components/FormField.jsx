@@ -1,4 +1,4 @@
-export default function FormField({ label, ...inputProps }) {
+export default function FormField({ label, hint, ...inputProps }) {
   return (
     <label
       style={{
@@ -24,6 +24,7 @@ export default function FormField({ label, ...inputProps }) {
           color: "#111827",
         }}
       />
+      {hint}
     </label>
   );
 }
