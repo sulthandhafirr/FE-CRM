@@ -19,3 +19,13 @@ export const signInWithEmail = async (email, password, companyCode, setVerified)
 export const signOut = async () => {
   return await supabase.auth.signOut();
 };
+
+// Kirim link reset password ke email user (verifikasi via email dulu)
+export const resetPassword = async (email) => {
+  const redirectTo = `${window.location.origin}/reset-password`;
+  const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo,
+  });
+  if (error) return { error };
+  return { data };
+};

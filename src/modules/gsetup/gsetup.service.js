@@ -206,6 +206,17 @@ const DEFAULT_GENERAL_SETUP = {
       { priority: "Low", firstResponseHours: 24, resolutionHours: 72 },
     ],
   },
+  exportSchedule: {
+    enabled: false,
+    frequency: "monthly",
+    dayOfMonth: 30,
+    dayOfWeek: 1,
+    time: "08:00",
+    includeTickets: true,
+    includeUsers: true,
+    includeCombined: true,
+    recipients: "",
+  },
   roleManagement: {
     roles: [],
   },
@@ -251,6 +262,7 @@ const SETTINGS_SECTIONS = [
   "urgencyManagement",
   "ticketStatus",
   "slaRules",
+  "exportSchedule",
   "roleManagement",
   "companySettings",
 ];
@@ -490,6 +502,52 @@ export async function saveSlaConfigToApi(slaRulesConfig) {
     notifyBeforeBreachedMinutes: data.notifyBeforeBreachedMinutes ?? 30,
     rules: (data.rules ?? []).map(mapApiSlaRuleToFrontend),
   };
+}
+
+// ── Export Schedule API ──────────────────────────────────────────────
+
+function mapApiExportScheduleToFrontend(apiData) {
+  return {
+    enabled: apiData.enabled ?? false,
+    frequency: apiData.frequency ?? "monthly",
+    dayOfMonth: apiData.dayOfMonth ?? 30,
+    dayOfWeek: apiData.dayOfWeek ?? 1,
+    time: apiData.time ?? "08:00",
+    includeTickets: apiData.includeTickets ?? true,
+    includeUsers: apiData.includeUsers ?? true,
+    includeCombined: apiData.includeCombined ?? true,
+    recipients: Array.isArray(apiData.recipients) ? apiData.recipients.join(", ") : "",
+  };
+}
+
+/** Fetch automatic export schedule config from the backend API */
+export async function fetchExportScheduleFromApi() {
+  try {
+    const { data } = await api.get("/api/company/settings/export-schedule");
+    return mapApiExportScheduleToFrontend(data);
+  } catch {
+    return null;
+  }
+}
+
+/** Save automatic export schedule config to the backend API */
+export async function saveExportScheduleToApi(config) {
+  const payload = {
+    enabled: Boolean(config.enabled),
+    frequency: config.frequency ?? "monthly",
+    dayOfMonth: Number(config.dayOfMonth),
+    dayOfWeek: Number(config.dayOfWeek),
+    time: config.time,
+    includeTickets: Boolean(config.includeTickets),
+    includeUsers: Boolean(config.includeUsers),
+    includeCombined: Boolean(config.includeCombined),
+    recipients: (config.recipients ?? "")
+      .split(",")
+      .map((email) => email.trim())
+      .filter(Boolean),
+  };
+  const { data } = await api.put("/api/company/settings/export-schedule", payload);
+  return mapApiExportScheduleToFrontend(data);
 }
 
 /** Fetch all company tiers */

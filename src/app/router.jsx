@@ -4,6 +4,7 @@ import { ROUTE } from "./routes";
 import { useAuth } from "../hooks/useAuth";
 import MainLayout from "../components/layout/MainLayout";
 import LoginPage from "../modules/auth/login/LoginPage";
+import ResetPasswordPage from "../modules/auth/reset/ResetPasswordPage";
 import CustomerDashboardPage from "../modules/dashboard/customer/CustomerDashboardPage";
 import AgentDashboardPage from "../modules/dashboard/agent/AgentDashboardPage";
 import AgentTicketPage from "../modules/ticket/pages/AgentTicketPage";
@@ -36,6 +37,7 @@ import GeneralSetupDashboardPage from "../modules/gsetup/pages/GeneralSetupDashb
 import IssueAndPriorityManagementPage from "../modules/gsetup/pages/IssueAndPriorityManagementPage";
 import TicketStatusPage from "../modules/gsetup/pages/TicketStatusPage";
 import SlaRulesPage from "../modules/gsetup/pages/SlaRulesPage";
+import ExportSchedulePage from "../modules/gsetup/pages/ExportSchedulePage";
 import RoleManagementPage from "../modules/gsetup/pages/RoleManagementPage";
 import CompanySettingsPage from "../modules/gsetup/pages/CompanySettingsPage";
 import TierSettingsPage from "../modules/gsetup/pages/TierSettingsPage";
@@ -77,6 +79,9 @@ export default function Router() {
         path={ROUTE.login}
         element={user && verified ? <Navigate to={getRoleRoute(role)} /> : <LoginPage />}
       />
+
+      {/* Public: Reset password (diakses dari link di email) */}
+      <Route path={ROUTE.resetPassword} element={<ResetPasswordPage />} />
 
       {/* Customer Routes */}
       <Route element={<ProtectedRoute allowedRoles={["customer"]} />}>
@@ -231,6 +236,7 @@ export default function Router() {
           <Route path={ROUTE.adminGeneralSetupIssuePriority} element={<IssueAndPriorityManagementPage />} />
           <Route path={ROUTE.adminGeneralSetupTicketStatus} element={<TicketStatusPage />} />
           <Route path={ROUTE.adminGeneralSetupSla} element={<SlaRulesPage />} />
+          <Route path={ROUTE.adminGeneralSetupExportSchedule} element={<ExportSchedulePage />} />
           <Route path={ROUTE.adminGeneralSetupRoles} element={<RoleManagementPage />} />
           <Route path={ROUTE.adminGeneralSetupCompany} element={<CompanySettingsPage />} />
           <Route path={ROUTE.adminGeneralSetupTiers} element={<TierSettingsPage />} />

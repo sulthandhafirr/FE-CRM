@@ -5,6 +5,7 @@ import {
   fetchRolesFromApi,
   fetchTicketStatusFromApi,
   fetchSlaConfigFromApi,
+  fetchExportScheduleFromApi,
 } from "../gsetup.service";
 
 const DEFAULT_TOAST = { open: false, message: "", severity: "success" };
@@ -20,6 +21,7 @@ export default function useGeneralSetupEditor() {
   const [roleApiLoading, setRoleApiLoading] = useState(true);
   const [ticketStatusApiLoading, setTicketStatusApiLoading] = useState(true);
   const [slaApiLoading, setSlaApiLoading] = useState(true);
+  const [exportScheduleApiLoading, setExportScheduleApiLoading] = useState(true);
   const fileInputRef = useRef(null);
 
   // Fetch role permissions from the backend API on mount
@@ -94,6 +96,30 @@ export default function useGeneralSetupEditor() {
     };
   }, []);
 
+  // Fetch export schedule config from the backend API on mount
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadExportScheduleFromApi() {
+      const apiConfig = await fetchExportScheduleFromApi();
+      if (cancelled) return;
+      setExportScheduleApiLoading(false);
+
+      if (apiConfig !== null) {
+        setSettings((prev) => ({
+          ...prev,
+          exportSchedule: apiConfig,
+        }));
+      }
+    }
+
+    loadExportScheduleFromApi();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const showToast = useCallback((message, severity = "success") => {
     setToast({ open: true, message, severity });
   }, []);
@@ -123,6 +149,7 @@ export default function useGeneralSetupEditor() {
     settings,
     isLoading,
     slaApiLoading,
+    exportScheduleApiLoading,
     toast,
     fileInputRef,
     showToast,

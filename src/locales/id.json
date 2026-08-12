@@ -271,6 +271,11 @@
           "title": "Aturan SLA",
           "description": "Tetapkan target resolusi per prioritas serta notifikasi SLA."
         },
+        "exportSchedule": {
+          "badge": "Laporan",
+          "title": "Jadwal Ekspor",
+          "description": "Jadwalkan ekspor data bulanan otomatis (tiket, pengguna, atau gabungan) yang dikirim lewat email."
+        },
         "tierSettings": {
           "badge": "Loyalitas",
           "title": "Pengaturan Tier",
@@ -363,6 +368,42 @@
         "resetToDefault": "Atur Ulang ke Default",
         "toastSaved": "Aturan SLA disimpan.",
         "toastSaveFailed": "Gagal menyimpan aturan SLA."
+      },
+      "exportSchedule": {
+        "title": "Jadwal Ekspor",
+        "subtitle": "Jadwalkan ekspor data otomatis yang dikirim lewat email.",
+        "activeChip": "Aktif",
+        "inactiveChip": "Nonaktif",
+        "enableSending": "Aktifkan Ekspor Otomatis",
+        "frequency": "Frekuensi",
+        "frequencyDaily": "Harian",
+        "frequencyWeekly": "Mingguan",
+        "frequencyMonthly": "Bulanan",
+        "dayOfMonth": "Tanggal Kirim",
+        "dayHelper": "Tanggal setiap bulan saat ekspor dijalankan (mis. 30). Bulan tanpa tanggal ini dilewati.",
+        "dayOfWeek": "Hari Kirim",
+        "days": {
+          "0": "Minggu",
+          "1": "Senin",
+          "2": "Selasa",
+          "3": "Rabu",
+          "4": "Kamis",
+          "5": "Jumat",
+          "6": "Sabtu"
+        },
+        "time": "Jam Kirim",
+        "includeTickets": "Sertakan Tiket (30 hari terakhir)",
+        "includeUsers": "Sertakan Pengguna (30 hari terakhir)",
+        "includeCombined": "Sertakan File Gabungan (Tiket + Pengguna dalam satu file)",
+        "recipients": "Email Penerima (pisahkan dengan koma)",
+        "recipientsHelper": "Kosongkan untuk mengirim ke email dukungan perusahaan dan semua admin.",
+        "infoWindow": "Setiap pengiriman mengekspor 30 hari terakhir (bulan berjalan) menggunakan zona waktu perusahaan.",
+        "helper": "File dilampirkan dalam satu email dan dikirim satu kali per hari terjadwal.",
+        "toastDayInvalid": "Tanggal kirim harus antara 1 dan 31.",
+        "toastTimeRequired": "Jam kirim wajib diisi.",
+        "toastDataRequired": "Pilih minimal satu jenis data.",
+        "toastSaved": "Jadwal ekspor disimpan.",
+        "toastSaveFailed": "Gagal menyimpan jadwal ekspor."
       },
       "ticketStatus": {
         "title": "Status Tiket",
@@ -586,6 +627,14 @@
       "login": "Masuk",
       "noAccount": "Belum punya akun?",
       "contactAdmin": "Hubungi admin",
+      "forgotPassword": "Lupa password?",
+      "forgotTitle": "Lupa Password",
+      "forgotSubtitle": "Masukkan alamat email Anda dan kami akan mengirimkan link untuk mengatur ulang password Anda.",
+      "sendResetLink": "Kirim Link Reset",
+      "sendingResetLink": "Mengirim...",
+      "resetLinkSent": "Link reset terkirim! Silakan cek email Anda (termasuk folder spam) untuk mengatur ulang password.",
+      "resendIn": "Anda dapat meminta link baru dalam {{time}}.",
+      "backToLogin": "Kembali ke Login",
       "fields": {
         "emailLabel": "Email",
         "emailPlaceholder": "Silakan masukkan email Anda.",
@@ -595,7 +644,38 @@
         "companyIdPlaceholder": "Silakan masukkan ID Perusahaan Anda."
       },
       "errors": {
-        "companyIdRequired": "Silakan masukkan ID Perusahaan"
+        "companyIdRequired": "Silakan masukkan ID Perusahaan",
+        "emailRequired": "Silakan masukkan email Anda",
+        "emailInvalid": "Format email tidak valid",
+        "resetFailed": "Gagal mengirim link reset. Silakan coba lagi.",
+        "rateLimited": "Terlalu banyak permintaan. Silakan tunggu sebentar sebelum meminta link reset lagi.",
+        "hourlyLimit": "Batas pengiriman email untuk jam ini telah tercapai. Silakan coba lagi nanti.",
+        "cooldown": "Silakan tunggu {{time}} sebelum meminta link reset lagi."
+      },
+      "time": {
+        "hours": "jam",
+        "minutes": "mnt",
+        "seconds": "dtk"
+      }
+    },
+    "resetPassword": {
+      "title": "Atur Password Baru",
+      "subtitle": "Masukkan password baru untuk akun Anda.",
+      "checking": "Memeriksa link reset Anda...",
+      "invalidLink": "Link reset ini tidak valid atau sudah kedaluwarsa. Silakan minta link baru.",
+      "newPasswordLabel": "Password Baru",
+      "newPasswordPlaceholder": "Masukkan password baru Anda.",
+      "confirmPasswordLabel": "Konfirmasi Password",
+      "confirmPasswordPlaceholder": "Masukkan ulang password baru Anda.",
+      "showPassword": "Tampilkan password",
+      "updatePassword": "Perbarui Password",
+      "updating": "Memperbarui...",
+      "success": "Password berhasil diperbarui! Mengarahkan ke halaman login...",
+      "backToLogin": "Kembali ke Login",
+      "errors": {
+        "tooShort": "Password harus minimal 6 karakter",
+        "mismatch": "Password tidak cocok",
+        "updateFailed": "Gagal memperbarui password. Silakan coba lagi."
       }
     },
     "customerHistory": {
