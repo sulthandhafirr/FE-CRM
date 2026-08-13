@@ -17,7 +17,7 @@ import useGeneralSetupEditor from "./components/useGeneralSetupEditor";
 export function createGeneralSetupThemeTokens() {
   return {
     isDarkMode: false,
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
     pageBg: "#f9fafb",
     cardBg: "#ffffff",
     sectionHeaderBg: "linear-gradient(180deg, #fffaf7 0%, #ffffff 100%)",
