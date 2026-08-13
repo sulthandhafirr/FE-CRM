@@ -333,6 +333,7 @@
         "actionFailed": "Subscription action failed. Please try again.",
         "cancelConfirm": "Cancel renewal at the end of the current subscription period?",
         "cancelledInfo": "Cancellation is scheduled. CRM access continues until {{date}}.",
+        "renewReactivate": "Renew / Reactivate",
         "paymentHistory": "Subscription Payment History",
         "noPayments": "No subscription payments yet.",
         "amount": "Amount",

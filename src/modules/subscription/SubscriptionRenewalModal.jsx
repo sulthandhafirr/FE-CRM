@@ -5,7 +5,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { ROUTE } from "../../app/routes";
 import {
   getSubscriptionPlans,
-  getSubscriptionStatus,
+  getSubscriptionPayment,
   renewSubscription,
 } from "./subscription.service";
 
@@ -29,11 +29,16 @@ export default function SubscriptionRenewalModal() {
 
   if (!["expired", "pending"].includes(subscriptionStatus)) return null;
 
-  const waitForActivation = async () => {
+  const waitForActivation = async (orderId) => {
     for (let attempt = 0; attempt < 20; attempt += 1) {
       await wait(1500);
-      const status = await getSubscriptionStatus();
-      if (status.subscriptionStatus === "active") return;
+      try {
+        const payment = await getSubscriptionPayment(orderId);
+        if (payment.status === "paid") return;
+        if (payment.status === "failed") throw new Error("Payment failed. Please try again.");
+      } catch (paymentError) {
+        if (paymentError?.response?.status !== 404) throw paymentError;
+      }
     }
     throw new Error("Payment succeeded, but activation is still processing. Please try again shortly.");
   };
@@ -48,7 +53,7 @@ export default function SubscriptionRenewalModal() {
       window.snap.pay(result.snapToken, {
         onSuccess: async () => {
           try {
-            await waitForActivation();
+            await waitForActivation(result.midtransOrderId);
             setSubscriptionStatus("active");
           } catch (activationError) {
             setError(activationError.message);

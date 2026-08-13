@@ -20,6 +20,11 @@ export const getSubscriptionPayments = async () => {
   return data;
 };
 
+export const getSubscriptionPayment = async (orderId) => {
+  const { data } = await api.get(`/api/company/settings/subscription/payments/${encodeURIComponent(orderId)}`);
+  return data;
+};
+
 export const cancelSubscription = async () => {
   const { data } = await api.post("/api/company/settings/subscription/cancel");
   return data;

@@ -333,6 +333,7 @@
         "actionFailed": "Aksi langganan gagal. Silakan coba lagi.",
         "cancelConfirm": "Batalkan perpanjangan pada akhir periode langganan saat ini?",
         "cancelledInfo": "Pembatalan dijadwalkan. Akses CRM tetap tersedia sampai {{date}}.",
+        "renewReactivate": "Perpanjang / Aktifkan Kembali",
         "paymentHistory": "Riwayat Pembayaran Langganan",
         "noPayments": "Belum ada pembayaran langganan.",
         "amount": "Jumlah",

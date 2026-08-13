@@ -4,7 +4,8 @@ import { MdPayment } from "react-icons/md";
 import { useTranslation } from "react-i18next";
 import GeneralSetupSectionPage, { SettingsPanel } from "../GeneralSetupSectionPage";
 import { api } from "../../../lib/api/apiClient";
-import { cancelSubscription, getSubscriptionPayments, reactivateSubscription } from "../../subscription/subscription.service";
+import { cancelSubscription, getSubscriptionPayments } from "../../subscription/subscription.service";
+import SubscriptionPlanDialog from "../../subscription/SubscriptionPlanDialog";
 
 const formatDate = (value) => value
   ? new Intl.DateTimeFormat(undefined, { dateStyle: "long" }).format(new Date(value))
@@ -19,16 +20,19 @@ function SubscriptionBillingContent({ theme }) {
   const [actionError, setActionError] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
   const [payments, setPayments] = useState([]);
+  const [planDialogOpen, setPlanDialogOpen] = useState(false);
 
-  useEffect(() => {
-    Promise.all([
+  const loadData = async () => {
+    const [{ data }, history] = await Promise.all([
       api.get("/api/company/settings/subscription"),
       getSubscriptionPayments(),
-    ])
-      .then(([{ data }, history]) => {
-        setSubscription(data);
-        setPayments(history);
-      })
+    ]);
+    setSubscription(data);
+    setPayments(history);
+  };
+
+  useEffect(() => {
+    loadData()
       .catch(() => setError(t("pages.gsetup.subscriptionBilling.loadFailed")));
   }, []);
 
@@ -56,6 +60,8 @@ function SubscriptionBillingContent({ theme }) {
   const plan = (subscription.plan ?? "not_configured").toLowerCase();
   const isTrial = status === "trial" || plan === "trial";
   const cancelAtPeriodEnd = Boolean(subscription.cancelAtPeriodEnd);
+  const canRenewActive = subscription.subscriptionEnd
+    && new Date(subscription.subscriptionEnd).getTime() - Date.now() <= 7 * 24 * 60 * 60 * 1000;
   const statusColor = status === "active" ? "success" : status === "expired" ? "error" : isTrial ? "warning" : "default";
 
   return (
@@ -98,16 +104,16 @@ function SubscriptionBillingContent({ theme }) {
           {status === "active" && !cancelAtPeriodEnd && (
             <>
               <Button onClick={handleCancel} disabled={actionLoading} variant="outlined">{actionLoading ? t("pages.gsetup.subscriptionBilling.processing") : t("pages.gsetup.subscriptionBilling.cancel")}</Button>
-              <Button disabled variant="contained">{t("pages.gsetup.subscriptionBilling.changePlan")}</Button>
+              <Button onClick={() => setPlanDialogOpen(true)} disabled={actionLoading || !canRenewActive} variant="contained">{t("pages.gsetup.subscriptionBilling.changePlan")}</Button>
             </>
           )}
           {status === "active" && cancelAtPeriodEnd && (
-            <Button onClick={() => runAction(reactivateSubscription)} disabled={actionLoading} variant="contained">
-              {actionLoading ? t("pages.gsetup.subscriptionBilling.processing") : t("pages.gsetup.subscriptionBilling.reactivate")}
+            <Button onClick={() => setPlanDialogOpen(true)} disabled={actionLoading || !canRenewActive} variant="contained">
+              {t("pages.gsetup.subscriptionBilling.renewReactivate")}
             </Button>
           )}
-          {isTrial && <Button disabled variant="contained">{t("pages.gsetup.subscriptionBilling.choosePaidPlan")}</Button>}
-          {status === "expired" && <Button disabled variant="contained">{t("pages.gsetup.subscriptionBilling.renew")}</Button>}
+          {isTrial && <Button onClick={() => setPlanDialogOpen(true)} disabled={actionLoading} variant="contained">{t("pages.gsetup.subscriptionBilling.choosePaidPlan")}</Button>}
+          {status === "expired" && <Button onClick={() => setPlanDialogOpen(true)} disabled={actionLoading} variant="contained">{t("pages.gsetup.subscriptionBilling.renew")}</Button>}
         </Stack>
 
         <Box>
@@ -146,6 +152,11 @@ function SubscriptionBillingContent({ theme }) {
           )}
         </Box>
       </Stack>
+      <SubscriptionPlanDialog
+        open={planDialogOpen}
+        onClose={() => setPlanDialogOpen(false)}
+        onComplete={loadData}
+      />
     </SettingsPanel>
   );
 }
