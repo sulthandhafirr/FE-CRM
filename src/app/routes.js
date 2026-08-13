@@ -43,6 +43,7 @@ export const ROUTE = {
   adminGeneralSetupSla: "/dashboard/admin/general-setup/sla",
   adminGeneralSetupRoles: "/dashboard/admin/general-setup/roles",
   adminGeneralSetupCompany: "/dashboard/admin/general-setup/company",
+  adminGeneralSetupSubscription: "/dashboard/admin/general-setup/subscription",
   adminGeneralSetupExportSchedule: "/dashboard/admin/general-setup/export-schedule",
   adminPerformanceCsAgent: "/dashboard/admin/performance/cs-agent",
   adminPerformanceTechnician: "/dashboard/admin/performance/technician",

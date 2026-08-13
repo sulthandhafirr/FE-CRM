@@ -5,3 +5,4 @@ export { default as SlaRulesPage } from "./SlaRulesPage";
 export { default as ExportSchedulePage } from "./ExportSchedulePage";
 export { default as RoleManagementPage } from "./RoleManagementPage";
 export { default as CompanySettingsPage } from "./CompanySettingsPage";
+export { default as SubscriptionBillingPage } from "./SubscriptionBillingPage";

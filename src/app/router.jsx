@@ -41,6 +41,7 @@ import SlaRulesPage from "../modules/gsetup/pages/SlaRulesPage";
 import ExportSchedulePage from "../modules/gsetup/pages/ExportSchedulePage";
 import RoleManagementPage from "../modules/gsetup/pages/RoleManagementPage";
 import CompanySettingsPage from "../modules/gsetup/pages/CompanySettingsPage";
+import SubscriptionBillingPage from "../modules/gsetup/pages/SubscriptionBillingPage";
 import TierSettingsPage from "../modules/gsetup/pages/TierSettingsPage";
 import CustomerProfilePage from "../modules/profile/customer/CustomerProfilePage";
 import AgentProfilePage from "../modules/profile/agent/AgentProfilePage";
@@ -246,6 +247,7 @@ export default function Router() {
           <Route path={ROUTE.adminGeneralSetupExportSchedule} element={<ExportSchedulePage />} />
           <Route path={ROUTE.adminGeneralSetupRoles} element={<RoleManagementPage />} />
           <Route path={ROUTE.adminGeneralSetupCompany} element={<CompanySettingsPage />} />
+          <Route path={ROUTE.adminGeneralSetupSubscription} element={<SubscriptionBillingPage />} />
           <Route path={ROUTE.adminGeneralSetupTiers} element={<TierSettingsPage />} />
           <Route path={ROUTE.adminPerformanceCsAgent} element={<CSAgentPerformancePage />} />
           <Route path={ROUTE.adminPerformanceTechnician} element={<AdminTechnicianPerformancePage />} />

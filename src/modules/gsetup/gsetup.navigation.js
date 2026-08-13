@@ -1,4 +1,4 @@
-import { MdBusiness, MdChecklist, MdGavel, MdGroup, MdLayers, MdOutlineScheduleSend, MdPsychology } from "react-icons/md";
+import { MdBusiness, MdChecklist, MdGavel, MdGroup, MdLayers, MdOutlineScheduleSend, MdPayment, MdPsychology } from "react-icons/md";
 import { ROUTE } from "../../app/routes";
 
 export const GENERAL_SETUP_MODULES = [
@@ -12,6 +12,17 @@ export const GENERAL_SETUP_MODULES = [
     accentBg: "#cffafe",
     accentBorder: "#a5f3fc",
     to: ROUTE.adminGeneralSetupCompany,
+  },
+  {
+    key: "subscriptionBilling",
+    badge: "Billing",
+    title: "Subscription & Billing",
+    description: "Manage your current CRM subscription, renewal, and billing information.",
+    icon: MdPayment,
+    accent: "#0f766e",
+    accentBg: "#ccfbf1",
+    accentBorder: "#99f6e4",
+    to: ROUTE.adminGeneralSetupSubscription,
   },
   // ── Issue and Priority Management (hidden from menu, keep for later) ──
   // {

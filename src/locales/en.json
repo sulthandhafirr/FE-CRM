@@ -261,6 +261,11 @@
           "title": "Company Settings",
           "description": "Configure company profile, locale defaults, working days, and ticket numbering."
         },
+        "subscriptionBilling": {
+          "badge": "Billing",
+          "title": "Subscription & Billing",
+          "description": "Manage your current CRM subscription, renewal, and billing information."
+        },
         "ticketStatus": {
           "badge": "Workflow",
           "title": "Ticket Status",
@@ -307,6 +312,22 @@
         "toastSaveFailed": "Failed to save company settings.",
         "toastLogoOk": "Logo uploaded successfully.",
         "toastLogoFail": "Failed to upload logo."
+      },
+      "subscriptionBilling": {
+        "title": "Subscription & Billing",
+        "subtitle": "View your current CRM subscription and billing information.",
+        "loadFailed": "Failed to load subscription information.",
+        "plan": "Current Plan",
+        "status": "Status",
+        "trialEnds": "Trial Ends",
+        "subscriptionEnds": "Subscription Ends",
+        "freeTrial": "Free Trial",
+        "trialInfo": "Your free trial ends on {{date}}.",
+        "expiredInfo": "Your subscription has expired. Renewal is required to continue using the CRM.",
+        "cancel": "Cancel Subscription",
+        "changePlan": "Change Plan / Renew",
+        "choosePaidPlan": "Choose Paid Plan",
+        "renew": "Renew Subscription"
       },
       "roleManagement": {
         "title": "Role Management",

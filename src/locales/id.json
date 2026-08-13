@@ -261,6 +261,11 @@
           "title": "Pengaturan Perusahaan",
           "description": "Atur profil perusahaan, pengaturan default lokal, hari kerja, dan penomoran tiket."
         },
+        "subscriptionBilling": {
+          "badge": "Pembayaran",
+          "title": "Langganan & Pembayaran",
+          "description": "Kelola informasi langganan CRM, perpanjangan, dan pembayaran saat ini."
+        },
         "ticketStatus": {
           "badge": "Alur",
           "title": "Status Tiket",
@@ -307,6 +312,22 @@
         "toastSaveFailed": "Gagal menyimpan pengaturan perusahaan.",
         "toastLogoOk": "Logo berhasil diunggah.",
         "toastLogoFail": "Gagal mengunggah logo."
+      },
+      "subscriptionBilling": {
+        "title": "Langganan & Pembayaran",
+        "subtitle": "Lihat informasi langganan CRM dan pembayaran saat ini.",
+        "loadFailed": "Gagal memuat informasi langganan.",
+        "plan": "Paket Saat Ini",
+        "status": "Status",
+        "trialEnds": "Trial Berakhir",
+        "subscriptionEnds": "Langganan Berakhir",
+        "freeTrial": "Free Trial",
+        "trialInfo": "Free trial Anda berakhir pada {{date}}.",
+        "expiredInfo": "Langganan Anda telah berakhir. Perpanjangan diperlukan untuk melanjutkan penggunaan CRM.",
+        "cancel": "Batalkan Langganan",
+        "changePlan": "Ubah Paket / Perpanjang",
+        "choosePaidPlan": "Pilih Paket Berbayar",
+        "renew": "Perpanjang Langganan"
       },
       "roleManagement": {
         "title": "Manajemen Peran",
