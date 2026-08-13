@@ -15,6 +15,11 @@ export const getSubscriptionPlans = async () => {
   return data;
 };
 
+export const getSubscriptionPayments = async () => {
+  const { data } = await api.get("/api/company/settings/subscription/payments");
+  return data;
+};
+
 export const cancelSubscription = async () => {
   const { data } = await api.post("/api/company/settings/subscription/cancel");
   return data;

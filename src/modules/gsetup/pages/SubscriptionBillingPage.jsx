@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
-import { Alert, Box, Button, Chip, Stack, Typography } from "@mui/material";
+import { Alert, Box, Button, Chip, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import { MdPayment } from "react-icons/md";
 import { useTranslation } from "react-i18next";
 import GeneralSetupSectionPage, { SettingsPanel } from "../GeneralSetupSectionPage";
 import { api } from "../../../lib/api/apiClient";
-import { cancelSubscription, reactivateSubscription } from "../../subscription/subscription.service";
+import { cancelSubscription, getSubscriptionPayments, reactivateSubscription } from "../../subscription/subscription.service";
 
 const formatDate = (value) => value
   ? new Intl.DateTimeFormat(undefined, { dateStyle: "long" }).format(new Date(value))
   : "—";
+
+const formatAmount = (value) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(value ?? 0);
 
 function SubscriptionBillingContent({ theme }) {
   const { t } = useTranslation();
@@ -16,10 +18,17 @@ function SubscriptionBillingContent({ theme }) {
   const [error, setError] = useState("");
   const [actionError, setActionError] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
+  const [payments, setPayments] = useState([]);
 
   useEffect(() => {
-    api.get("/api/company/settings/subscription")
-      .then(({ data }) => setSubscription(data))
+    Promise.all([
+      api.get("/api/company/settings/subscription"),
+      getSubscriptionPayments(),
+    ])
+      .then(([{ data }, history]) => {
+        setSubscription(data);
+        setPayments(history);
+      })
       .catch(() => setError(t("pages.gsetup.subscriptionBilling.loadFailed")));
   }, []);
 
@@ -100,6 +109,42 @@ function SubscriptionBillingContent({ theme }) {
           {isTrial && <Button disabled variant="contained">{t("pages.gsetup.subscriptionBilling.choosePaidPlan")}</Button>}
           {status === "expired" && <Button disabled variant="contained">{t("pages.gsetup.subscriptionBilling.renew")}</Button>}
         </Stack>
+
+        <Box>
+          <Typography sx={{ fontSize: 18, fontWeight: 800, mb: 1.5 }}>
+            {t("pages.gsetup.subscriptionBilling.paymentHistory")}
+          </Typography>
+          {payments.length === 0 ? (
+            <Typography sx={{ color: theme.subtext }}>{t("pages.gsetup.subscriptionBilling.noPayments")}</Typography>
+          ) : (
+            <TableContainer sx={{ border: `1px solid ${theme.border}`, borderRadius: 2, overflowX: "auto" }}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>{t("pages.gsetup.subscriptionBilling.plan")}</TableCell>
+                    <TableCell>{t("pages.gsetup.subscriptionBilling.amount")}</TableCell>
+                    <TableCell>{t("pages.gsetup.subscriptionBilling.status")}</TableCell>
+                    <TableCell>{t("pages.gsetup.subscriptionBilling.paymentMethod")}</TableCell>
+                    <TableCell>{t("pages.gsetup.subscriptionBilling.createdAt")}</TableCell>
+                    <TableCell>{t("pages.gsetup.subscriptionBilling.period")}</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {payments.map((payment) => (
+                    <TableRow key={payment.id}>
+                      <TableCell sx={{ textTransform: "capitalize" }}>{payment.subscriptionPlan}</TableCell>
+                      <TableCell>{formatAmount(payment.amount)}</TableCell>
+                      <TableCell><Chip size="small" label={payment.status} color={payment.status === "paid" ? "success" : payment.status === "failed" ? "error" : "default"} sx={{ textTransform: "capitalize" }} /></TableCell>
+                      <TableCell>{payment.paymentMethod ?? "—"}</TableCell>
+                      <TableCell>{formatDate(payment.createdAt)}</TableCell>
+                      <TableCell>{payment.subscriptionStart && payment.subscriptionEnd ? `${formatDate(payment.subscriptionStart)} – ${formatDate(payment.subscriptionEnd)}` : "—"}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </Box>
       </Stack>
     </SettingsPanel>
   );

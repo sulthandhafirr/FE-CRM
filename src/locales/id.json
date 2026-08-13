@@ -332,7 +332,13 @@
         "processing": "Memproses...",
         "actionFailed": "Aksi langganan gagal. Silakan coba lagi.",
         "cancelConfirm": "Batalkan perpanjangan pada akhir periode langganan saat ini?",
-        "cancelledInfo": "Pembatalan dijadwalkan. Akses CRM tetap tersedia sampai {{date}}."
+        "cancelledInfo": "Pembatalan dijadwalkan. Akses CRM tetap tersedia sampai {{date}}.",
+        "paymentHistory": "Riwayat Pembayaran Langganan",
+        "noPayments": "Belum ada pembayaran langganan.",
+        "amount": "Jumlah",
+        "paymentMethod": "Metode Pembayaran",
+        "createdAt": "Dibuat",
+        "period": "Periode Langganan"
       },
       "roleManagement": {
         "title": "Manajemen Peran",

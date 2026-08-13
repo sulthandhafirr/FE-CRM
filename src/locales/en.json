@@ -332,7 +332,13 @@
         "processing": "Processing...",
         "actionFailed": "Subscription action failed. Please try again.",
         "cancelConfirm": "Cancel renewal at the end of the current subscription period?",
-        "cancelledInfo": "Cancellation is scheduled. CRM access continues until {{date}}."
+        "cancelledInfo": "Cancellation is scheduled. CRM access continues until {{date}}.",
+        "paymentHistory": "Subscription Payment History",
+        "noPayments": "No subscription payments yet.",
+        "amount": "Amount",
+        "paymentMethod": "Payment Method",
+        "createdAt": "Created",
+        "period": "Subscription Period"
       },
       "roleManagement": {
         "title": "Role Management",
