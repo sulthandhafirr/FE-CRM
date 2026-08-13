@@ -10,6 +10,7 @@ import RealtimeClock from "../ui/RealtimeClock";
 import UserMenu from "../ui/UserMenu";
 import { ROUTE } from "../../app/routes";
 import { useAuth } from "../../hooks/useAuth";
+import SubscriptionRenewalModal from "../../modules/subscription/SubscriptionRenewalModal";
 
 const Divider = () => (
   <div
@@ -133,6 +134,7 @@ export default function MainLayout() {
       </main>
 
       <BottomNav activeMenu={activeMenu} setActiveMenu={setActiveMenu} />
+      <SubscriptionRenewalModal />
     </div>
   );
 }

@@ -10,6 +10,7 @@ export function AuthProvider({ children }) {
   const [overrideRole, setOverrideRole] = useState(null);
   const [loading, setLoading] = useState(true);
   const [verified, setVerified] = useState(false);
+  const [subscriptionStatus, setSubscriptionStatus] = useState(null);
   // True saat user datang dari link reset password di email
   // (event PASSWORD_RECOVERY ditangkap di sini karena subscription
   // dipasang saat app start — sebelum supabase-js memproses hash URL)
@@ -40,7 +41,8 @@ export function AuthProvider({ children }) {
       setUser(user);
       if (user) {
         try {
-          await api.get("/api/auth/session-status");
+          const { data: status } = await api.get("/api/auth/session-status");
+          setSubscriptionStatus(status.subscriptionStatus);
           await fetchRole(user.id);
           setVerified(true);
         } catch {
@@ -70,6 +72,7 @@ export function AuthProvider({ children }) {
         setName(null);
         setOverrideRole(null);
         setVerified(false)
+        setSubscriptionStatus(null);
 
         /* Clear company settings from localStorage so next login
            doesn't show stale timezone / data from previous company */
@@ -97,6 +100,8 @@ export function AuthProvider({ children }) {
         loading,
         verified,
         setVerified,
+        subscriptionStatus,
+        setSubscriptionStatus,
         isPasswordRecovery,
       }}
     >

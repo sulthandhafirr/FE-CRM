@@ -25,7 +25,7 @@ export default function LoginForm() {
   const [forgotLoading, setForgotLoading] = useState(false);
   const [cooldown, setCooldown] = useState(0);
   const cooldownRef = useRef(null);
-  const { setVerified } = useAuth();
+  const { setVerified, setSubscriptionStatus } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -38,7 +38,7 @@ export default function LoginForm() {
       return;
     }
 
-    const { error: authError } = await signInWithEmail(email, password, companyId, setVerified);
+    const { error: authError } = await signInWithEmail(email, password, companyId, setVerified, setSubscriptionStatus);
 
     if (authError) {
       setError(authError.message);

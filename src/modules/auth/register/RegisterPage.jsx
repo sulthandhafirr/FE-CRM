@@ -23,7 +23,7 @@ const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 export default function RegisterPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { setVerified } = useAuth();
+  const { setVerified, setSubscriptionStatus } = useAuth();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState(initialForm);
   const [plan, setPlan] = useState("trial");
@@ -50,7 +50,8 @@ export default function RegisterPage() {
       form.email,
       form.password,
       form.companyCode,
-      setVerified
+      setVerified,
+      setSubscriptionStatus
     );
     if (result.error) throw new Error(result.error.message);
     navigate(ROUTE.adminDashboard);

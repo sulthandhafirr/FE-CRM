@@ -1,12 +1,13 @@
 import { supabase } from "../../../lib/supabase";
 import { api } from "../../../lib/api/apiClient";
 
-export const signInWithEmail = async (email, password, companyCode, setVerified) => {
+export const signInWithEmail = async (email, password, companyCode, setVerified, setSubscriptionStatus) => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) return { error };
 
     try {
-        await api.get(`/api/auth/verify-company?code=${companyCode}`);
+        const { data: companyStatus } = await api.get(`/api/auth/verify-company?code=${companyCode}`);
+        setSubscriptionStatus?.(companyStatus.subscriptionStatus);
         setVerified(true);
     } catch {
         await supabase.auth.signOut();
