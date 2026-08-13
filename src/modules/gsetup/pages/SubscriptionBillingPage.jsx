@@ -4,6 +4,7 @@ import { MdPayment } from "react-icons/md";
 import { useTranslation } from "react-i18next";
 import GeneralSetupSectionPage, { SettingsPanel } from "../GeneralSetupSectionPage";
 import { api } from "../../../lib/api/apiClient";
+import { cancelSubscription, reactivateSubscription } from "../../subscription/subscription.service";
 
 const formatDate = (value) => value
   ? new Intl.DateTimeFormat(undefined, { dateStyle: "long" }).format(new Date(value))
@@ -12,20 +13,40 @@ const formatDate = (value) => value
 function SubscriptionBillingContent({ theme }) {
   const { t } = useTranslation();
   const [subscription, setSubscription] = useState(null);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState("");
+  const [actionError, setActionError] = useState("");
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     api.get("/api/company/settings/subscription")
       .then(({ data }) => setSubscription(data))
-      .catch(() => setError(true));
+      .catch(() => setError(t("pages.gsetup.subscriptionBilling.loadFailed")));
   }, []);
 
-  if (error) return <Alert severity="error">{t("pages.gsetup.subscriptionBilling.loadFailed")}</Alert>;
+  const runAction = async (action) => {
+    setActionLoading(true);
+    setActionError("");
+    try {
+      setSubscription(await action());
+    } catch (actionError) {
+      setActionError(actionError?.response?.data?.message || t("pages.gsetup.subscriptionBilling.actionFailed"));
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleCancel = () => {
+    if (window.confirm(t("pages.gsetup.subscriptionBilling.cancelConfirm")))
+      runAction(cancelSubscription);
+  };
+
+  if (error) return <Alert severity="error">{error}</Alert>;
   if (!subscription) return <Typography sx={{ color: theme.subtext }}>{t("pages.gsetup.common.loading")}</Typography>;
 
   const status = (subscription.status ?? "not_configured").toLowerCase();
   const plan = (subscription.plan ?? "not_configured").toLowerCase();
   const isTrial = status === "trial" || plan === "trial";
+  const cancelAtPeriodEnd = Boolean(subscription.cancelAtPeriodEnd);
   const statusColor = status === "active" ? "success" : status === "expired" ? "error" : isTrial ? "warning" : "default";
 
   return (
@@ -36,6 +57,7 @@ function SubscriptionBillingContent({ theme }) {
       subtitle={t("pages.gsetup.subscriptionBilling.subtitle")}
     >
       <Stack spacing={2.5}>
+        {actionError && <Alert severity="error">{actionError}</Alert>}
         <Stack direction={{ xs: "column", sm: "row" }} spacing={2} flexWrap="wrap">
           <Box sx={{ minWidth: 190 }}>
             <Typography variant="caption" color="text.secondary">{t("pages.gsetup.subscriptionBilling.plan")}</Typography>
@@ -57,13 +79,23 @@ function SubscriptionBillingContent({ theme }) {
         {status === "expired" && (
           <Alert severity="warning">{t("pages.gsetup.subscriptionBilling.expiredInfo")}</Alert>
         )}
+        {status === "active" && cancelAtPeriodEnd && (
+          <Alert severity="warning">
+            {t("pages.gsetup.subscriptionBilling.cancelledInfo", { date: formatDate(subscription.subscriptionEnd) })}
+          </Alert>
+        )}
 
         <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
-          {status === "active" && (
+          {status === "active" && !cancelAtPeriodEnd && (
             <>
-              <Button disabled variant="outlined">{t("pages.gsetup.subscriptionBilling.cancel")}</Button>
+              <Button onClick={handleCancel} disabled={actionLoading} variant="outlined">{actionLoading ? t("pages.gsetup.subscriptionBilling.processing") : t("pages.gsetup.subscriptionBilling.cancel")}</Button>
               <Button disabled variant="contained">{t("pages.gsetup.subscriptionBilling.changePlan")}</Button>
             </>
+          )}
+          {status === "active" && cancelAtPeriodEnd && (
+            <Button onClick={() => runAction(reactivateSubscription)} disabled={actionLoading} variant="contained">
+              {actionLoading ? t("pages.gsetup.subscriptionBilling.processing") : t("pages.gsetup.subscriptionBilling.reactivate")}
+            </Button>
           )}
           {isTrial && <Button disabled variant="contained">{t("pages.gsetup.subscriptionBilling.choosePaidPlan")}</Button>}
           {status === "expired" && <Button disabled variant="contained">{t("pages.gsetup.subscriptionBilling.renew")}</Button>}

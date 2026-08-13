@@ -327,7 +327,12 @@
         "cancel": "Cancel Subscription",
         "changePlan": "Change Plan / Renew",
         "choosePaidPlan": "Choose Paid Plan",
-        "renew": "Renew Subscription"
+        "renew": "Renew Subscription",
+        "reactivate": "Reactivate Subscription",
+        "processing": "Processing...",
+        "actionFailed": "Subscription action failed. Please try again.",
+        "cancelConfirm": "Cancel renewal at the end of the current subscription period?",
+        "cancelledInfo": "Cancellation is scheduled. CRM access continues until {{date}}."
       },
       "roleManagement": {
         "title": "Role Management",

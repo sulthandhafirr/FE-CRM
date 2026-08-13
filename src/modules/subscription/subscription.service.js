@@ -14,3 +14,13 @@ export const getSubscriptionPlans = async () => {
   const { data } = await api.get("/api/auth/registration-plans");
   return data;
 };
+
+export const cancelSubscription = async () => {
+  const { data } = await api.post("/api/company/settings/subscription/cancel");
+  return data;
+};
+
+export const reactivateSubscription = async () => {
+  const { data } = await api.post("/api/company/settings/subscription/reactivate");
+  return data;
+};
