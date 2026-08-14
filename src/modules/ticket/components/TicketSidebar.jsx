@@ -69,6 +69,8 @@ export default function TicketSidebar({
   onOpenBillingModal,
   onPayNow,
   payingNow,
+  onSendBill,
+  sendingBill,
   // ── Admin props ──
   resolved,
   csAgents,
@@ -298,6 +300,8 @@ export default function TicketSidebar({
               onDispatchTechnician={onDispatchTechnician}
               billItems={billItems}
               onOpenBillingModal={onOpenBillingModal}
+              onSendBill={onSendBill}
+              sendingBill={sendingBill}
             />
           ) : (
             <AgentActionsSection
@@ -308,6 +312,8 @@ export default function TicketSidebar({
               onShowDispatchPanel={onShowDispatchPanel}
               billItems={billItems}
               onOpenBillingModal={onOpenBillingModal}
+              onSendBill={onSendBill}
+              sendingBill={sendingBill}
             />
           )}
 
@@ -473,6 +479,8 @@ function AgentActionsSection({
   onShowDispatchPanel,
   billItems,
   onOpenBillingModal,
+  onSendBill,
+  sendingBill,
 }) {  const { t } = useTranslation();
   return (
     <>
@@ -528,6 +536,9 @@ function AgentActionsSection({
           onOpenModal={onOpenBillingModal}
           resolved={resolved}
           paymentStatus={ticket.paymentStatus}
+          billSent={ticket.billSent}
+          onSendBill={onSendBill}
+          sendingBill={sendingBill}
         />
       </div>
     </>
@@ -568,6 +579,8 @@ function AdminActionsSection({
   onDispatchTechnician,
   billItems,
   onOpenBillingModal,
+  onSendBill,
+  sendingBill,
 }) {
   const { t } = useTranslation();
   const currentPriority = ticket.priority || "Normal";
@@ -585,6 +598,9 @@ function AdminActionsSection({
           disabled={resolved}
           onOpenModal={onOpenBillingModal}
           paymentStatus={ticket.paymentStatus}
+          billSent={ticket.billSent}
+          onSendBill={onSendBill}
+          sendingBill={sendingBill}
         />
         {/* ── Assign to CS Agent ── */}
         <button
@@ -1505,22 +1521,14 @@ function CustomerSlaNotice({ slaDeadline }) {
   );
 }
 
-function BillingSummaryCard({ billItems = [], disabled, onOpenModal, resolved, paymentStatus }) {
+function BillingSummaryCard({ billItems = [], disabled, onOpenModal, resolved, paymentStatus, billSent, onSendBill, sendingBill }) {
   const total = billItems.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
   const hasItems = billItems.length > 0;
-  const isLocked = paymentStatus === "pending" || paymentStatus === "paid";
+  // const isLocked = paymentStatus === "pending" || paymentStatus === "paid";
 
-  if (isLocked) {
+  if (billSent) {
     return (
-      <div
-        style={{
-          background: "white",
-          padding: "12px",
-          borderRadius: "12px",
-          border: "1px solid #E5E7EB",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
-        }}
-      >
+      <div style={{ background: "white", padding: "12px", borderRadius: "12px", border: "1px solid #E5E7EB", boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
         <p style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: "#9CA3AF", marginBottom: "8px" }}>
           Billing
         </p>
@@ -1548,59 +1556,79 @@ function BillingSummaryCard({ billItems = [], disabled, onOpenModal, resolved, p
             color: paymentStatus === "paid" ? "#16A34A" : "#D97706",
           }}
         >
-          {paymentStatus === "paid" ? "✓ Paid" : "Payment Pending"}
+          {paymentStatus === "paid" ? "✓ Paid" : paymentStatus === "pending" ? "Sent — Payment Pending" : "Sent — Awaiting Payment"}
         </div>
       </div>
     );
   }
 
   return (
-    <button
-      type="button"
-      onClick={onOpenModal}
-      disabled={disabled || resolved}
-      style={{
-        width: "100%",
-        textAlign: "left",
-        padding: "12px",
-        borderRadius: "12px",
-        border: "1px solid #E5E7EB",
-        background: "white",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
-        cursor: disabled || resolved ? "not-allowed" : "pointer",
-        opacity: disabled || resolved ? 0.6 : 1,
-        transition: "all 0.15s",
-      }}
-      onMouseEnter={(e) => {
-        if (disabled || resolved) return;
-
-        e.currentTarget.style.borderColor = O[300];
-        e.currentTarget.style.background = O[50];
-        e.currentTarget.style.boxShadow =
-          "0 2px 8px rgba(0,0,0,0.06)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = "#E5E7EB";
-        e.currentTarget.style.background = "white";
-        e.currentTarget.style.boxShadow =
-          "0 1px 3px rgba(0,0,0,0.03)";
-      }}
-    >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
-        <p style={{ fontWeight: "600", fontSize: "14px", color: "#111827" }}>
-          {hasItems ? `Rp ${total.toLocaleString("id-ID")}` : "Not billed"}
+    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+      <button
+        type="button"
+        onClick={onOpenModal}
+        disabled={disabled || resolved}
+        style={{
+          width: "100%",
+          textAlign: "left",
+          padding: "12px",
+          borderRadius: "12px",
+          border: "1px solid #E5E7EB",
+          background: "white",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+          cursor: disabled || resolved ? "not-allowed" : "pointer",
+          opacity: disabled || resolved ? 0.6 : 1,
+          transition: "all 0.15s",
+        }}
+        onMouseEnter={(e) => {
+          if (disabled || resolved) return;
+          e.currentTarget.style.borderColor = O[300];
+          e.currentTarget.style.background = O[50];
+          e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.06)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = "#E5E7EB";
+          e.currentTarget.style.background = "white";
+          e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.03)";
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+          <p style={{ fontWeight: "600", fontSize: "14px", color: "#111827" }}>
+            {hasItems ? `Rp ${total.toLocaleString("id-ID")}` : "Not billed"}
+          </p>
+        </div>
+        <p style={{ fontSize: "12px", color: "#6B7280", margin: 0 }}>
+          {resolved
+            ? "Resolved ticket cannot be billed"
+            : disabled
+              ? "Take this ticket first to set billing"
+              : hasItems
+                ? `${billItems.length} item(s) - draft, not sent yet`
+                : "Tap to add billing"}
         </p>
-      </div>
-      <p style={{ fontSize: "12px", color: "#6B7280", margin: 0 }}>
-        {resolved
-          ? "Resolved ticket cannot be billed"
-          : disabled
-            ? "Take this ticket first to set billing"
-            : hasItems
-              ? `${billItems.length} item(s) - tap to edit`
-              : "Tap to add billing"}
-      </p>
-    </button>
+      </button>
+
+      {hasItems && !disabled && !resolved && (
+        <button
+          type="button"
+          onClick={onSendBill}
+          disabled={sendingBill}
+          style={{
+            width: "100%",
+            padding: "10px",
+            borderRadius: "8px",
+            border: "none",
+            background: sendingBill ? "#D1D5DB" : O[500],
+            color: "white",
+            fontWeight: "600",
+            fontSize: "13px",
+            cursor: sendingBill ? "not-allowed" : "pointer",
+          }}
+        >
+          {sendingBill ? "Sending..." : "Send Bill to Customer"}
+        </button>
+      )}
+    </div>
   );
 }
 
@@ -1634,7 +1662,7 @@ function PaymentSection({ ticket, onPayNow, payingNow }) {
     };
   }, [ticket.paymentDueDate, isPaid]);
 
-  if (!ticket.isBillable) return null;
+  if (!ticket.isBillable || !ticket.billSent) return null;
 
   return (
     <div style={{ background: "#F9FAFB", padding: "12px", borderRadius: "12px", border: "1px solid #F3F4F6", marginBottom: "16px" }}>

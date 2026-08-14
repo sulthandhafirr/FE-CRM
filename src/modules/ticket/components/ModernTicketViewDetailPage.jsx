@@ -74,6 +74,7 @@ export default function ModernTicketViewDetailPage() {
   const [billItems, setBillItems] = useState([]);
   const [savingBilling, setSavingBilling] = useState(false);
   const [payingNow, setPayingNow] = useState(false);
+  const [sendingBill, setSendingBill] = useState(false);
 
   // ── Queries ──
   const {
@@ -566,7 +567,7 @@ export default function ModernTicketViewDetailPage() {
       setShowBillingModal(false);
     } catch (err) {
       console.error(err);
-      alert("Failed to update billing.");
+      alert(err?.response?.data?.message || "Failed to update billing.");
     } finally {
       setSavingBilling(false);
     }
@@ -603,6 +604,21 @@ export default function ModernTicketViewDetailPage() {
 
   const handleOpenBillingModal = () => {
     setShowBillingModal(true);
+  };
+
+  const handleSendBill = async () => {
+  if (!window.confirm("Once sent, this bill cannot be edited or changed. Send to customer?")) return;
+    setSendingBill(true);
+    try {
+      await updateTicket(ticketId, { billSent: true });
+      queryClient.invalidateQueries({ queryKey: ["ticket-detail", ticketId] });
+      queryClient.invalidateQueries({ queryKey: ["all-tickets"] });
+    } catch (err) {
+      console.error(err);
+      alert(err?.response?.data?.message || "Failed to send bill.");
+    } finally {
+      setSendingBill(false);
+    }
   };
 
   // ── Render: Loading / Error ──
@@ -831,6 +847,8 @@ export default function ModernTicketViewDetailPage() {
           onSaveBilling={handleSaveBilling}
           onPayNow={handlePayNow}
           payingNow={payingNow}
+          onSendBill={handleSendBill}
+          sendingBill={sendingBill}
           // ── Admin props ──
           resolved={resolved}
           csAgents={csAgents}
